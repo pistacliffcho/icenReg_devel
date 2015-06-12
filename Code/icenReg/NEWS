@@ -1,0 +1,14 @@
+UPDATES:
+
+v1.2.5
+Adding “weights” options to model fits
+Cleaned up manual
+Added warning to diag_covar if incorrect yType selected
+
+v1.2.1-4
+Fixing bugs reported by CRAN check
+
+v1.2.0
+Added fully parametric models
+Added diagnostic tools diag_baseline and diag_covar
+Switched to Active Set Algorithm for semi-parametric models

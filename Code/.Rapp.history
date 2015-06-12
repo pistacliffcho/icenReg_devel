@@ -1,0 +1,2181 @@
+summary.ic_NP_coxph <- function(fit, sigfigs = 4){#
+	colNames <- c('Estimate', 'Exp(Est)', 'Std. Error', 'z-value', 'p')#
+	coefs <- fit$coefficients#
+	output <- matrix(nrow = length(coefs), ncol = length(colNames))#
+	se <- sqrt(diag(fit$var))#
+	for(i in seq_along(coefs)){#
+		output[i, 1] <- coefs[i]#
+		output[i, 2] <- exp(coefs[i])#
+		output[i, 3] <- se[i]#
+		output[i, 4] <- coefs[i]/se[i]#
+		output[i, 5] <- 2*(1 - pnorm(abs(output[i,4])))#
+	}#
+	colnames(output) <- colNames#
+	rownames(output) <- names(coefs)#
+	output <- signif(output, sigfigs)#
+	cat("Call = \n", as.character(fit$call),'\n')#
+	print(output)#
+	cat('final llk = ', fit$final_llk, '\n')#
+	cat('Iterations = ', fit$iterations, '\n')#
+}
+summary(fit2)
+fit2$formula
+fit2$call
+ls(fit2)
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit2 <- ic_ph(sItem ~ x.1 + x.2, intReady, useMCores = T)
+summary(fit2)
+fit2$call
+cat(fit2$call)
+print(fit2$call)
+summary.ic_NP_coxph <- function(fit, sigfigs = 4){#
+	colNames <- c('Estimate', 'Exp(Est)', 'Std. Error', 'z-value', 'p')#
+	coefs <- fit$coefficients#
+	output <- matrix(nrow = length(coefs), ncol = length(colNames))#
+	se <- sqrt(diag(fit$var))#
+	for(i in seq_along(coefs)){#
+		output[i, 1] <- coefs[i]#
+		output[i, 2] <- exp(coefs[i])#
+		output[i, 3] <- se[i]#
+		output[i, 4] <- coefs[i]/se[i]#
+		output[i, 5] <- 2*(1 - pnorm(abs(output[i,4])))#
+	}#
+	colnames(output) <- colNames#
+	rownames(output) <- names(coefs)#
+	output <- signif(output, sigfigs)#
+	cat("Call = \n")#
+	print(fit$call)#
+	print(output)#
+	cat('final llk = ', fit$final_llk, '\n')#
+	cat('Iterations = ', fit$iterations, '\n')#
+}
+summary(fit2)
+ls(fit2)
+fit2[['NA']]
+fit2[[6]]
+fit2[[5]]
+testMat <- matrix(rnorm(500 * 4), nrow = 500, ncol = 4)
+system.time( solve(testMat %*% t(testMat)))
+system.time( solve( t(testMat) %*% testMat))
+okayResult <- diag(solve(testMat %*% t(testMat)))
+okayResults
+okayResult
+okayResult <- diag(solve(t(testMat) %*% (testMat)))
+okayResult
+okayResult <- try(diag(solve(testMat %*% t(testMat))))
+okayResults
+okayResult
+is(okayResult, 'try-error')
+okayResult <- try(diag(solve(testMat %*% t(testMat))), silent = TRUE)
+okayResult
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    invertResult <- try(diag(solve(t(covarMat) %*% covarMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate\n')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit2 <- ic_ph(sItem ~ x.1 + x.2, intReady, useMCores = T)
+intReady$badX <- 1
+fit2 <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = T)
+debug(ic_ph)
+fit2 <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = T)
+invertResult
+sd(covarMat$badX)
+sd(covarMat[,3])
+getBS_coef <- function(sampDataEnv){#
+	xMat <- cbind(sampDataEnv$x,1)#
+	invertResult <- try(diag(solve(t(xMat) %*% xMat )), silent = TRUE)#
+	if(is(invertResult, 'try-error')) return(NA)#
+	fit_ICPH(sampDataEnv$y, sampDataEnv$x)$betas#
+}
+Q
+getBS_coef <- function(sampDataEnv){#
+	xMat <- cbind(sampDataEnv$x,1)#
+	invertResult <- try(diag(solve(t(xMat) %*% xMat )), silent = TRUE)#
+	if(is(invertResult, 'try-error')) return(NA)#
+	fit_ICPH(sampDataEnv$y, sampDataEnv$x)$betas#
+}
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate\n')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit2 <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = T)
+summary(intReady)
+intReady$badX[1] <- 0
+summary(intReady)
+fit2 <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = T)
+fit2 <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = T, bs = 100)
+summary(fit2)
+names(fit2)
+dim(Fit2$bsMat)
+dim(fit2$bsMat)
+fit2$var
+summary(intReady)
+fit2$bsMat[1:10,]
+sd(fit2$bsMat)
+var(fit2$bsMat)
+var(fit2$bsMat[,2])
+var(fit2$bsMat[,3])
+sd(fit2$bsMat[,3])
+length(intData)
+getBS_coef
+fit <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady)
+fit2 <- ic_ph(sItem ~ x.1 + x.2 +badX, intReady, useMCores = T)
+getBS_coef <- function(sampDataEnv){#
+	xMat <- cbind(sampDataEnv$x,1)#
+	invertResult <- try(diag(solve(t(xMat) %*% xMat )), silent = TRUE)#
+	if(is(invertResult, 'try-error')) return( rep(NA, ncol(xMat) -1) )#
+	fit_ICPH(sampDataEnv$y, sampDataEnv$x)$betas#
+}
+fit <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady)
+fit <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = T)
+fit$bsMat
+sortOrd <- order(fit$bsMat)
+fit$bsMat[sortOrd,]
+sortOrd
+sortOrd <- order(fit$bsMat[,1])
+sortOrd
+fit$bsMat[sortOrd,]
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = F)
+fitGood
+fitGood$bsmat
+fitGood$bsMat
+debug(ic_ph)
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = F)
+incompleteIndictor
+incompleteIndicator
+bsMat
+Q
+getBS_coef <- function(sampDataEnv){#
+	xMat <- cbind(sampDataEnv$x,1)#
+	invertResult <- try(diag(solve(t(xMat) %*% xMat )), silent = TRUE)#
+	if(is(invertResult, 'try-error')) {return( rep(NA, ncol(xMat) -1) ) }#
+	return(fit_ICPH(sampDataEnv$y, sampDataEnv$x)$betas)#
+}
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = F)
+bsMat
+Q
+getBS_coef <- function(sampDataEnv){#
+	xMat <- cbind(sampDataEnv$x,1)#
+	invertResult <- try(diag(solve(t(xMat) %*% xMat )), silent = TRUE)#
+	if(is(invertResult, 'try-error')) {return( rep(NA, ncol(xMat) -1) ) }#
+	output <- fit_ICPH(sampDataEnv$y, sampDataEnv$x)$betas#
+	cat("worked, results = ", output, '\n')#
+	return()#
+}
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = F)
+c
+getBS_coef <- function(sampDataEnv){#
+	xMat <- cbind(sampDataEnv$x,1)#
+	invertResult <- try(diag(solve(t(xMat) %*% xMat )), silent = TRUE)#
+	if(is(invertResult, 'try-error')) {return( rep(NA, ncol(xMat) -1) ) }#
+	output <- fit_ICPH(sampDataEnv$y, sampDataEnv$x)$coefficients#
+	cat("worked, results = ", output, '\n')#
+	return()#
+}
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = F)
+c
+getBS_coef <- function(sampDataEnv){#
+	xMat <- cbind(sampDataEnv$x,1)#
+	invertResult <- try(diag(solve(t(xMat) %*% xMat )), silent = TRUE)#
+	if(is(invertResult, 'try-error')) {return( rep(NA, ncol(xMat) -1) ) }#
+	output <- fit_ICPH(sampDataEnv$y, sampDataEnv$x)$coefficients#
+	return(output)#
+}
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate\n')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = F)
+summary(fitGood)
+intReady$badX[2] <- 2
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = F)
+summary(fitGood)
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = F)
+summary(fitGood)
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = F)
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, intReady, useMCores = F, bs = 21)
+summary(fitGood)
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + badX, useMCores = F, bs = 21)
+fitGood <- ic_ph(sItem ~ x.1 + x.2, intReady, useMCores = F, bs = 21)
+summary(fitGood)
+fitGood <- ic_ph(sItem ~ x.1 + x.2 + x.3 + x.4, intReady, useMCores = F, bs = 21)
+summary(fitGood)
+badFit <- intcox(sItem ~ x.1 + x.2 + x.3 + x.4, data = intReady)
+badFit <- intcox(sItem ~ x.1 + x.2 + x.3 + x.4, data = intcox.example)
+badFit <- intcox(Surv(left, right, type = 'interval') ~ x.1 + x.2 + x.3 + x.4, data = intcox.example)
+badFit <- intcox(Surv(left, right, type = 'interval2') ~ x.1 + x.2 + x.3 + x.4, data = intcox.example)
+badFit
+Q
+badFit <- intcox(Surv(left, right, type = 'interval2') ~ x.1 + x.2 + x.3 + x.4, data = intcox.example)
+summary(badFit)
+Q
+#library(MLEcens)#
+#library(Icens)#
+library(intcox)#
+library(foreach)#
+library(doParallel)#
+dyn.load('~/Desktop/CoxPH_stuff/Code/intCoxFast.so')#
+findMaximalIntersections <- function(lower, upper){#
+	allVals <- sort(unique(c(lower,upper)) )#
+	isLeft <- allVals %in% lower#
+	isRight <- allVals %in% upper#
+	miList <- .Call("findMI", allVals, isLeft, isRight, lower, upper)#
+	names(miList) <- c('l_inds', 'r_inds', 'mi_l', 'mi_r')	#
+	return(miList)#
+}#
+fit_ICPH <- function(obsMat, covars){#
+	mi_info <- findMaximalIntersections(obsMat[,1], obsMat[,2])#
+	k = length(mi_info[['mi_l']])#
+	pmass <- rep(1/k, k)#
+	covars <- as.matrix(covars)#
+	myFit <- .Call('test_nne', pmass, mi_info$l_inds, mi_info$r_inds, covars) #
+	names(myFit) <- c('p_hat', 'coefficients', 'final_llk', 'iterations', 'score')#
+	myFit[['T_bull_Intervals']] <- rbind(mi_info[['mi_l']], mi_info[['mi_r']])#
+	return(myFit)#
+}#
+#
+data(intcox.example)#
+intReady <- intcox.example#
+intReady[is.na(intReady)] <- Inf#
+#
+fit <- fit_ICPH(intReady[,1:2], intReady[,c(-1,-2)])#
+#
+sItem <- Surv(intReady[,1], intReady[,2], type = 'interval2')#
+#
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}#
+#
+summary.ic_NP_coxph <- function(fit, sigfigs = 4){#
+	colNames <- c('Estimate', 'Exp(Est)', 'Std. Error', 'z-value', 'p')#
+	coefs <- fit$coefficients#
+	output <- matrix(nrow = length(coefs), ncol = length(colNames))#
+	se <- sqrt(diag(fit$var))#
+	for(i in seq_along(coefs)){#
+		output[i, 1] <- coefs[i]#
+		output[i, 2] <- exp(coefs[i])#
+		output[i, 3] <- se[i]#
+		output[i, 4] <- coefs[i]/se[i]#
+		output[i, 5] <- 2*(1 - pnorm(abs(output[i,4])))#
+	}#
+	colnames(output) <- colNames#
+	rownames(output) <- names(coefs)#
+	output <- signif(output, sigfigs)#
+	cat("Call = \n")#
+	print(fit$call)#
+	print(output)#
+	cat('final llk = ', fit$final_llk, '\n')#
+	cat('Iterations = ', fit$iterations, '\n')#
+}#
+bs_sampleData <- function(rawDataEnv){#
+	n <- length(rawDataEnv[['y']][,1])#
+	sampEnv <- new.env()#
+	sampInds <- sample(1:n, n, replace = TRUE)#
+	sampEnv[['x']] <- rawDataEnv[['x']][sampInds,]#
+	sampEnv[['y']] <- rawDataEnv[['y']][sampInds,]#
+	return(sampEnv)#
+}#
+#
+getBS_coef <- function(sampDataEnv){#
+	xMat <- cbind(sampDataEnv$x,1)#
+	invertResult <- try(diag(solve(t(xMat) %*% xMat )), silent = TRUE)#
+	if(is(invertResult, 'try-error')) {return( rep(NA, ncol(xMat) -1) ) }#
+	output <- fit_ICPH(sampDataEnv$y, sampDataEnv$x)$coefficients#
+	return(output)#
+}
+debug(ic_ph)
+ic_ph(Surv(left, right, type= 'interval2') ~ x.1 + x.2 + x.3, data = intcox.example)
+sum(is.na(mf))
+mf
+yMat
+test <- as.matrix(mf[,1])[,1:2]
+test <- mf[,1]
+test[1,]
+test[2,]
+test[3,]
+test[4,]
+test[5,]
+test[6,]
+test[7,]
+test[8,]
+test[9,]
+test[10,]
+test[11,]
+test[12,]
+test[13,]
+test[14,]
+length(test[14,])
+test[,14,3]
+test[14,3]
+test[14,2]
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    if(is.)#
+    covarMat <- as.matrix(mf[,-1])#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+Q
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    if(is.)#
+    covarMat <- as.matrix(mf[,-1])#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+ic_ph(Surv(left, right, type= 'interval2') ~ x.1 + x.2 + x.3, data = intcox.example)
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+ic_ph(Surv(left, right, type= 'interval2') ~ x.1 + x.2 + x.3, data = intcox.example)
+vcov(fit)
+vcov.ic_NP_coxph <- function(fit) fit$var
+vcov(fit)
+is(fit)
+fit
+ls()
+summary(fit)
+fit <- ic_ph(sItem ~, data = intReady)
+fit <- ic_ph(sItem ~ x.1, data = intReady)
+summary(fit)
+vcov(fit)
+fit <- ic_ph(sItem ~ x.1 + x.2, data = intReady)
+summary(fit)
+fit <- ic_ph(sItem ~ factor(x.1) + x.2, data = intReady)
+debug(ic_ph)
+fit <- ic_ph(sItem ~ factor(x.1) + x.2, data = intReady)
+covarMat
+as.matrix(covarMat)
+storage.mode(covarMat) <- 'double'
+covarmat
+covarMat
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    storage.mode(covarMat) <- 'double'#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+Q
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    storage.mode(covarMat) <- 'double'#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+    storage.mode(covarMat) <- 'double'	#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2, data = intReady)
+dummy <- c(rep('a', 100), rep('b', 100))
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + dummy, data = intReady)
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+test <- factor(dummy)
+test
+as.numeric(test)
+test
+storage.mode(test) <- 'double'
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    covarMat <- as.numeric(covarMat)#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+as.numeric(dummy)
+dummy
+as.numeric(factor(dummy))
+lm
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+#
+     x <- model.matrix(mt, mf, contrasts)#
+	browser()#
+    yMat <- as.matrix(mf[,1])[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    covarMat <- as.matrix(mf[,-1])#
+    covarMat <- as.numeric(covarMat)#
+    testMat <- cbind(covarMat, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, covarMat)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+ls()
+x
+y
+y[,3]
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+#
+     x <- model.matrix(mt, mf, contrasts)#
+	browser()#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+Q
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+#
+     x <- model.matrix(mt, mf, contrasts)#
+	browser()#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+c
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+testMat
+Q
+?model.matrix
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+#
+	browser()#
+     x <- model.matrix(mt, mf, contrasts)#
+	if('(Intercept)' %in% colnames(model.matrix))	x <- x[,-'(Intercept)']#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+colnames(model.matrix)
+names(model.matrix)
+colnames(x)
+colnames(x)
+Q
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+#
+	browser()#
+     x <- model.matrix(mt, mf, contrasts)#
+	if('(Intercept)' %in% colnames(x))	x <- x[,-'(Intercept)']#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+#
+	browser()#
+     x <- model.matrix(mt, mf, contrasts)#
+	if('(Intercept)' %in% colnames(x)){	#
+		ind = which(colnames == '(Intercept)')#
+		x <- x[,-ind]#
+	}#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+#
+	browser()#
+     x <- model.matrix(mt, mf, contrasts)#
+	if('(Intercept)' %in% colnames(x)){	#
+		ind = which(colnames(x) == '(Intercept)')#
+		x <- x[,-ind]#
+	}#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- covarMat#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+#
+	browser()#
+     x <- model.matrix(mt, mf, contrasts)#
+	if('(Intercept)' %in% colnames(x)){	#
+		ind = which(colnames(x) == '(Intercept)')#
+		x <- x[,-ind]#
+	}#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- x#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(covarMat)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(covarMat)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+c
+ic_ph <- function(formula, data, bs = 20, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+#
+	browser()#
+     x <- model.matrix(mt, mf, contrasts)#
+	if('(Intercept)' %in% colnames(x)){	#
+		ind = which(colnames(x) == '(Intercept)')#
+		x <- x[,-ind]#
+	}#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')#
+   	if(bs < 1000){#
+   		cat('warning: only ', bs, ' bootstrap samples used for estimation of standard error. For proper inference, at least 1000 samples should be used. This can be set using the "bs" argument. But except it to take about ', ceiling(1000/bs), ' times longer! If multiple cores are available, use "useMCores" argument to preform bootstrapping in parallel\n')#
+   }#
+	dataEnv <- list()#
+	dataEnv[['x']] <- x#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+   	if(useMCores == F){#
+   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    else{#
+#
+    	bsMat <- foreach(i = seeds, #
+    					.combine = 'rbind') %dopar%{#
+    		set.seed(i)#
+    		sampDataEnv <- bs_sampleData(dataEnv)#
+			getBS_coef(sampDataEnv)#
+    	}#
+    }#
+    colnames(bsMat) <- colnames(x)#
+    incompleteIndicator <- is.na(bsMat[,1])#
+    numNA <- sum(incompleteIndicator)#
+    if(numNA > 0){#
+    	if(numNA / length(incompleteIndicator) >= 0.1)#
+    	cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    	bsMat <- bsMat[!incompleteIndicator,]#
+    }#
+    names(fitInfo$coefficients) <- colnames(x)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+c
+summary(fit)
+args(ic_ph)
+ic_ph <- function(formula, data, bs_samples = 0, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+     x <- model.matrix(mt, mf, contrasts)#
+	if('(Intercept)' %in% colnames(x)){	#
+		ind = which(colnames(x) == '(Intercept)')#
+		x <- x[,-ind]#
+	}#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')   #
+	dataEnv <- list()#
+	dataEnv[['x']] <- x#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs + seed.offset#
+	if(bs_samples >= 0){#
+	   	if(useMCores == F){#
+	   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+	    		set.seed(i)#
+	    		sampDataEnv <- bs_sampleData(dataEnv)#
+				getBS_coef(sampDataEnv)#
+	    	}#
+	    }#
+	    else{#
+	    	bsMat <- foreach(i = seeds, #
+	    					.combine = 'rbind') %dopar%{#
+	    		set.seed(i)#
+	    		sampDataEnv <- bs_sampleData(dataEnv)#
+				getBS_coef(sampDataEnv)#
+	    	}#
+	    }#
+   	 colnames(bsMat) <- colnames(x)#
+   	 incompleteIndicator <- is.na(bsMat[,1])#
+   	 numNA <- sum(incompleteIndicator)#
+   	 if(numNA > 0){#
+    		if(numNA / length(incompleteIndicator) >= 0.1)#
+    		cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    		bsMat <- bsMat[!incompleteIndicator,]#
+    	}#
+    }#
+    else #
+    	bsMat <- NA#
+    names(fitInfo$coefficients) <- colnames(x)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}#
+#
+vcov.ic_NP_coxph <- function(fit) fit$var#
+#
+summary.ic_NP_coxph <- function(fit, sigfigs = 4){#
+	if(!is.na(fit$bsMat)){#
+		colNames <- c('Estimate', 'Exp(Est)', 'Std. Error', 'z-value', 'p')#
+		coefs <- fit$coefficients#
+		output <- matrix(nrow = length(coefs), ncol = length(colNames))#
+		se <- sqrt(diag(fit$var))#
+		for(i in seq_along(coefs)){#
+			output[i, 1] <- coefs[i]#
+			output[i, 2] <- exp(coefs[i])#
+			output[i, 3] <- se[i]#
+			output[i, 4] <- coefs[i]/se[i]#
+			output[i, 5] <- 2*(1 - pnorm(abs(output[i,4])))#
+		}#
+		colnames(output) <- colNames#
+		rownames(output) <- names(coefs)#
+		output <- signif(output, sigfigs)#
+		cat("Call = \n")#
+		print(fit$call)#
+		print(output)#
+		cat('final llk = ', fit$final_llk, '\n')#
+		cat('Iterations = ', fit$iterations, '\n')#
+	}#
+	else{#
+		colNames <- c('Estimate', 'Exp(Est)')#
+		coefs <- fit$coefficients#
+		output <- matrix(nrow = length(coefs), ncol = length(colNames))#
+		se <- sqrt(diag(fit$var))#
+		for(i in seq_along(coefs)){#
+			output[i, 1] <- coefs[i]#
+			output[i, 2] <- exp(coefs[i])#
+			}#
+		colnames(output) <- colNames#
+		rownames(output) <- names(coefs)#
+		output <- signif(output, sigfigs)#
+		cat("Call = \n")#
+		print(fit$call)#
+		print(output)#
+		cat('final llk = ', fit$final_llk, '\n')#
+		cat('Iterations = ', fit$iterations, '\n')	#
+		cat('Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samples" > 0 (suggested at least 1000)')#
+}
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+ic_ph <- function(formula, data, bs_samples = 0, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+     x <- model.matrix(mt, mf, contrasts)#
+	if('(Intercept)' %in% colnames(x)){	#
+		ind = which(colnames(x) == '(Intercept)')#
+		x <- x[,-ind]#
+	}#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')   #
+	dataEnv <- list()#
+	dataEnv[['x']] <- x#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs_samples + seed.offset#
+	if(bs_samples >= 0){#
+	   	if(useMCores == F){#
+	   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+	    		set.seed(i)#
+	    		sampDataEnv <- bs_sampleData(dataEnv)#
+				getBS_coef(sampDataEnv)#
+	    	}#
+	    }#
+	    else{#
+	    	bsMat <- foreach(i = seeds, #
+	    					.combine = 'rbind') %dopar%{#
+	    		set.seed(i)#
+	    		sampDataEnv <- bs_sampleData(dataEnv)#
+				getBS_coef(sampDataEnv)#
+	    	}#
+	    }#
+   	 colnames(bsMat) <- colnames(x)#
+   	 incompleteIndicator <- is.na(bsMat[,1])#
+   	 numNA <- sum(incompleteIndicator)#
+   	 if(numNA > 0){#
+    		if(numNA / length(incompleteIndicator) >= 0.1)#
+    		cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    		bsMat <- bsMat[!incompleteIndicator,]#
+    	}#
+    }#
+    else #
+    	bsMat <- NA#
+    names(fitInfo$coefficients) <- colnames(x)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- cov(bsMat)#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}#
+#
+vcov.ic_NP_coxph <- function(fit) fit$var#
+#
+summary.ic_NP_coxph <- function(fit, sigfigs = 4){#
+	if(!is.na(fit$bsMat)){#
+		colNames <- c('Estimate', 'Exp(Est)', 'Std. Error', 'z-value', 'p')#
+		coefs <- fit$coefficients#
+		output <- matrix(nrow = length(coefs), ncol = length(colNames))#
+		se <- sqrt(diag(fit$var))#
+		for(i in seq_along(coefs)){#
+			output[i, 1] <- coefs[i]#
+			output[i, 2] <- exp(coefs[i])#
+			output[i, 3] <- se[i]#
+			output[i, 4] <- coefs[i]/se[i]#
+			output[i, 5] <- 2*(1 - pnorm(abs(output[i,4])))#
+		}#
+		colnames(output) <- colNames#
+		rownames(output) <- names(coefs)#
+		output <- signif(output, sigfigs)#
+		cat("Call = \n")#
+		print(fit$call)#
+		print(output)#
+		cat('final llk = ', fit$final_llk, '\n')#
+		cat('Iterations = ', fit$iterations, '\n')#
+	}#
+	else{#
+		colNames <- c('Estimate', 'Exp(Est)')#
+		coefs <- fit$coefficients#
+		output <- matrix(nrow = length(coefs), ncol = length(colNames))#
+		se <- sqrt(diag(fit$var))#
+		for(i in seq_along(coefs)){#
+			output[i, 1] <- coefs[i]#
+			output[i, 2] <- exp(coefs[i])#
+			}#
+		colnames(output) <- colNames#
+		rownames(output) <- names(coefs)#
+		output <- signif(output, sigfigs)#
+		cat("Call = \n")#
+		print(fit$call)#
+		print(output)#
+		cat('final llk = ', fit$final_llk, '\n')#
+		cat('Iterations = ', fit$iterations, '\n')	#
+		cat('Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samples" > 0 (suggested at least 1000)')#
+	}#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+summary(fit)
+is.null(1:10)
+ic_ph <- function(formula, data, bs_samples = 0, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+     x <- model.matrix(mt, mf, contrasts)#
+	if('(Intercept)' %in% colnames(x)){	#
+		ind = which(colnames(x) == '(Intercept)')#
+		x <- x[,-ind]#
+	}#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')   #
+	dataEnv <- list()#
+	dataEnv[['x']] <- x#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs_samples + seed.offset#
+	if(bs_samples >= 0){#
+	   	if(useMCores == F){#
+	   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+	    		set.seed(i)#
+	    		sampDataEnv <- bs_sampleData(dataEnv)#
+				getBS_coef(sampDataEnv)#
+	    	}#
+	    }#
+	    else{#
+	    	bsMat <- foreach(i = seeds, #
+	    					.combine = 'rbind') %dopar%{#
+	    		set.seed(i)#
+	    		sampDataEnv <- bs_sampleData(dataEnv)#
+				getBS_coef(sampDataEnv)#
+	    	}#
+	    }#
+   	 colnames(bsMat) <- colnames(x)#
+   	 incompleteIndicator <- is.na(bsMat[,1])#
+   	 numNA <- sum(incompleteIndicator)#
+   	 if(numNA > 0){#
+    		if(numNA / length(incompleteIndicator) >= 0.1)#
+    		cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    		bsMat <- bsMat[!incompleteIndicator,]#
+    	}#
+	covar <- cov(bsMat)#
+    }#
+    else{ #
+    	bsMat <- NULL#
+    	covar <- NULL#
+    }#
+    names(fitInfo$coefficients) <- colnames(x)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- covar#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}#
+#
+vcov.ic_NP_coxph <- function(fit) fit$var#
+#
+summary.ic_NP_coxph <- function(fit, sigfigs = 4){#
+	if(!is.null(fit$bsMat)){#
+		colNames <- c('Estimate', 'Exp(Est)', 'Std. Error', 'z-value', 'p')#
+		coefs <- fit$coefficients#
+		output <- matrix(nrow = length(coefs), ncol = length(colNames))#
+		se <- sqrt(diag(fit$var))#
+		for(i in seq_along(coefs)){#
+			output[i, 1] <- coefs[i]#
+			output[i, 2] <- exp(coefs[i])#
+			output[i, 3] <- se[i]#
+			output[i, 4] <- coefs[i]/se[i]#
+			output[i, 5] <- 2*(1 - pnorm(abs(output[i,4])))#
+		}#
+		colnames(output) <- colNames#
+		rownames(output) <- names(coefs)#
+		output <- signif(output, sigfigs)#
+		cat("Call = \n")#
+		print(fit$call)#
+		print(output)#
+		cat('final llk = ', fit$final_llk, '\n')#
+		cat('Iterations = ', fit$iterations, '\n')#
+	}#
+	else{#
+		colNames <- c('Estimate', 'Exp(Est)')#
+		coefs <- fit$coefficients#
+		output <- matrix(nrow = length(coefs), ncol = length(colNames))#
+		se <- sqrt(diag(fit$var))#
+		for(i in seq_along(coefs)){#
+			output[i, 1] <- coefs[i]#
+			output[i, 2] <- exp(coefs[i])#
+			}#
+		colnames(output) <- colNames#
+		rownames(output) <- names(coefs)#
+		output <- signif(output, sigfigs)#
+		cat("Call = \n")#
+		print(fit$call)#
+		print(output)#
+		cat('final llk = ', fit$final_llk, '\n')#
+		cat('Iterations = ', fit$iterations, '\n')	#
+		cat('Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samples" > 0 (suggested at least 1000)')#
+	}#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+fit
+ic_ph <- function(formula, data, bs_samples = 0, useMCores = F, seed.offset = 0){#
+	cl <- match.call()#
+	mf <- match.call(expand.dots = FALSE)#
+    m <- match(c("formula", "data", "subset", "weights", "na.action", #
+        "offset"), names(mf), 0L)#
+    mf <- mf[c(1L, m)]#
+    mf$drop.unused.levels <- TRUE#
+    mf[[1L]] <- quote(stats::model.frame)#
+    mf <- eval(mf, parent.frame())#
+    mt <- attr(mf, "terms")#
+    y <- model.response(mf, "numeric")#
+    if (is.empty.model(mt)){#
+    	stop('no covariates included. Try using computeMLE in MLECens package')#
+    }#
+     x <- model.matrix(mt, mf, contrasts)#
+	if('(Intercept)' %in% colnames(x)){	#
+		ind = which(colnames(x) == '(Intercept)')#
+		x <- x[,-ind]#
+	}#
+    yMat <- as.matrix(y)[,1:2]#
+    rightCens <- mf[,1][,3] == 0#
+	yMat[rightCens,2] <- Inf#
+    storage.mode(yMat) <- 'double'#
+    if(sum(is.na(mf)) > 0)#
+    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")#
+    testMat <- cbind(x, 1)#
+    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)#
+    if(is(invertResult, 'try-error'))#
+	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')#
+   	fitInfo <- fit_ICPH(yMat, x)#
+   	if(seed.offset < 0) stop('seed.offset must be non-negative')   #
+	dataEnv <- list()#
+	dataEnv[['x']] <- x#
+	dataEnv[['y']] <- yMat#
+	seeds = 1:bs_samples + seed.offset#
+	if(bs_samples > 0){#
+	   	if(useMCores == F){#
+	   		bsMat <- foreach(i = seeds, .combine = 'rbind') %do%{#
+	    		set.seed(i)#
+	    		sampDataEnv <- bs_sampleData(dataEnv)#
+				getBS_coef(sampDataEnv)#
+	    	}#
+	    }#
+	    else{#
+	    	bsMat <- foreach(i = seeds, #
+	    					.combine = 'rbind') %dopar%{#
+	    		set.seed(i)#
+	    		sampDataEnv <- bs_sampleData(dataEnv)#
+				getBS_coef(sampDataEnv)#
+	    	}#
+	    }#
+   	 colnames(bsMat) <- colnames(x)#
+   	 incompleteIndicator <- is.na(bsMat[,1])#
+   	 numNA <- sum(incompleteIndicator)#
+   	 if(numNA > 0){#
+    		if(numNA / length(incompleteIndicator) >= 0.1)#
+    		cat('warning: ', numNA,' bootstrap samples (out of ', bs, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')#
+    		bsMat <- bsMat[!incompleteIndicator,]#
+    	}#
+	covar <- cov(bsMat)#
+    }#
+    else{ #
+    	bsMat <- NULL#
+    	covar <- NULL#
+    }#
+    names(fitInfo$coefficients) <- colnames(x)#
+    fitInfo$bsMat <- bsMat#
+    fitInfo$var <- covar#
+    fitInfo$call = formula#
+    class(fitInfo) <- 'ic_NP_coxph'#
+   return(fitInfo)#
+}
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady)
+fit
+summary(fit)
+fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady, bs_samples = 1000)
+summary(fit)
+myCluster <- makeCluster(3, type = 'FORK')#
+registerDoParallel(myCluster)
+system.time(fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady, bs_samples = 1000, useMCores = T) )
+system.time(fit <- ic_ph(sItem ~ factor(x.1) + x.2 + factor(dummy), data = intReady, bs_samples = 1000, useMCores = F) )

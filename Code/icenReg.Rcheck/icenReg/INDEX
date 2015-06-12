@@ -1,0 +1,15 @@
+diag_baseline           Compare parametric baseline distributions with
+                        semi-parametric baseline
+diag_covar              Evaluate covariate effect for regression model
+getFitEsts              Get Estimates from icenReg Regression Model
+getSCurves              Get Estimated Survival Curves from
+                        Semi-parametric Model for Interval Censored
+                        Data
+ic_par                  Parametric Regression Models for Interval
+                        Censored Data
+ic_sp                   Semi-Parametric models for Interval Censored
+                        Data
+mice_data               Lung Tumor Interval Censored Data from Hoel and
+                        Walburg 1972
+simIC_weib              Simulates interval censored data from
+                        regression model with a Weibull baseline

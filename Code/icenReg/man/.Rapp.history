@@ -1,0 +1,1112 @@
+remove.packages('icenReg')
+coefficients
+debug(ic_sp)
+library(icenReg)
+debug(ic_sp)
+simdata <- simICPO_beta()
+testfit <- ic_sp(Surv(l, u, type = 'interval2') ~, data = simdata)
+testfit <- ic_sp(Surv(l, u, type = 'interval2') ~ 0, data = simdata)
+library(R.utils)#
+rawData <- read.csv('~/Dropbox/Cliff (1)/CliffsProjects/JuliaM_MitoClearing/051115_DataforCliff.csv')#
+procData <- rawData#
+n = nrow(procData)#
+procNames <- function(name){#
+	divNames <- splitByPattern(name, pattern = " ")#
+	if(length(divNames) != 3)	stop(c('length(divNames) = ', length(divNames), ' full name = ', name))#
+	grpid <- divNames[1]#
+	cnt <- as.numeric(divNames[3])#
+	return(list(id = grpid, cnt = cnt))#
+}#
+#
+procData$cnt <- NA#
+procData$grp <- NA#
+#
+for(i in 1:n){#
+	thisID <- as.character(procData$Identifier[i])#
+	thisProcId <- procNames(thisID)#
+	procData$grp[i] <- thisProcId$id#
+	procData$cnt[i] <- thisProcId$cnt#
+}#
+procData$grp <- factor(procData$grp)#
+plotLogCounts <- function(data,#
+						cntNames = c('X0', 'X12', 'X26', 'X35', 'X60', 'X111', 'X130'),#
+						tvals = as.numeric(gsub("X", "", cntNames)),#
+						samps = 10,#
+						trans = log#
+						){#
+	ids <- data$Identifier#
+	measures <- data[,cntNames]#
+	log_ms <- trans(measures)#
+	plot(NA, xlim = c(min(tvals), max(tvals)),#
+			ylim = c(min(log_ms, na.rm = TRUE),#
+			max(log_ms, na.rm = TRUE) ),#
+			xlab = 'Time',#
+			ylab = 'Log Measurement' )#
+	sampVals <- sample(1:length(ids), size = samps)#
+	for(i in sampVals){#
+		thisTrt <- as.character(data$Sci_SampleID[i])#
+		if(thisTrt == '25Q')#
+			thisCol = 'blue'#
+		if(thisTrt == '97Q')#
+			thisCol = 'red'#
+		lines(tvals, log_ms[i,], type = 'b', col = thisCol)#
+	}#
+}#
+timeNames <- c('X0', 'X12', 'X26', 'X35', 'X60', 'X111', 'X130')#
+time0 <- 'X0'#
+for(tn in timeNames){#
+	newVarName <- paste0(tn, '_prop')#
+	procData[[newVarName]] <- procData[[tn]] / procData[[time0]]#
+}#
+times <- as.numeric(gsub("X", "", timeNames))#
+timeList <- list()#
+timeList[timeNames] <- times#
+longData <- reshape(procData, varying = list(7:13), direction = 'long', idvar = 'Identifier', v.names = 'y')#
+longData$t <- times[longData$time]#
+longData$log_y <- log(longData$y)#
+summary(longData)
+boxplot(X0 ~ Sci_SampleID, data = procData)
+boxplot( log(X0) ~ Sci_SampleID, data = procData)
+t.test(I(log(X0) ~ Sci_SampleID, data = procData)
+)
+t.test( procData$X0 ~ procData$Sci_SampleID)
+boxplot( log(X0) ~ Sci_SampleID, data = procData, main = 'Log Intesity at T = 0\n p < 10^-10')
+names(procData)
+boxplot( log(X12_prop) ~ Sci_SampleID, data = procData)
+boxplot( X12_prop ~ Sci_SampleID, data = procData)
+?abline
+?range
+divideAnd_lm_Plot <- function(data, 		#Full Data Set#
+							  outcome,		# y variable name (character)#
+							  linPred,		# x variable name (character)#
+							  var,			# group varaible to split on#
+							  grps = levels(data[[var]]), 	# different groups#
+							  cols = c('red', 'blue'), 		# colors assigned to each group#
+							  transOutcome = function(x){x}, 	#transformation of outcome. If used, probably will be log#
+							  xlab = linPrd,					#xlabel#
+							  ylab = outcome					#ylabel#
+							  ){#
+	if(length(cols) != length(grps))	stop("length(cols) != length(grps)")#
+	dataEnv <- new.env()#
+	for(grp in grps){#
+		grpInds <- which(data[[var]] == grp)#
+		dataEnv[[grp]] <- data[grpInds,]#
+	}#
+	xrange <- range(data[[linPred]], finite = TRUE, na.rm = TRUE)#
+	yrange <- range(transOutcome(data[[outcome]]), finite = TRUE, na.rm = TRUE)#
+	plot(NA, xlim = xrange, ylim = yrange, xlab = xlab, ylab = ylab)#
+	for(i in seq_along(grp)){#
+		grp <- grps[i]#
+		col <- cols[i]#
+		x <- dataEnv[[grp]][[linPred]]#
+		y <- transOutcome(dataEnv[[grp]][[linPred]])#
+		abline(x, y, col = col)#
+		points(x, y, col = col)#
+	}#
+}
+divideAnd_lm_Plot(procData, 'y')
+divideAnd_lm_Plot(procData, outcome = 'y', var = 'X0', var = 'Sci_SampleID', transOutcome = log)
+divideAnd_lm_Plot(procData, outcome = 'y', linPred = 'X0', var = 'Sci_SampleID', transOutcome = log)
+names(procData)
+divideAnd_lm_Plot(procData, outcome = 'X12_prop', linPred = 'X0', var = 'Sci_SampleID', transOutcome = log)
+divideAnd_lm_Plot <- function(data, 		#Full Data Set#
+							  outcome,		# y variable name (character)#
+							  linPred,		# x variable name (character)#
+							  var,			# group varaible to split on#
+							  grps = levels(data[[var]]), 	# different groups#
+							  cols = c('red', 'blue'), 		# colors assigned to each group#
+							  transOutcome = function(x){x}, 	#transformation of outcome. If used, probably will be log#
+							  xlab = linPred,					#xlabel#
+							  ylab = outcome					#ylabel#
+							  ){#
+	if(length(cols) != length(grps))	stop("length(cols) != length(grps)")#
+	dataEnv <- new.env()#
+	for(grp in grps){#
+		grpInds <- which(data[[var]] == grp)#
+		dataEnv[[grp]] <- data[grpInds,]#
+	}#
+	xrange <- range(data[[linPred]], finite = TRUE, na.rm = TRUE)#
+	yrange <- range(transOutcome(data[[outcome]]), finite = TRUE, na.rm = TRUE)#
+	plot(NA, xlim = xrange, ylim = yrange, xlab = xlab, ylab = ylab)#
+	for(i in seq_along(grp)){#
+		grp <- grps[i]#
+		col <- cols[i]#
+		x <- dataEnv[[grp]][[linPred]]#
+		y <- transOutcome(dataEnv[[grp]][[linPred]])#
+		abline(x, y, col = col)#
+		points(x, y, col = col)#
+	}#
+}
+divideAnd_lm_Plot(procData, outcome = 'X12_prop', linPred = 'X0', var = 'Sci_SampleID', transOutcome = log)
+divideAnd_lm_Plot(procData, outcome = 'X12_prop', linPred = 'X0', var = 'Sci_SampleID')
+debug(divideAnd_lm_Plot)
+divideAnd_lm_Plot(procData, outcome = 'X12_prop', linPred = 'X0', var = 'Sci_SampleID')
+x
+y
+Q
+divideAnd_lm_Plot <- function(data, 		#Full Data Set#
+							  y,		# y variable name (character)#
+							  x,		# x variable name (character)#
+							  var,			# group varaible to split on#
+							  grps = levels(data[[var]]), 	# different groups#
+							  cols = c('red', 'blue'), 		# colors assigned to each group#
+							  transY = function(x){x},	 	#transformation of outcome. If used, probably will be log#
+							  transX = function(x){x},		#transformation of linear predictor#
+							  xlab = linPred,					#xlabel#
+							  ylab = outcome					#ylabel#
+							  ){#
+	if(length(cols) != length(grps))	stop("length(cols) != length(grps)")#
+	dataEnv <- new.env()#
+	for(grp in grps){#
+		grpInds <- which(data[[var]] == grp)#
+		dataEnv[[grp]] <- data[grpInds,]#
+	}#
+	xrange <- range(transX(data[[x]]), finite = TRUE, na.rm = TRUE)#
+	yrange <- range(transY(data[[y]]), finite = TRUE, na.rm = TRUE)#
+	plot(NA, xlim = xrange, ylim = yrange, xlab = xlab, ylab = ylab)#
+	for(i in seq_along(grp)){#
+		grp <- grps[i]#
+		col <- cols[i]#
+		this_x <- transX(dataEnv[[grp]][[x]])#
+		this_y <- transY(dataEnv[[grp]][[y]])#
+		abline(this_x, this_y, col = col)#
+		points(this_x, this_y, col = col)#
+	}#
+}
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID')
+divideAnd_lm_Plot <- function(data, 		#Full Data Set#
+							  y,		# y variable name (character)#
+							  x,		# x variable name (character)#
+							  var,			# group varaible to split on#
+							  grps = levels(data[[var]]), 	# different groups#
+							  cols = c('red', 'blue'), 		# colors assigned to each group#
+							  transY = function(x){x},	 	#transformation of outcome. If used, probably will be log#
+							  transX = function(x){x},		#transformation of linear predictor#
+							  xlab = x,					#xlabel#
+							  ylab = y					#ylabel#
+							  ){#
+	if(length(cols) != length(grps))	stop("length(cols) != length(grps)")#
+	dataEnv <- new.env()#
+	for(grp in grps){#
+		grpInds <- which(data[[var]] == grp)#
+		dataEnv[[grp]] <- data[grpInds,]#
+	}#
+	xrange <- range(transX(data[[x]]), finite = TRUE, na.rm = TRUE)#
+	yrange <- range(transY(data[[y]]), finite = TRUE, na.rm = TRUE)#
+	plot(NA, xlim = xrange, ylim = yrange, xlab = xlab, ylab = ylab)#
+	for(i in seq_along(grp)){#
+		grp <- grps[i]#
+		col <- cols[i]#
+		this_x <- transX(dataEnv[[grp]][[x]])#
+		this_y <- transY(dataEnv[[grp]][[y]])#
+		abline(this_x, this_y, col = col)#
+		points(this_x, this_y, col = col)#
+	}#
+}
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID')
+divideAnd_lm_Plot <- function(data, 		#Full Data Set#
+							  y,		# y variable name (character)#
+							  x,		# x variable name (character)#
+							  var,			# group varaible to split on#
+							  grps = levels(data[[var]]), 	# different groups#
+							  cols = c('red', 'blue'), 		# colors assigned to each group#
+							  transY = function(x){x},	 	#transformation of outcome. If used, probably will be log#
+							  transX = function(x){x},		#transformation of linear predictor#
+							  xlab = x,					#xlabel#
+							  ylab = y					#ylabel#
+							  ){#
+	if(length(cols) != length(grps))	stop("length(cols) != length(grps)")#
+	dataEnv <- new.env()#
+	for(grp in grps){#
+		grpInds <- which(data[[var]] == grp)#
+		dataEnv[[grp]] <- data[grpInds,]#
+	}#
+	xrange <- range(transX(data[[x]]), finite = TRUE, na.rm = TRUE)#
+	yrange <- range(transY(data[[y]]), finite = TRUE, na.rm = TRUE)#
+	plot(NA, xlim = xrange, ylim = yrange, xlab = xlab, ylab = ylab)#
+	for(i in seq_along(grps)){#
+		grp <- grps[i]#
+		col <- cols[i]#
+		this_x <- transX(dataEnv[[grp]][[x]])#
+		this_y <- transY(dataEnv[[grp]][[y]])#
+		abline(this_x, this_y, col = col)#
+		points(this_x, this_y, col = col)#
+	}#
+}
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID')
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log)
+divideAnd_lm_Plot <- function(data, 		#Full Data Set#
+							  y,		# y variable name (character)#
+							  x,		# x variable name (character)#
+							  var,			# group varaible to split on#
+							  grps = levels(data[[var]]), 	# different groups#
+							  cols = c('red', 'blue'), 		# colors assigned to each group#
+							  transY = function(x){x},	 	#transformation of outcome. If used, probably will be log#
+							  transX = function(x){x},		#transformation of linear predictor#
+							  xlab = x,					#xlabel#
+							  ylab = y,					#ylabel#
+							  legLoc = 'topright'		#location of legend#
+							  ){#
+	if(length(cols) != length(grps))	stop("length(cols) != length(grps)")#
+	dataEnv <- new.env()#
+	for(grp in grps){#
+		grpInds <- which(data[[var]] == grp)#
+		dataEnv[[grp]] <- data[grpInds,]#
+	}#
+	xrange <- range(transX(data[[x]]), finite = TRUE, na.rm = TRUE)#
+	yrange <- range(transY(data[[y]]), finite = TRUE, na.rm = TRUE)#
+	plot(NA, xlim = xrange, ylim = yrange, xlab = xlab, ylab = ylab)#
+	for(i in seq_along(grps)){#
+		grp <- grps[i]#
+		col <- cols[i]#
+		this_x <- transX(dataEnv[[grp]][[x]])#
+		this_y <- transY(dataEnv[[grp]][[y]])#
+		abline(this_x, this_y, col = col)#
+		points(this_x, this_y, col = col)#
+	}#
+	legend(legLoc, legend = grps, lwd = 1, col = cols)#
+}
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log)
+?abline
+divideAnd_lm_Plot <- function(data, 		#Full Data Set#
+							  y,		# y variable name (character)#
+							  x,		# x variable name (character)#
+							  var,			# group varaible to split on#
+							  grps = levels(data[[var]]), 	# different groups#
+							  cols = c('red', 'blue'), 		# colors assigned to each group#
+							  transY = function(x){x},	 	#transformation of outcome. If used, probably will be log#
+							  transX = function(x){x},		#transformation of linear predictor#
+							  xlab = x,					#xlabel#
+							  ylab = y,					#ylabel#
+							  legLoc = 'topright'		#location of legend#
+							  ){#
+	if(length(cols) != length(grps))	stop("length(cols) != length(grps)")#
+	dataEnv <- new.env()#
+	for(grp in grps){#
+		grpInds <- which(data[[var]] == grp)#
+		dataEnv[[grp]] <- data[grpInds,]#
+	}#
+	xrange <- range(transX(data[[x]]), finite = TRUE, na.rm = TRUE)#
+	yrange <- range(transY(data[[y]]), finite = TRUE, na.rm = TRUE)#
+	plot(NA, xlim = xrange, ylim = yrange, xlab = xlab, ylab = ylab)#
+	for(i in seq_along(grps)){#
+		grp <- grps[i]#
+		col <- cols[i]#
+		this_x <- transX(dataEnv[[grp]][[x]])#
+		this_y <- transY(dataEnv[[grp]][[y]])#
+		this_fit <- lm(this_y ~ this_x)#
+		abline(reg = this_fit, col = col)#
+		points(this_x, this_y, col = col)#
+	}#
+	legend(legLoc, legend = grps, lwd = 1, col = cols)#
+}
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log)
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)")
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X12/X0')
+divideAnd_lm_Plot(procData, y = 'X35_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X35/X0')
+divideAnd_lm_Plot(procData, y = 'X60_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X60/X0')
+names(procData)
+divideAnd_lm_Plot(procData, y = 'X111_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X111/X0')
+divideAnd_lm_Plot(procData, y = 'X130_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X130/X0')
+procDatap[1:10,]
+procData[1:10,]
+getS_info <- function(data, timeNames, times){#
+	timeVals <- data[, timeNames]#
+	numTimes <- c(0, 12, 35, 60, 111, 130)#
+	lastAlive <- rep(0, nrow(data))#
+	for(i in seq_along(numTimes)){#
+		stillAlive <- !is.na(timeVals[,i])#
+		lastAlive[stillAlive] <- i#
+	}#
+	event <- rep(TRUE, nrow(data))#
+	event[lastAlive == length(numTimes)] <- FALSE#
+	obsVal <- lastAlive#
+	obsVal[event] <- lastAlive[event] + 1#
+	time <- numTimes[obsVal]#
+	ans <- data.frame(time = time, event = event)#
+	return(ans)#
+}
+getS_info <- function(data, timeNames){#
+	timeVals <- data[, timeNames]#
+	numTimes <- c(0, 12, 35, 60, 111, 130)#
+	lastAlive <- rep(0, nrow(data))#
+	for(i in seq_along(numTimes)){#
+		stillAlive <- !is.na(timeVals[,i])#
+		lastAlive[stillAlive] <- i#
+	}#
+	event <- rep(TRUE, nrow(data))#
+	event[lastAlive == length(numTimes)] <- FALSE#
+	obsVal <- lastAlive#
+	obsVal[event] <- lastAlive[event] + 1#
+	time <- numTimes[obsVal]#
+	ans <- data.frame(time = time, event = event)#
+	return(ans)#
+}
+S_info <- getS_info(procData, timeNames)
+procData <- cbind(S_info)
+procData[1:10,]
+procData <- rawData
+procData$cnt <- NA#
+procData$grp <- NA#
+#
+for(i in 1:n){#
+	thisID <- as.character(procData$Identifier[i])#
+	thisProcId <- procNames(thisID)#
+	procData$grp[i] <- thisProcId$id#
+	procData$cnt[i] <- thisProcId$cnt#
+}#
+procData$grp <- factor(procData$grp)
+timeNames <- c('X0', 'X12', 'X26', 'X35', 'X60', 'X111', 'X130')#
+time0 <- 'X0'#
+for(tn in timeNames){#
+	newVarName <- paste0(tn, '_prop')#
+	procData[[newVarName]] <- procData[[tn]] / procData[[time0]]#
+}
+S_info <- getS_info(procData, timeNames)#
+augData <- cbind(procData,S_info)
+augData[1:10,]
+debug(getS_info)
+S_info <- getS_info(procData, timeNames)
+timeVals[1:3,]
+stillAlive[1:10]
+i
+stillAlive[1:10]
+lastAlive[1:10]
+event[1:5]
+obsVal[1:5]
+time[1:3]
+numTimes
+Q
+getS_info <- function(data, timeNames){#
+	timeVals <- data[, timeNames]#
+	numTimes <- c(0, 12, 26, 35, 60, 111, 130)#
+	lastAlive <- rep(0, nrow(data))#
+	for(i in seq_along(numTimes)){#
+		stillAlive <- !is.na(timeVals[,i])#
+		lastAlive[stillAlive] <- i#
+	}#
+	event <- rep(TRUE, nrow(data))#
+	event[lastAlive == length(numTimes)] <- FALSE#
+	obsVal <- lastAlive#
+	obsVal[event] <- lastAlive[event] + 1#
+	time <- numTimes[obsVal]#
+	ans <- data.frame(time = time, event = event)#
+	return(ans)#
+}#
+#
+S_info <- getS_info(procData, timeNames)#
+augData <- cbind(procData,S_info)
+augData[1:10,]
+survFit <- coxph(Surv(time, event) ~ Sci_SampleID, data = procData)
+library(survival)
+survFit <- coxph(Surv(time, event) ~ Sci_SampleID, data = procData)
+survFit <- coxph(Surv(time, event) ~ Sci_SampleID, data = augData)
+summary(survFit)
+survFit <- coxph(Surv(time, event) ~ Sci_SampleID + I(log(X0)), data = augData)
+summary(survFit)
+survFit <- coxph(Surv(time, event) ~ Sci_SampleID * I(log(X0)), data = augData)
+summary(survFit)
+basicFit <- coxph(Surv(time, event) ~ Sci_SampleID, data = augData)
+summary(basicFit)
+data(melanoma)
+install.packages('flexsurv')
+library(flexsurv)
+?melanoma
+?melanom
+melanom
+??melanom
+?flexsurvreg
+summary(basicFit)
+ls(basicFit)
+plot(basicFit)
+?coxph
+predict(basicFit)
+survFit <- coxph(Surv(time, event) ~ Sci_SampleID + I(log(X0)), data = augData)
+kmfit <- survfit(survFit)
+plot(kmfit)
+kmfit
+plot(kmfit)
+kmfit <- survfit(Surv(time, event) ~ Sci_SampleID, data = augData)
+plot(kmfit)
+plot(kmfit, cols = c('blue', 'red'))
+plot(kmfit, col = c('blue', 'red'))
+legend('bottomright', legend = c('97Q', '25Q'), col = c('red', 'blue'), lwd = 1)
+plot(kmfit, col = c('blue', 'red'), main = 'Raw Kaplan Meier Curves')#
+legend('bottomleft', legend = c('97Q', '25Q'), col = c('red', 'blue'), lwd = 1)
+kmfit <- survfit(Surv(time, event) ~ Sci_SampleID, data = augData)#
+plot(kmfit, col = c('blue', 'red'), main = 'Raw Kaplan Meier Curves\nNot Adjusted for X0')#
+legend('bottomleft', legend = c('97Q', '25Q'), col = c('red', 'blue'), lwd = 1)
+summary(basicFit)
+coxphFit <- coxph(Surv(time, event) ~ Sci_SampleID + I(log(X0)), data = augData)
+cond_km <- survfit(coxphFit)
+summary(cond_km)
+ls(cond_km)
+cond_km$surv
+nu <- exp(coxphFit$coef)
+nu
+nu <- exp(coxphFit$coef[1])
+s_time <- cond_km$time
+s_97 <- baselineS^nu
+cond_km <- survfit(coxphFit)#
+baselineS <- cond_km$surv#
+nu <- exp(coxphFit$coef[1])#
+s_time <- cond_km$time#
+s_97 <- baselineS^nu
+quartz()#
+plot(s_time, baselineS, ylim = c(0,1), col = 'blue', type = 's')#
+lines(s_time, s_97, col = 'red', type = 's')
+cond_km$surv
+kmfit$surv
+kmfit <- survfit(Surv(time, event) ~ Sci_SampleID, data = augData)#
+plot(kmfit, col = c('blue', 'red'), main = 'Raw Kaplan Meier Curves\nNot Adjusted for X0')#
+legend('bottomleft', legend = c('97Q', '25Q'), col = c('red', 'blue'), lwd = 1)
+lines(cond_km$time, cond_km$surv, type = 's')
+lines(cond_km$time, cond_km$surv^nu, type = 's', col = 'purple')
+cond_km <- survfit(coxphFit)#
+baselineS <- c(1, cond_km$surv)#
+nu <- exp(coxphFit$coef[1])#
+s_time <- c(0, cond_km$time)#
+s_97 <- baselineS^nu#
+#
+quartz()#
+plot(s_time, baselineS, ylim = c(0,1), col = 'blue', type = 's')#
+lines(s_time, s_97, col = 'red', type = 's')
+plot(kmfit, col = c('blue', 'red'), main = 'Raw Kaplan Meier Curves\nNot Adjusted for X0')#
+legend('bottomleft', legend = c('97Q', '25Q'), col = c('red', 'blue'), lwd = 1)#
+#
+cond_km <- survfit(coxphFit)#
+baselineS <- c(1, cond_km$surv)#
+nu <- exp(coxphFit$coef[1])#
+s_time <- c(0, cond_km$time)#
+s_97 <- baselineS^nu
+kmfit <- survfit(Surv(time, event) ~ Sci_SampleID, data = augData)#
+plot(kmfit, col = c('blue', 'red'), main = 'Raw Kaplan Meier Curves\nNot Adjusted for X0')#
+legend('bottomleft', legend = c('97Q', '25Q'), col = c('red', 'blue'), lwd = 1)#
+#
+cond_km <- survfit(coxphFit)#
+baselineS <- c(1, cond_km$surv)#
+nu <- exp(coxphFit$coef[1])#
+s_time <- c(0, cond_km$time)#
+s_97 <- baselineS^nu#
+#
+quartz()#
+plot(s_time, baselineS, ylim = c(0,1), col = 'blue', type = 's', main = 'Estimated Survival Curves Conditional on log(X0) = 0')#
+lines(s_time, s_97, col = 'red', type = 's')
+par(mfrow = c(1,2))#
+#
+kmfit <- survfit(Surv(time, event) ~ Sci_SampleID, data = augData)#
+plot(kmfit, col = c('blue', 'red'), main = 'Raw Kaplan Meier Curves\nNot Adjusted for X0')#
+legend('bottomleft', legend = c('97Q', '25Q'), col = c('red', 'blue'), lwd = 1)#
+cond_km <- survfit(coxphFit)#
+baselineS <- c(1, cond_km$surv)#
+nu <- exp(coxphFit$coef[1])#
+s_time <- c(0, cond_km$time)#
+s_97 <- baselineS^nu#
+plot(s_time, baselineS, ylim = c(0,1), col = 'blue', type = 's', main = 'Estimated Survival Curves Conditional on log(X0) = 0')#
+lines(s_time, s_97, col = 'red', type = 's')
+par(mfrow = c(1,2))#
+#
+kmfit <- survfit(Surv(time, event) ~ Sci_SampleID, data = augData)#
+plot(kmfit, col = c('blue', 'red'), main = 'Raw Kaplan Meier Curves\nNot Adjusted for X0')#
+legend('bottomleft', legend = c('97Q', '25Q'), col = c('red', 'blue'), lwd = 1)#
+cond_km <- survfit(coxphFit)#
+baselineS <- c(1, cond_km$surv)#
+nu <- exp(coxphFit$coef[1])#
+s_time <- c(0, cond_km$time)#
+s_97 <- baselineS^nu#
+plot(s_time, baselineS, ylim = c(0,1), col = 'blue', type = 's', main = 'Estimated Survival Curves \nConditional on log(X0) = 0')#
+lines(s_time, s_97, col = 'red', type = 's')
+summary(log(augData$X0))
+cond_km
+summary(cond_km)
+summary(kmfit)
+?surfit
+?survfit
+newdata <- data.frame(X0 = c(0,0), Sci_SampleID = c('25Q', '97Q'))
+cond_km <- survfit(coxphFit, newdata = newdata)
+summary(cond_km)
+newdata <- data.frame(X0 = c(exp(4),exp(4)), Sci_SampleID = c('25Q', '97Q'))#
+#
+cond_km <- survfit(coxphFit, newdata = newdata)
+summary(cond_km)
+ls(cond_km)
+cond_km$surv
+plot(cond_km)
+exp(4)
+newdata <- data.frame(X0 = c(exp(4),exp(4)), Sci_SampleID = c('25Q', '97Q'))#
+cond_km <- survfit(coxphFit, newdata = newdata, col = c('blue', 'red'), main = 'Estimated Cox-PH Curves\nConditional on X0 = 55 (median)')
+plot(cond_km, col = c('blue', 'red'), main = 'Estimated Cox-PH Curves\nConditional on X0 = 55 (median)')
+par(mfrow = c(1,2))#
+#
+kmfit <- survfit(Surv(time, event) ~ Sci_SampleID, data = augData)#
+plot(kmfit, col = c('blue', 'red'), main = 'Raw Kaplan Meier Curves\nNot Adjusted for X0')#
+legend('bottomleft', legend = c('97Q', '25Q'), col = c('red', 'blue'), lwd = 1)#
+#
+newdata <- data.frame(X0 = c(exp(4),exp(4)), Sci_SampleID = c('25Q', '97Q'))#
+cond_km <- survfit(coxphFit, newdata = newdata)#
+plot(cond_km, col = c('blue', 'red'), main = 'Estimated Cox-PH Curves\nConditional on X0 = 55 (median)')
+summary(augData)
+log(68)
+par(mfrow = c(1,2))#
+#
+kmfit <- survfit(Surv(time, event) ~ Sci_SampleID, data = augData)#
+plot(kmfit, col = c('blue', 'red'), main = 'Raw Kaplan Meier Curves\nNot Adjusted for X0')#
+legend('bottomleft', legend = c('97Q', '25Q'), col = c('red', 'blue'), lwd = 1)#
+#
+newdata <- data.frame(X0 = c(exp(4.22),exp(4.22)), Sci_SampleID = c('25Q', '97Q'))#
+cond_km <- survfit(coxphFit, newdata = newdata)#
+plot(cond_km, col = c('blue', 'red'), main = 'Estimated Cox-PH Curves\nConditional on X0 = 68 (median)')
+par(nfrow = c(2,3))#
+#
+boxplot( log(X0) ~ Sci_SampleID, data = procData, main = 'Log Intesity at T = 0\n p < 10^-10')#
+boxplot( X12_prop ~ Sci_SampleID, data = procData)#
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X12/X0')#
+divideAnd_lm_Plot(procData, y = 'X35_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X35/X0')#
+divideAnd_lm_Plot(procData, y = 'X60_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X60/X0')#
+divideAnd_lm_Plot(procData, y = 'X111_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X111/X0')#
+divideAnd_lm_Plot(procData, y = 'X130_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X130/X0')
+par(mfrow = c(2,3))#
+#
+boxplot( log(X0) ~ Sci_SampleID, data = procData, main = 'Log Intesity at T = 0\n p < 10^-10')#
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X12/X0')#
+divideAnd_lm_Plot(procData, y = 'X35_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X35/X0')#
+divideAnd_lm_Plot(procData, y = 'X60_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X60/X0')#
+divideAnd_lm_Plot(procData, y = 'X111_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X111/X0')#
+divideAnd_lm_Plot(procData, y = 'X130_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X130/X0')
+par(mfrow = c(2,3))#
+#
+boxplot( log(X0) ~ Sci_SampleID, data = procData, main = 'Log Intesity at T = 0\n p < 10^-10')#
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X12/X0', cols = c('blue', 'red'))#
+divideAnd_lm_Plot(procData, y = 'X35_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X35/X0', cols = c('blue', 'red'))#
+divideAnd_lm_Plot(procData, y = 'X60_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X60/X0', cols = c('blue', 'red'))#
+divideAnd_lm_Plot(procData, y = 'X111_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X111/X0', cols = c('blue', 'red'))#
+divideAnd_lm_Plot(procData, y = 'X130_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X130/X0', cols = c('blue', 'red'))
+par(mfrow = c(2,3))#
+#
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X12/X0', cols = c('blue', 'red'), main = "log(X0) vs X12/X0")#
+divideAnd_lm_Plot(procData, y = 'X26_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X26/X0', cols = c('blue', 'red'), main = "log(X0) vs X26/X0")#
+divideAnd_lm_Plot(procData, y = 'X35_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X35/X0', cols = c('blue', 'red'), main = "log(X0) vs X35/X0")#
+divideAnd_lm_Plot(procData, y = 'X60_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X60/X0', cols = c('blue', 'red'))#
+divideAnd_lm_Plot(procData, y = 'X111_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X111/X0', cols = c('blue', 'red'))#
+divideAnd_lm_Plot(procData, y = 'X130_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X130/X0', cols = c('blue', 'red'))
+divideAnd_lm_Plot <- function(data, 		#Full Data Set#
+							  y,		# y variable name (character)#
+							  x,		# x variable name (character)#
+							  var,			# group varaible to split on#
+							  grps = levels(data[[var]]), 	# different groups#
+							  cols = c('red', 'blue'), 		# colors assigned to each group#
+							  transY = function(x){x},	 	#transformation of outcome. If used, probably will be log#
+							  transX = function(x){x},		#transformation of linear predictor#
+							  main = NULL,				#Title#
+							  xlab = x,					#xlabel#
+							  ylab = y,					#ylabel#
+							  legLoc = 'topright'		#location of legend#
+							  ){#
+	if(length(cols) != length(grps))	stop("length(cols) != length(grps)")#
+	dataEnv <- new.env()#
+	for(grp in grps){#
+		grpInds <- which(data[[var]] == grp)#
+		dataEnv[[grp]] <- data[grpInds,]#
+	}#
+	xrange <- range(transX(data[[x]]), finite = TRUE, na.rm = TRUE)#
+	yrange <- range(transY(data[[y]]), finite = TRUE, na.rm = TRUE)#
+	plot(NA, xlim = xrange, ylim = yrange, xlab = xlab, ylab = ylab)#
+	for(i in seq_along(grps)){#
+		grp <- grps[i]#
+		col <- cols[i]#
+		this_x <- transX(dataEnv[[grp]][[x]])#
+		this_y <- transY(dataEnv[[grp]][[y]])#
+		this_fit <- lm(this_y ~ this_x)#
+		abline(reg = this_fit, col = col)#
+		points(this_x, this_y, col = col)#
+	}#
+	legend(legLoc, legend = grps, lwd = 1, col = cols)#
+}
+par(mfrow = c(2,3))#
+#
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X12/X0', cols = c('blue', 'red'), main = "log(X0) vs X12/X0")#
+divideAnd_lm_Plot(procData, y = 'X26_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X26/X0', cols = c('blue', 'red'), main = "log(X0) vs X26/X0")#
+divideAnd_lm_Plot(procData, y = 'X35_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X35/X0', cols = c('blue', 'red'), main = "log(X0) vs X35/X0")#
+divideAnd_lm_Plot(procData, y = 'X60_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X60/X0', cols = c('blue', 'red'))#
+divideAnd_lm_Plot(procData, y = 'X111_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X111/X0', cols = c('blue', 'red'))#
+divideAnd_lm_Plot(procData, y = 'X130_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X130/X0', cols = c('blue', 'red'))
+divideAnd_lm_Plot <- function(data, 		#Full Data Set#
+							  y,		# y variable name (character)#
+							  x,		# x variable name (character)#
+							  var,			# group varaible to split on#
+							  grps = levels(data[[var]]), 	# different groups#
+							  cols = c('red', 'blue'), 		# colors assigned to each group#
+							  transY = function(x){x},	 	#transformation of outcome. If used, probably will be log#
+							  transX = function(x){x},		#transformation of linear predictor#
+							  main = NULL,				#Title#
+							  xlab = x,					#xlabel#
+							  ylab = y,					#ylabel#
+							  legLoc = 'topright'		#location of legend#
+							  ){#
+	if(length(cols) != length(grps))	stop("length(cols) != length(grps)")#
+	dataEnv <- new.env()#
+	for(grp in grps){#
+		grpInds <- which(data[[var]] == grp)#
+		dataEnv[[grp]] <- data[grpInds,]#
+	}#
+	xrange <- range(transX(data[[x]]), finite = TRUE, na.rm = TRUE)#
+	yrange <- range(transY(data[[y]]), finite = TRUE, na.rm = TRUE)#
+	plot(NA, xlim = xrange, ylim = yrange, xlab = xlab, ylab = ylab, main = main)#
+	for(i in seq_along(grps)){#
+		grp <- grps[i]#
+		col <- cols[i]#
+		this_x <- transX(dataEnv[[grp]][[x]])#
+		this_y <- transY(dataEnv[[grp]][[y]])#
+		this_fit <- lm(this_y ~ this_x)#
+		abline(reg = this_fit, col = col)#
+		points(this_x, this_y, col = col)#
+	}#
+	legend(legLoc, legend = grps, lwd = 1, col = cols)#
+}
+par(mfrow = c(2,3))#
+#
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X12/X0', cols = c('blue', 'red'), main = "log(X0) vs X12/X0")#
+divideAnd_lm_Plot(procData, y = 'X26_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X26/X0', cols = c('blue', 'red'), main = "log(X0) vs X26/X0")#
+divideAnd_lm_Plot(procData, y = 'X35_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X35/X0', cols = c('blue', 'red'), main = "log(X0) vs X35/X0")#
+divideAnd_lm_Plot(procData, y = 'X60_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X60/X0', cols = c('blue', 'red'))#
+divideAnd_lm_Plot(procData, y = 'X111_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X111/X0', cols = c('blue', 'red'))#
+divideAnd_lm_Plot(procData, y = 'X130_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X130/X0', cols = c('blue', 'red'))
+par(mfrow = c(2,3))#
+#
+divideAnd_lm_Plot(procData, y = 'X12_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X12/X0', cols = c('blue', 'red'), main = "log(X0) vs X12/X0")#
+divideAnd_lm_Plot(procData, y = 'X26_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X26/X0', cols = c('blue', 'red'), main = "log(X0) vs X26/X0")#
+divideAnd_lm_Plot(procData, y = 'X35_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X35/X0', cols = c('blue', 'red'), main = "log(X0) vs X35/X0")#
+divideAnd_lm_Plot(procData, y = 'X60_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X60/X0', cols = c('blue', 'red'), main = 'log(X0) vs X60/X0')#
+divideAnd_lm_Plot(procData, y = 'X111_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X111/X0', cols = c('blue', 'red'), main = 'log(X0) vs X110/X0')#
+divideAnd_lm_Plot(procData, y = 'X130_prop', x = 'X0', var = 'Sci_SampleID', transX = log, xlab = "log(X0)", ylab = 'X130/X0', cols = c('blue', 'red'), main = 'log(X0) vs X130/X0')
+coxphFit2 <- coxph(Surv(time, event) ~ Sci_SampleID + I(log(X0) + X35_prop, data = augData)
+)
+coxphFit2 <- coxph(Surv(time, event) ~ Sci_SampleID + I(log(X0)) + X35_prop, data = augData)
+summary(coxphFit2)
+coxphFit2 <- coxph(Surv(time, event) ~ Sci_SampleID * X35_prop + I(log(X0)), data = augData)
+summary(coxphFit2)
+augData$clear35 <- 1 - augData$X35_prop#
+coxphFit2 <- coxph(Surv(time, event) ~ Sci_SampleID * clear35 + I(log(X0)), data = augData)
+summary(coxphFit2)
+boxplot( log(X0) ~ Sci_SampleID, data = procData, main = 'Log Intesity at T = 0\n p < 10^-10')
+summary(augData)
+is97Q <- augData$Sci_SampleID == '97Q'
+mean(augData$event[is97Q])
+mean(augData$event[!is97Q])
+ls()
+summary(coxphFit)
+coxphFit <- coxph(Surv(time, event) ~ Sci_SampleID + I(log(X0)), data = augData)#
+summary(coxphFit)
+coxphFit2 <- coxph(Surv(time, event) ~ Sci_SampleID * I(log(X0)), data = augData)#
+summary(coxphFit2)
+library(icenReg)
+args(ic_par)
+library(icenReg)
+args(parFitEsts)
+library(icenReg)
+args(diag_covar)
+args(diag_baseline)
+library(icenReg)
+args(diag_covar)
+library(icenReg)
+args(diag_covar)
+diag_covar
+library(icenReg)
+?ic_par
+library(icenReg)
+?diag_baseline
+library(straweib)
+data(tooth24)
+fit_ph <- ic_sp(Surv(left, right, type = 'interval2') ~ dmf + sex,
+data = tooth24, bs_samples = 0)
+fit_po <- ic_sp(Surv(left, right, type = 'interval2') ~ dmf + sex,
+data = tooth24, bs_samples = 0, model = 'po')
+diag_covar(fit_ph)
+quartz()
+diag_covar(fit_po)
+?diag_baseline
+fit_ph <- ic_sp(Surv(left, right, type = 'interval2') ~ dmf + sex,
+data = tooth24, bs_samples = 0)
+fit_po <- ic_sp(Surv(left, right, type = 'interval2') ~ dmf + sex,
+data = tooth24, bs_samples = 0, model = 'po')
+diag_baseline(fit_po)
+data(mdata)#
+	miceFit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, data = mdata)
+ps = c(0.25, .5, .75)#
+	newdata <- data.frame(grp = c('ce', 'ge'))
+getFitEsts(miceFit, newdata = newdata, p = ps)
+getFitEsts(miceFit, q = 400)
+data(mdata)#
+	miceFit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, data = mdata)#
+	ps = c(0.25, .5, .75)#
+	newdata <- data.frame(grp = c('ce', 'ge'))#
+	rownames(newdata) <- c('Conventional', 'Germ Free')	#
+	getFitEsts(miceFit, newdata = newdata, p = ps)#
+	getFitEsts(miceFit, q = 400)
+rm(ls())
+rm(list = ls())
+set.seed(1)#
+#
+	sim_data <- simIC_weib(n = 250)#
+	fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data, bs_samples = 0)
+newdata <- data.frame(x1 = c(0,1), x2 = c(1, 1) )
+rownames(newdata) <- c('group 1', 'group 2')
+curveInfo <- getSCurves(fit, newdata)
+xs <- curveInfo$Tbull_ints
+sCurves <- curveInfo$S_curves
+plot(xs[,1], sCurves[[1]], xlab = 'time', ylab = 'S(t)', #
+	     type = 's', ylim = c(0,1), xlim = c(0,1))
+plot(xs[,1], sCurves[[1]], xlab = 'time', ylab = 'S(t)', #
+	     type = 's', ylim = c(0,1),#
+	     xlim = range(as.numeric(xs), finite = TRUE))
+lines(xs[,2], sCurves[[1]], type = 's')
+lines(xs[,1], sCurves[[2]], col = 'blue', type = 's')#
+	lines(xs[,2], sCurves[[2]], col = 'blue', type = 's')
+rm(list = ls())
+data(mdata)#
+	logist_ph_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, #
+	                        data = mdata, dist = 'loglogistic')#
+#
+	logist_po_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, #
+	                        data = mdata, dist = 'loglogistic', model = 'po')#
+#
+	summary(logist_ph_fit)#
+	summary(logist_po_fit)
+rm(list = ls())
+set.seed(1)#
+#
+	sim_data <- simIC_weib(n = 200)#
+	ph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data)
+summary(ph_fit)		#
+	# Regression estimates close to true 0.5 and -0.5 values#
+	newdata <- data.frame(x1 = c(0,1), x2 = c(1, 1) )#
+	rownames(newdata) <- c('group 1', 'group 2')#
+	plot(ph_fit, newdata)#
+	# plotting the estimated survival curves#
+#
+	po_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data,#
+	                model = 'po')#
+	# fits a proportional odds model#
+	summary(po_fit)#
+	# Not run: how to set up multiple cores#
+	# library(doParallel)#
+	# myCluster <- makeCluster(2, type = 'FORK') #
+	# registerDoParallel(myCluster)#
+	# fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2,#
+	#              data = sim_data, useMCores = TRUE)
+data(mdata)#
+	coxph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ grp, data = mdata)#
+	summary(coxph_fit)
+library(icenReg)
+set.seed(1)#
+#
+	sim_data <- simIC_weib(n = 500, b1 = .3, b2 = -.3,#
+	                      shape = 2, scale = 2,#
+	                      inspections = 6, inspectLength = 1)#
+	fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data, bs_samples = 0)	#
+#
+	newdata <- data.frame(x1 = c(0,1), x2 = c(1, 1) )#
+	#want to fit survival curves with above covariates#
+	rownames(newdata) <- c('group 1', 'group 2')#
+	#getSCurves will name the survival curves according to rownames#
+#
+	curveInfo <- getSCurves(fit, newdata)#
+	xs <- curveInfo$Tbull_ints#
+	#Extracting Turnbull intervals#
+	sCurves <- curveInfo$S_curves#
+	#Extracting estimated survival curves#
+	plot(xs[,1], sCurves[[1]], xlab = 'time', ylab = 'S(t)', #
+	     type = 's', ylim = c(0,1),#
+	     xlim = range(as.numeric(xs), finite = TRUE))#
+	#plotting upper survival curve estimate#
+	lines(xs[,2], sCurves[[1]], type = 's')#
+	#plotting lower survival curve estimate#
+	lines(xs[,1], sCurves[[2]], col = 'blue', type = 's')#
+	lines(xs[,2], sCurves[[2]], col = 'blue', type = 's')
+pkgname <- "icenReg"#
+source(file.path(R.home("share"), "R", "examples-header.R"))#
+options(warn = 1)#
+base::assign(".ExTimings", "icenReg-Ex.timings", pos = 'CheckExEnv')#
+base::cat("name\tuser\tsystem\telapsed\n", file=base::get(".ExTimings", pos = 'CheckExEnv'))#
+base::assign(".format_ptime",#
+function(x) {#
+  if(!is.na(x[4L])) x[1L] <- x[1L] + x[4L]#
+  if(!is.na(x[5L])) x[2L] <- x[2L] + x[5L]#
+  options(OutDec = '.')#
+  format(x[1L:3L], digits = 7L)#
+},#
+pos = 'CheckExEnv')#
+#
+### * </HEADER>#
+library('icenReg')#
+#
+base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')#
+cleanEx()#
+nameEx("diag_baseline")#
+### * diag_baseline#
+#
+flush(stderr()); flush(stdout())#
+#
+base::assign(".ptime", proc.time(), pos = "CheckExEnv")#
+### Name: diag_baseline#
+### Title: Compare parametric baseline distributions with semi-parametric#
+###   baseline#
+### Aliases: diag_baseline#
+#
+### ** Examples#
+#
+	# Not run: requires data from the straweib library. #
+	# library(straweib)#
+	# data(tooth24)#
+	# fit_po <- ic_sp(Surv(left, right, type = 'interval2') ~ dmf + sex,#
+	#                 data = tooth24, bs_samples = 0, model = 'po')#
+	##
+	# diag_baseline(fit_po)#
+#
+	# Weibull model appears best fit#
+base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")#
+base::cat("diag_baseline", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")#
+cleanEx()#
+nameEx("diag_covar")#
+### * diag_covar#
+#
+flush(stderr()); flush(stdout())#
+#
+base::assign(".ptime", proc.time(), pos = "CheckExEnv")#
+### Name: diag_covar#
+### Title: Evaluate covariate effect for regression model#
+### Aliases: diag_covar#
+#
+### ** Examples#
+#
+	# Not run: requires data from the straweib library. #
+	# library(straweib)#
+	# data(tooth24)#
+	##
+	# diag_covar(Surv(left, right, type = 'interval2') ~ sex + dmf, #
+	#                 data = tooth24, model = 'po')#
+	# quartz()#
+	# diag_covar(Surv(left, right, type = 'interval2') ~ sex + dmf, #
+	#                 data = tooth24, model = 'ph')#
+#
+	# For sex, both models fit pretty well#
+	# dmf looks a problematic; proportional odds looks a little better#
+	# proportional odds also leads to lower final likelihood#
+base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")#
+base::cat("diag_covar", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")#
+cleanEx()#
+nameEx("getFitEsts")#
+### * getFitEsts#
+#
+flush(stderr()); flush(stdout())#
+#
+base::assign(".ptime", proc.time(), pos = "CheckExEnv")#
+### Name: getFitEsts#
+### Title: Get Estimates from icenReg Regression Model#
+### Aliases: getFitEsts#
+#
+### ** Examples#
+#
+	data(mdata)#
+	miceFit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, data = mdata)#
+	ps = c(0.25, .5, .75)#
+	newdata <- data.frame(grp = c('ce', 'ge'))#
+	rownames(newdata) <- c('Conventional', 'Germ Free')	#
+	getFitEsts(miceFit, newdata = newdata, p = ps)#
+	getFitEsts(miceFit, q = 400)#
+base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")#
+base::cat("getFitEsts", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")#
+graphics::par(get("par.postscript", pos = 'CheckExEnv'))#
+cleanEx()#
+nameEx("getSCurves")#
+### * getSCurves#
+#
+flush(stderr()); flush(stdout())#
+#
+base::assign(".ptime", proc.time(), pos = "CheckExEnv")#
+### Name: getSCurves#
+### Title: Get Estimated Survival Curves from Semi-parametric Model for#
+###   Interval Censored Data#
+### Aliases: getSCurves#
+#
+### ** Examples#
+#
+	set.seed(1)#
+#
+	sim_data <- simIC_weib(n = 500, b1 = .3, b2 = -.3,#
+	                      shape = 2, scale = 2,#
+	                      inspections = 6, inspectLength = 1)#
+	fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data, bs_samples = 0)	#
+#
+	newdata <- data.frame(x1 = c(0,1), x2 = c(1, 1) )#
+	#want to fit survival curves with above covariates#
+	rownames(newdata) <- c('group 1', 'group 2')#
+	#getSCurves will name the survival curves according to rownames#
+#
+	curveInfo <- getSCurves(fit, newdata)#
+	xs <- curveInfo$Tbull_ints#
+	#Extracting Turnbull intervals#
+	sCurves <- curveInfo$S_curves#
+	#Extracting estimated survival curves#
+	plot(xs[,1], sCurves[[1]], xlab = 'time', ylab = 'S(t)', #
+	     type = 's', ylim = c(0,1),#
+	     xlim = range(as.numeric(xs), finite = TRUE))#
+	#plotting upper survival curve estimate#
+	lines(xs[,2], sCurves[[1]], type = 's')#
+	#plotting lower survival curve estimate#
+	lines(xs[,1], sCurves[[2]], col = 'blue', type = 's')#
+	lines(xs[,2], sCurves[[2]], col = 'blue', type = 's')#
+	#plotting upper and lower survival curves for group 2#
+	# Actually, all this plotting is a unnecessary: #
+	# plot(fit, newdata) will bascially do this all#
+	# But this is more of a tutorial in case custom#
+	# plots were desired#
+base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")#
+base::cat("getSCurves", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")#
+cleanEx()#
+nameEx("ic_par")#
+### * ic_par#
+#
+flush(stderr()); flush(stdout())#
+#
+base::assign(".ptime", proc.time(), pos = "CheckExEnv")#
+### Name: ic_par#
+### Title: Parametric Regression Models for Interval Censored Data#
+### Aliases: ic_par#
+#
+### ** Examples#
+#
+	data(mdata)#
+	logist_ph_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, #
+	                        data = mdata, dist = 'loglogistic')#
+#
+	logist_po_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, #
+	                        data = mdata, dist = 'loglogistic', model = 'po')#
+#
+	summary(logist_ph_fit)#
+	summary(logist_po_fit)#
+base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")#
+base::cat("ic_par", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")#
+graphics::par(get("par.postscript", pos = 'CheckExEnv'))#
+cleanEx()#
+nameEx("ic_sp")#
+### * ic_sp#
+#
+flush(stderr()); flush(stdout())#
+#
+base::assign(".ptime", proc.time(), pos = "CheckExEnv")#
+### Name: ic_sp#
+### Title: Semi-Parametric models for Interval Censored Data#
+### Aliases: ic_sp vcov.icenReg_fit summary.icenReg_fit plot.icenReg_fit#
+#
+### ** Examples#
+#
+	set.seed(1)#
+#
+	sim_data <- simIC_weib(n = 500, inspections = 5, inspectLength = 1)#
+	ph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data)	#
+	# Default fits a Cox-PH model#
+	summary(ph_fit)		#
+	# Regression estimates close to true 0.5 and -0.5 values#
+	newdata <- data.frame(x1 = c(0,1), x2 = c(1, 1) )#
+	rownames(newdata) <- c('group 1', 'group 2')#
+	plot(ph_fit, newdata)#
+	# plotting the estimated survival curves#
+#
+	po_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data,#
+	                model = 'po')#
+	# fits a proportional odds model#
+	summary(po_fit)#
+	# Not run: how to set up multiple cores#
+	# library(doParallel)#
+	# myCluster <- makeCluster(2, type = 'FORK') #
+	# registerDoParallel(myCluster)#
+	# fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2,#
+	#              data = sim_data, useMCores = TRUE)	#
+base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")#
+base::cat("ic_sp", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")#
+cleanEx()#
+nameEx("mdata")#
+### * mdata#
+#
+flush(stderr()); flush(stdout())#
+#
+base::assign(".ptime", proc.time(), pos = "CheckExEnv")#
+### Name: mdata#
+### Title: Lung Tumor Interval Censored Data from Hoel and Walburg 1972#
+### Aliases: mdata#
+#
+### ** Examples#
+#
+	data(mdata)#
+	coxph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ grp, data = mdata)#
+	summary(coxph_fit)#
+base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")#
+base::cat("mdata", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")#
+cleanEx()#
+nameEx("simIC_weib")#
+### * simIC_weib#
+#
+flush(stderr()); flush(stdout())#
+#
+base::assign(".ptime", proc.time(), pos = "CheckExEnv")#
+### Name: simIC_weib#
+### Title: Simulates interval censored data from regression model with a#
+###   Weibull baseline#
+### Aliases: simIC_weib#
+#
+### ** Examples#
+#
+	set.seed(1)#
+	sim_data <- simIC_weib(n = 2000, b1 = .3, b2 = -.3, model = 'ph', #
+	                       shape = 2, scale = 2, inspections = 6, inspectLength = 1)#
+	#simulates data from a cox-ph with beta weibull distribution.#
+	diag_covar(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data, model = 'po')#
+	diag_covar(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data, model = 'ph')#
+	#'ph' fit looks better than 'po'; the difference between the transformed survival#
+	#function looks more constant#
+base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")#
+base::cat("simIC_weib", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")#
+### * <FOOTER>#
+####
+options(digits = 7L)#
+base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")#
+grDevices::dev.off()#
+####
+### Local variables: ***#
+### mode: outline-minor ***#
+### outline-regexp: "\\(> \\)?### [*]+" ***#
+### End: ***#
+quit('no')
+library(icenReg)
+data(mdata)#
+	miceFit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, data = mdata)#
+	ps = c(0.25, .5, .75)#
+	newdata <- data.frame(grp = c('ce', 'ge'))#
+	rownames(newdata) <- c('Conventional', 'Germ Free')	#
+	getFitEsts(miceFit, newdata = newdata, p = ps)
+getFitEsts(miceFit, q = 400)
+library(icenReg)
+simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,#
+                         inspections = 6, inspectLength = 1)#
+	fit <- fit_par(Surv(l, u, type = 'interval2') ~ x1 + x2,#
+                  data = simdata)#
+	new_data <- data.frame(x1 = c(1,2), x2 = c(-1,1))#
+	rownames(new_data) <- c('grp1', 'grp2')#
+	estQ <- getFitEsts(fit, new_data, p = c(.25, .5, .75))
+simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,#
+                         inspections = 6, inspectLength = 1)#
+	fit <- ic_par(Surv(l, u, type = 'interval2') ~ x1 + x2,#
+                  data = simdata)#
+	new_data <- data.frame(x1 = c(1,2), x2 = c(-1,1))#
+	rownames(new_data) <- c('grp1', 'grp2')#
+	estQ <- getFitEsts(fit, new_data, p = c(.25, .5, .75))
+estP <- getFitEsts(miceFit, q = 400)
+simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,#
+                         inspections = 6, inspectLength = 1)#
+	fit <- ic_par(Surv(l, u, type = 'interval2') ~ x1 + x2,#
+                  data = simdata)#
+	new_data <- data.frame(x1 = c(1,2), x2 = c(-1,1))#
+	rownames(new_data) <- c('grp1', 'grp2')#
+	estQ <- getFitEsts(fit, new_data, p = c(.25, .5, .75))#
+	estP <- getFitEsts(fit, q = 400)
