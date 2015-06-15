@@ -481,6 +481,67 @@ void actSet_Abst::icm_step(){
         checkIfActShouldDrop(i);
 }
 
+void actSet_Abst::calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d1){
+    int k = reg_par.size();
+    int n = etas.size();
+    
+    Eigen::VectorXd l_cont(n);
+    Eigen::VectorXd r_cont(n);
+    Eigen::VectorXd totCont(n);
+
+    Eigen::VectorXd l_cont2(n);
+    Eigen::VectorXd r_cont2(n);
+    Eigen::VectorXd totCont2(n);
+    
+    int lind, rind;
+    double l_ch, r_ch, eta, pob;
+    for(int i = 0; i < n; i++){
+        l_cont[i]  = 0;
+        r_cont[i]  = 0;
+        l_cont2[i] = 0;
+        r_cont2[i] = 0;
+
+        lind = obs_inf[i].l;
+        rind = obs_inf[i].r;
+        pob  = obs_inf[i].pob;
+        l_ch = baseCH[lind];
+        r_ch = baseCH[rind + 1];
+        eta  = etas[i];
+        if(l_ch > R_NegInf){
+            l_cont[i]  = reg_d1_lnk(l_ch, eta)/pob;
+            l_cont2[i] = reg_d2_lnk(l_ch, eta)/pob;
+        }
+        if(r_ch < R_PosInf){
+            r_cont[i]  = -reg_d1_lnk(r_ch, eta)/pob;
+            r_cont2[i] = -reg_d2_lnk(r_ch, eta)/pob;
+        }
+        totCont[i] = l_cont[i] + r_cont[i];
+        totCont2[i] = l_cont2[i] + r_cont2[i] - totCont[i] * totCont[i];
+    }
+    
+    hess.resize(k,k);
+    d1.resize(k);
+    for(int i = 0; i < k; i++){
+        d1[i] = 0;
+        for(int j = 0; j < k; j++){
+            hess(i,j) = 0;
+        }
+    }
+
+
+    for(int i = 0; i < n; i++){
+        for(int a = 0; a < k; a++){
+            d1[a] += covars(i,a) * totCont[i];
+            for(int b = 0; b < a; b++){
+                hess(a,b) += covars(i,a) * covars(i,b) * totCont2[i];
+                hess(b,a) = hess(a,b);
+            }
+            hess(a,a) += covars(i,a) * covars(i,a) * totCont2[i];
+        }
+    }
+
+}
+
 void actSet_Abst::numericRegDervs(){
     int k = reg_par.size();
     vector<double> lk_l(k);
@@ -527,10 +588,33 @@ void actSet_Abst::numericRegDervs(){
 }
 
 void actSet_Abst::covar_nr_step(){
-    numericRegDervs();
+    int k = reg_par.size();
+
+
+/*  numericRegDervs();
+    
+    Eigen::MatrixXd hess;
+    Eigen::VectorXd d1;
+   
+    calcAnalyticRegDervs(hess, d1);
+    
+    double d1Diff = 0;
+    double d2Diff = 0;
+    for(int i = 0; i < k; i++){
+        Rprintf("d1_num = %f, d1_analytic = %f  ", reg_d1[i], d1[i]);
+        d1Diff = max(d1Diff, abs(d1[i] - reg_d1[i]));
+        for(int j = 0; j < k; j++){
+            d2Diff = max(d2Diff, abs(hess(i,j) - reg_d2(i,j)));
+       //     Rprintf("d2_num = %f, d2_analytic = %f  ", reg_d2(i,j), hess(i,j));
+        }
+        Rprintf("\n");
+    }
+    Rprintf("max diffs = %f, %f\n", d1Diff, d2Diff);
+*/
+    calcAnalyticRegDervs(reg_d2, reg_d1);
+    
     
     double lk_0 = sum_llk();
-    int k = reg_par.size();
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> esolve(reg_d2);
     Eigen::VectorXd evals(1);
     evals[0] = 1;

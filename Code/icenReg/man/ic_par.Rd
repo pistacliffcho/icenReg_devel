@@ -27,13 +27,13 @@
 } 
   
 \examples{
-	data(mice_data)
+	data(miceData)
 	
 	logist_ph_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, 
-	                        data = mice_data, dist = 'loglogistic')
+	                        data = miceData, dist = 'loglogistic')
 
 	logist_po_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, 
-	                        data = mice_data, dist = 'loglogistic', model = 'po')
+	                        data = miceData, dist = 'loglogistic', model = 'po')
 
 	summary(logist_ph_fit)
 	summary(logist_po_fit)

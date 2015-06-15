@@ -115,7 +115,10 @@ public:
     
     virtual double basHaz2CondS(double ch, double eta) = 0;     //done
     virtual double base_d1_contr(double h, double pob, double eta) = 0; //done, not checked
-    virtual void calcRegDervs() = 0;
+    virtual double reg_d1_lnk(double ch, double xb) = 0;
+    virtual double reg_d2_lnk(double ch, double xb) = 0;
+    
+    void calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d1);
     void rawDervs2ActDervs();
     
     Eigen::VectorXd     baseCH;     //Vector of baseline log cumulative hazards.
@@ -156,7 +159,15 @@ public:
         return (-exp(logAns));
     }
     
-    void calcRegDervs(){return;}
+    double reg_d1_lnk(double ch, double xb){
+        double term1 = -exp(ch + xb);
+        return(-exp(term1 + ch + xb));
+    }
+    double reg_d2_lnk(double ch, double xb){
+        double term1 = -exp(ch + xb);
+        double term2 = exp(term1);
+        return(term1 * term2 + term1 * term1 *term2);
+    }
     virtual ~actSet_ph(){};
 };
 
@@ -176,7 +187,20 @@ public:
         return (-exp(logAns));
     }
     
-    void calcRegDervs(){return;}
+    double reg_d1_lnk(double ch, double xb){
+        double s = exp(-exp(ch));
+        double a = s * exp(xb);
+        return( a * (1-s) / pow(a - s + 1, 2.0) );
+    }
+    double reg_d2_lnk(double ch, double xb){
+        double s = exp(-exp(ch));
+        double a = s * exp(xb);
+        double b = a - s + 1;
+        double top = a * (1 - s) * b - 2 * a * a *(1-s);
+        double bottom = b * b * b;
+        double ans = top / bottom;
+        return(ans);
+    }
     virtual ~actSet_po(){};
 };
 

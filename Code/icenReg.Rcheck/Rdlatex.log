@@ -74,18 +74,19 @@ ametric
 (/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [1{/usr/lo
 cal/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [2] [3]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [4]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd) [4]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [6]
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 301--302
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (6.05704pt too wide) in paragraph at lines 347--348
 []\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
 ial", "weibull", "gamma", "lnorm" and "loglo-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7]
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 364--365
+[7] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 410--411
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[8] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd) [9]
+[9] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [10]
 No file Rd2.ind.
 [11] (./Rd2.aux)
@@ -104,12 +105,12 @@ s/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
 /urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times
 /utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pf
 b></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (11 pages, 94228 bytes).
+Output written on Rd2.pdf (11 pages, 96053 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.15 [TeX Live 2014] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (11 entries accepted, 0 rejected).
-Sorting entries....done (37 comparisons).
-Generating output file Rd2.ind....done (36 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (12 entries accepted, 0 rejected).
+Sorting entries....done (42 comparisons).
+Generating output file Rd2.ind....done (40 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex)
@@ -186,23 +187,24 @@ ametric
 [1{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [2] [3]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [4]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd) [4]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [6]
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 301--302
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (6.05704pt too wide) in paragraph at lines 347--348
 []\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
 ial", "weibull", "gamma", "lnorm" and "loglo-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7]
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 364--365
+[7] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 410--411
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[8] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd) [9]
+[9] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [10] (./Rd2.ind
 [11]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 22.
+(Font)              using `T1/zi4/m/n' instead on input line 26.
 
 [12]) (./Rd2.aux)
 
@@ -223,12 +225,12 @@ s/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
 /urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times
 /utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pf
 b></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (12 pages, 96569 bytes).
+Output written on Rd2.pdf (12 pages, 98685 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.15 [TeX Live 2014] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (11 entries accepted, 0 rejected).
-Sorting entries....done (37 comparisons).
-Generating output file Rd2.ind....done (36 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (12 entries accepted, 0 rejected).
+Sorting entries....done (42 comparisons).
+Generating output file Rd2.ind....done (40 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex)
@@ -305,23 +307,24 @@ ametric
 [1{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [2] [3]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [4]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd) [4]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [6]
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 301--302
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (6.05704pt too wide) in paragraph at lines 347--348
 []\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
 ial", "weibull", "gamma", "lnorm" and "loglo-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7]
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 364--365
+[7] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 410--411
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[8] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd) [9]
+[9] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [10] (./Rd2.ind
 [11]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 22.
+(Font)              using `T1/zi4/m/n' instead on input line 26.
 
 [12]) (./Rd2.aux)
 
@@ -337,8 +340,8 @@ s/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
 /urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times
 /utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pf
 b></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (12 pages, 96917 bytes).
+Output written on Rd2.pdf (12 pages, 99014 bytes).
 Transcript written on Rd2.log.
 Saving output to 'icenReg-manual.pdf' ...
 Done
-You may want to clean up by 'rm -rf /var/folders/sj/v7zs5bys1ysfnbwq1cnjkfp40000gp/T//RtmpC0LzzA/Rd2pdf69f4473c05fc'
+You may want to clean up by 'rm -rf /var/folders/sj/v7zs5bys1ysfnbwq1cnjkfp40000gp/T//RtmpbROpqI/Rd2pdf91e2408e1048'

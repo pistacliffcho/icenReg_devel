@@ -10,7 +10,7 @@
 
 double IC_parOpt::calcLike_baseReady(){
     double ans = 0;
-    double w_ind = 0;
+    double w_ind = -1;
     for(int i = 0; i < uc.size(); i++){
         w_ind++;
         ans += log(lnkFn->con_d(d_v[uc[i].d], s_v[uc[i].s], expEta[uc[i].nu])) * w[w_ind] ;
@@ -28,6 +28,7 @@ double IC_parOpt::calcLike_baseReady(){
         w_ind++;
         ans += log(lnkFn->con_s(s_v[rc[i].l], expEta[rc[i].nu])) * w[w_ind];
     }
+    
     if(isnan(ans)) ans = R_NegInf;
     return(ans);
 }
@@ -125,6 +126,10 @@ void IC_parOpt::NR_baseline_pars(){
     while(lk_new < lk_0 && tries < 10){
         tries++;
         propVec *= 0.5;
+        b_pars += propVec;
+        lk_new = calcLike_all();
+    }
+    if(lk_new < lk_0){
         b_pars += propVec;
         lk_new = calcLike_all();
     }
@@ -271,11 +276,18 @@ void IC_parOpt::NR_reg_pars(){
         if(esolve.info() == Eigen::Success)
             evals = esolve.eigenvalues();
     }
-    
-    if(max(evals) > 0){
-        return;
+   
+    Eigen::VectorXd propVec(k);
+    if(max(evals) > 0)  {propVec = -d2_betas.ldlt().solve(d_betas);}
+        else{
+        for(int i = 0; i < k; i++){
+            propVec[i] = 0;
+            if(d2_betas(i,i) < 0)   propVec[i] = -d_betas[i] / d2_betas(i,i);
+            else propVec[i] = signVal(d_betas[i]) * 0.01;
+        
+        if(isnan(propVec[i])) propVec[i] = 0;
+        }
     }
-    Eigen::VectorXd propVec = -d2_betas.ldlt().solve(d_betas);
     tries = 0;
     betas += propVec;
     propVec *= -1;
@@ -284,6 +296,11 @@ void IC_parOpt::NR_reg_pars(){
     while(lk_new < lk_0 && tries < 10){
         tries++;
         propVec *= 0.5;
+        betas += propVec;
+        update_etas();
+        lk_new = calcLike_all();
+    }
+    if(lk_new < lk_0){
         betas += propVec;
         update_etas();
         lk_new = calcLike_all();
@@ -405,7 +422,7 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
     if(optObj.lnkFn == NULL) return(R_NilValue);
     double lk_old = R_NegInf;
     int iter = 0;
-    int maxIter = 100;
+    int maxIter = 1000;
     double tol = pow(10, -10);
     double lk_new = optObj.calcLike_all();
 
@@ -446,6 +463,7 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
         Rprintf("failed to find adequate starting point! Please contact maintainer of package\n");
         return(R_NilValue);
     }
+    
     while(iter < maxIter && lk_new - lk_old > tol){
         lk_old = lk_new;
         iter++;
