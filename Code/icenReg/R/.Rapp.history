@@ -552,3 +552,36 @@ sim_data <- simIC_weib(n = 2000, b1 = .3, b2 = -.3, model = 'ph', #
 	#simulates data from a cox-ph with beta weibull distribution.#
 	diag_covar(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data, model = 'po')
 weights
+library(icenReg)
+?essIncData
+data(essIncData)#
+	lnormFit <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 	#
+	                   data = essIncData,#
+	                   model = 'po',#
+	                   dist = 'loglogistic')#
+	summary(lnormFit)
+data(essIncData)#
+	corFit <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 	#
+	                   data = essIncData,#
+	                   model = 'po',#
+	                   dist = 'loglogistic', recenterCovar = F)#
+	summary(lnormFit)
+ls(lnormfit)
+ls(lnormFit)
+corFit$hessian
+lnormFit$pca_info$rotation %*% lnormFit$pca_hessian
+dim(lnormFit$pca_hessian)
+dim(lnormFit$pca_info$rotation)
+hessTransMat <- diag(1, 13)
+hessTransMat[(-1:-2), (-1:-2)] <- lnormFIt$pca_info$rotation
+hessTransMat[(-1:-2), (-1:-2)] <- lnormFit$pca_info$rotation
+lnormFit$pca_info$rotation %*% lnormFit$pca_hessian
+hessTransMat %*% lnormFit$pca_hessian
+library(icenReg)
+?essIncData
+data(essIncData)#
+	lnormFit <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 	#
+	                   data = essIncData,#
+	                   model = 'po',#
+	                   dist = 'loglogistic')#
+	summary(lnormFit)

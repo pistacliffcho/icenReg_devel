@@ -427,9 +427,9 @@ void actSet_Abst::uniActiveOptim(int raw_ind){
     if(llk_nw < llk_st){
         act_addPar(act_ind, prop);
         llk_nw = par_llk(act_ind);
-        if( (llk_nw - llk_st) < -pow(10, -12)){
+/*        if( (llk_nw - llk_st) < -pow(10, -12)){
             Rprintf("warning: likelihood decreased in uniActiveOptim. Difference = %f\n", llk_nw - llk_st);
-        }
+        }  */
         prop = 0;
     }
     
@@ -447,6 +447,7 @@ void actSet_Abst::vem_step(){
 }
 
 void actSet_Abst::icm_step(){
+    
     vector<double> d1;
     vector<double> d2;
     numericBaseDervsAllAct(d1, d2);
@@ -479,6 +480,9 @@ void actSet_Abst::icm_step(){
     
     for(int i = 0; i < actIndex.size(); i++)
         checkIfActShouldDrop(i);
+
+    for(int i = 0; i < actIndex.size(); i++)
+        uniActiveOptim(actIndex[i].ind);
 }
 
 void actSet_Abst::calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d1){
@@ -494,7 +498,7 @@ void actSet_Abst::calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d
     Eigen::VectorXd totCont2(n);
     
     int lind, rind;
-    double l_ch, r_ch, eta, pob;
+    double l_ch, r_ch, eta, pob, log_p;
     for(int i = 0; i < n; i++){
         l_cont[i]  = 0;
         r_cont[i]  = 0;
@@ -504,16 +508,17 @@ void actSet_Abst::calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d
         lind = obs_inf[i].l;
         rind = obs_inf[i].r;
         pob  = obs_inf[i].pob;
+        log_p = log(pob);
         l_ch = baseCH[lind];
         r_ch = baseCH[rind + 1];
         eta  = etas[i];
         if(l_ch > R_NegInf){
-            l_cont[i]  = reg_d1_lnk(l_ch, eta)/pob;
-            l_cont2[i] = reg_d2_lnk(l_ch, eta)/pob;
+            l_cont[i]  = reg_d1_lnk(l_ch, eta, log_p);
+            l_cont2[i] = reg_d2_lnk(l_ch, eta, log_p);
         }
         if(r_ch < R_PosInf){
-            r_cont[i]  = -reg_d1_lnk(r_ch, eta)/pob;
-            r_cont2[i] = -reg_d2_lnk(r_ch, eta)/pob;
+            r_cont[i]  = -reg_d1_lnk(r_ch, eta, log_p);
+            r_cont2[i] = -reg_d2_lnk(r_ch, eta, log_p);
         }
         totCont[i] = l_cont[i] + r_cont[i];
         totCont2[i] = l_cont2[i] + r_cont2[i] - totCont[i] * totCont[i];
@@ -590,9 +595,9 @@ void actSet_Abst::numericRegDervs(){
 void actSet_Abst::covar_nr_step(){
     int k = reg_par.size();
 
+/*
+    numericRegDervs();
 
-/*  numericRegDervs();
-    
     Eigen::MatrixXd hess;
     Eigen::VectorXd d1;
    
@@ -605,14 +610,14 @@ void actSet_Abst::covar_nr_step(){
         d1Diff = max(d1Diff, abs(d1[i] - reg_d1[i]));
         for(int j = 0; j < k; j++){
             d2Diff = max(d2Diff, abs(hess(i,j) - reg_d2(i,j)));
-       //     Rprintf("d2_num = %f, d2_analytic = %f  ", reg_d2(i,j), hess(i,j));
+            Rprintf("d2_num = %f, d2_analytic = %f  ", reg_d2(i,j), hess(i,j));
         }
         Rprintf("\n");
     }
     Rprintf("max diffs = %f, %f\n", d1Diff, d2Diff);
 */
     calcAnalyticRegDervs(reg_d2, reg_d1);
-    
+
     
     double lk_0 = sum_llk();
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> esolve(reg_d2);
@@ -669,15 +674,25 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w){
     double llk_new = optObj->sum_llk();
     int tries = 0;
     
-    while(tries < 500 && (llk_new - llk_old) > pow(10, -10)){
+    bool metOnce = false;
+    double tol = pow(10, -10);
+    while(tries < 500 && (llk_new - llk_old) > tol){
         tries++;
         llk_old = llk_new;
         
         optObj->vem_step();
         if(optObj->hasCovars)       optObj->covar_nr_step();
-        for(int i = 0; i < 5; i++)  optObj->icm_step();
+        for(int i = 0; i < 10; i++)  {optObj->icm_step(); }
         llk_new = optObj->sum_llk();
+        
+        if(llk_new - llk_old > tol){metOnce = false;}
+        if(metOnce == false){
+            if(llk_new - llk_old <= tol){
+                metOnce = true;
+                llk_old = llk_old - 2 * tol;
+            }
         }
+    }
 
  
     if((llk_new - llk_old) < -0.00001 ){

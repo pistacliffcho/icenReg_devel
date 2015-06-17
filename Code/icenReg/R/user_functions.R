@@ -1,21 +1,6 @@
-#Updates from v1.1.1
-#	Added proportional odds model
-#   Added semi parametric models (models = ph and po, dists = exp, weib, gamma, lnorm, loglogistic)
-#	Added diagnostic tools for covariates and baseline distributions
-#   At C++ level, switched to abstract class IC_OptimInfo instead of ICPH_OptimInfo
-#   Added simulation of proportional odds
-#	switched to ASA algorithm 
 
-#Updates for v1.1.1:
-#	Stricter convergence criteria (10^-10 instead of 10^-7)
-#	Allows for bs_samples = 0 in ic_ph
-#	Allows for fitting of models with only 1 covariate
-#	Fixed bug in parameterization of imputation model
-#	Fixed bug that imputation model sometimes simulates Inf, breaking coxph
-#	Added dataset (mdata)
-#	slight modification in plot of survival curve
 
-ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL){
+ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL, recenterCovars = TRUE){
 	if(missing(data)) stop('data argument required')
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -65,7 +50,9 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	if(any(is.na(weights) > 0) )		stop('NAs not allowed in weights')
 	if(any(weights < 0)	)				stop('negative weights not allowed')
 	
-   	fitInfo <- fit_ICPH(yMat, x, callText, weights)
+	if(ncol(x) == 0) recenterCovars = FALSE
+	
+   	fitInfo <- fit_ICPH(yMat, x, callText, weights, recenterCovars = recenterCovars)
 	dataEnv <- list()
 	dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
 	if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- as.character(formula[[3]])
@@ -633,7 +620,7 @@ diag_covar <- function(object, varName,
 
 
 
-ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL){
+ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL, recenterCovar = TRUE){
 	if(missing(data)) stop('data argument required')
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -677,7 +664,8 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
 	if(length(weights) != nrow(yMat))	stop('weights improper length!')
 	if(min(weights) < 0)				stop('negative weights not allowed!')
 	if(sum(is.na(weights)) > 0)			stop('cannot have weights = NA')
-   	fitInfo <- fit_par(yMat, x, parFam = dist, link = model, leftCen = 0, rightCen = Inf, uncenTol = 10^-6, regnames = xNames, weights = weights)
+	if(ncol(x) == 0) recenterCovar = FALSE
+   	fitInfo <- fit_par(yMat, x, parFam = dist, link = model, leftCen = 0, rightCen = Inf, uncenTol = 10^-6, regnames = xNames, weights = weights, recenterCovar = recenterCovar)
 	fitInfo$call = cl
 	fitInfo$formula = formula
     class(fitInfo) <- c(callText, 'icenReg_fit', 'par_fit')
