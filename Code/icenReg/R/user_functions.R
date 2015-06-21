@@ -1,6 +1,6 @@
 
 
-ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL, recenterCovars = TRUE){
+ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL){
 	if(missing(data)) stop('data argument required')
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -50,9 +50,9 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	if(any(is.na(weights) > 0) )		stop('NAs not allowed in weights')
 	if(any(weights < 0)	)				stop('negative weights not allowed')
 	
-	if(ncol(x) == 0) recenterCovars = FALSE
+	if(is.null(ncol(x)) ) recenterCovars = FALSE
 	
-   	fitInfo <- fit_ICPH(yMat, x, callText, weights, recenterCovars = recenterCovars)
+   	fitInfo <- fit_ICPH(yMat, x, callText, weights)
 	dataEnv <- list()
 	dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
 	if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- as.character(formula[[3]])
@@ -244,9 +244,10 @@ summary.icenReg_fit <- function(object,...){
 		if(inherits(fit, 'impute_par_icph')){
 			cat('\nnumber of imputations = ', nrow(fit$imp_coef), '\n')
 		}
-		if(inherits(fit, 'par_fit'))
+		if(inherits(fit, 'par_fit')){
 			cat('\nfinal llk = ', fit$final_llk, '\n')
 			cat('Iterations = ', fit$iterations,'\n')
+		}
 	}
 	else{
 		colNames <- c('Estimate', 'Exp(Est)')
@@ -620,7 +621,7 @@ diag_covar <- function(object, varName,
 
 
 
-ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL, recenterCovar = TRUE){
+ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL){
 	if(missing(data)) stop('data argument required')
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -664,8 +665,8 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
 	if(length(weights) != nrow(yMat))	stop('weights improper length!')
 	if(min(weights) < 0)				stop('negative weights not allowed!')
 	if(sum(is.na(weights)) > 0)			stop('cannot have weights = NA')
-	if(ncol(x) == 0) recenterCovar = FALSE
-   	fitInfo <- fit_par(yMat, x, parFam = dist, link = model, leftCen = 0, rightCen = Inf, uncenTol = 10^-6, regnames = xNames, weights = weights, recenterCovar = recenterCovar)
+	if(is.null(ncol(x))) recenterCovar = FALSE
+   	fitInfo <- fit_par(yMat, x, parFam = dist, link = model, leftCen = 0, rightCen = Inf, uncenTol = 10^-6, regnames = xNames, weights = weights)
 	fitInfo$call = cl
 	fitInfo$formula = formula
     class(fitInfo) <- c(callText, 'icenReg_fit', 'par_fit')
@@ -741,7 +742,11 @@ getFitEsts <-function(fit, newdata, p, q){
 
 diag_baseline <- function(object, data, model = 'ph', weights = NULL,
 						  dists = c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic'),
-						  max_n_use = 10000, cols = NULL, lgdLocation = 'bottomleft'){
+						  max_n_use = 10000, cols = NULL, lgdLocation = 'bottomleft',
+						  useMidCovars = T){
+						  	
+	newdata = NULL
+	if(useMidCovars) newdata <- 'midValues'
 	formula <- getFormula(object)
 	if(missing(data))	data <- getData(object)
 
@@ -750,14 +755,14 @@ diag_baseline <- function(object, data, model = 'ph', weights = NULL,
 	weights <- subDataInfo$w
 
 	sp_fit <- ic_sp(formula, data = sp_data, bs_samples = 0, model = model)
-	plot(sp_fit)
+	plot(sp_fit, newdata)
 	xrange <- range(getSCurves(sp_fit)$Tbull_ints, finite = TRUE)
 	grid <- xrange[1] + 0:100/100 *(xrange[2] - xrange[1])
 	if(is.null(cols)) cols <- 1 + 1:length(dists)
 	for(i in seq_along(dists)){
 		this_dist <- dists[i]
 		par_fit <- ic_par(formula, data = data, model = model, dist = this_dist)
-		y <- getFitEsts(par_fit, q = grid)
+		y <- getFitEsts(par_fit, newdata = newdata, q = grid)
 		lines(grid, 1 - y, col = cols[i])
 	}
 	legend(lgdLocation, legend = c('Semi-parametric', dists), col = c('black', cols), lwd = 1)

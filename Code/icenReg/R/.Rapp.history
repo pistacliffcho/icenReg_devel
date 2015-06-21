@@ -585,3 +585,5 @@ data(essIncData)#
 	                   model = 'po',#
 	                   dist = 'loglogistic')#
 	summary(lnormFit)
+x <- 1:10
+ncol(x)

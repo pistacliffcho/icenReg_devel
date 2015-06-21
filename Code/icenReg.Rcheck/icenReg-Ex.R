@@ -72,18 +72,19 @@ flush(stderr()); flush(stdout())
 
 ### ** Examples
 
-	data(essIncData)
-	
-	lnormFit <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 	
-	                   data = essIncData,
-	                   model = 'po',
-	                   dist = 'loglogistic')
-	
-	summary(lnormFit)
+#	Not run
+
+#	data(essIncData)
+#	
+#	lnormFit <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 	
+#	                   data = essIncData,
+#	                   model = 'po',
+#	                   dist = 'loglogistic')
+#	
+#	summary(lnormFit)
 
 
 
-graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 cleanEx()
 nameEx("getFitEsts")
 ### * getFitEsts
@@ -266,7 +267,7 @@ flush(stderr()); flush(stdout())
 ### ** Examples
 
 	set.seed(1)
-	sim_data <- simIC_weib(n = 2000, b1 = .3, b2 = -.3, model = 'ph', 
+	sim_data <- simIC_weib(n = 500, b1 = .3, b2 = -.3, model = 'ph', 
 	                       shape = 2, scale = 2, inspections = 6, inspectLength = 1)
 	#simulates data from a cox-ph with beta weibull distribution.
 	

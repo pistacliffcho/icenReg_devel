@@ -25,7 +25,7 @@
 
 \examples{
 	set.seed(1)
-	sim_data <- simIC_weib(n = 2000, b1 = .3, b2 = -.3, model = 'ph', 
+	sim_data <- simIC_weib(n = 500, b1 = .3, b2 = -.3, model = 'ph', 
 	                       shape = 2, scale = 2, inspections = 6, inspectLength = 1)
 	#simulates data from a cox-ph with beta weibull distribution.
 	

@@ -10,21 +10,25 @@
 
 double IC_parOpt::calcLike_baseReady(){
     double ans = 0;
-    double w_ind = -1;
-    for(int i = 0; i < uc.size(); i++){
+    int w_ind = -1;
+    int thisSize = uc.size();
+    for(int i = 0; i < thisSize; i++){
         w_ind++;
         ans += log(lnkFn->con_d(d_v[uc[i].d], s_v[uc[i].s], expEta[uc[i].nu])) * w[w_ind] ;
     }
-    for(int i = 0; i < gic.size(); i++){
+    thisSize = gic.size();
+    for(int i = 0; i < thisSize; i++){
         w_ind++;
         ans += log(lnkFn->con_s(s_v[gic[i].l], expEta[gic[i].nu])
                    -lnkFn->con_s(s_v[gic[i].r], expEta[gic[i].nu]) ) * w[w_ind];
     }
-    for(int i = 0; i < lc.size(); i++){
+    thisSize = lc.size();
+    for(int i = 0; i < thisSize; i++){
         w_ind++;
         ans += log(1.0 - lnkFn->con_s(s_v[lc[i].r], expEta[lc[i].nu])) * w[w_ind];
     }
-    for(int i = 0; i < rc.size(); i++){
+    thisSize = rc.size();
+    for(int i = 0; i < thisSize; i++){
         w_ind++;
         ans += log(lnkFn->con_s(s_v[rc[i].l], expEta[rc[i].nu])) * w[w_ind];
     }

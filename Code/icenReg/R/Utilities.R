@@ -11,7 +11,8 @@ findMaximalIntersections <- function(lower, upper){
 }
 
 
-fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, recenterCovars){
+fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights){
+	recenterCovars <- TRUE
 	mi_info <- findMaximalIntersections(obsMat[,1], obsMat[,2])
 	k = length(mi_info[['mi_l']])
 	covars <- as.matrix(covars)
@@ -76,8 +77,11 @@ expandX <- function(formula, data, fit){
 
 ###		PARAMETRIC FIT UTILITIES
 
-fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', leftCen = 0, rightCen = Inf, uncenTol = 10^-6, regnames, weights, recenterCovar){
+fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', leftCen = 0, rightCen = Inf, uncenTol = 10^-6, regnames, weights){
+	recenterCovar <- TRUE
 	etaOffset = 0
+	if(!is.matrix(x_mat))
+		x_mat <- matrix(x_mat, ncol = 1)
 	if(recenterCovar == TRUE){
 		prcomp_xmat <- prcomp(x_mat, center = TRUE, scale. = TRUE)
 		x_mat <- prcomp_xmat$x
@@ -111,7 +115,10 @@ fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', leftCen = 0, ri
 	
 	w_reordered <- c(weights[isUncen], weights[isGCen], weights[isLeftCen], weights[isRightCen])
 	
-	if(is.matrix(x_mat))			x_mat_rearranged <- rbind(x_mat[isUncen,], x_mat[isGCen,], x_mat[isLeftCen,], x_mat[isRightCen,])
+	if(is.matrix(x_mat)	){
+		if(ncol(x_mat) > 1)	x_mat_rearranged <- rbind(x_mat[isUncen,], x_mat[isGCen,], x_mat[isLeftCen,], x_mat[isRightCen,])
+		else				x_mat_rearranged <- matrix(c(x_mat[isUncen], x_mat[isGCen], x_mat[isLeftCen], x_mat[isRightCen]), ncol = 1)
+	}
 	else if(length(x_mat) != 0)		x_mat_rearranged <- matrix(c(x_mat[isUncen], x_mat[isGCen], x_mat[isLeftCen], x_mat[isRightCen]), ncol = 1)
 	else							x_mat_rearranged <- matrix(ncol = 0, nrow = nrow(x_mat))
 	storage.mode(x_mat_rearranged) <- 'double'
@@ -152,7 +159,7 @@ fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', leftCen = 0, ri
 		fit$reg_pars   <- transformedPar$pars[-1:-k_base]
 		fit$var        <- transformedPar$var	
 		fit$hessian    <- solve(fit$var)
-		fit$baseOffset <- fit$reg_pars %*% prcomp_xmat$center
+		fit$baseOffset <- as.numeric(fit$reg_pars %*% prcomp_xmat$center)
 	}
 	
 	names(fit$reg_pars) <- regnames
@@ -371,6 +378,12 @@ s_loglgst <- function(x, par){
 
 get_etas <- function(fit, newdata = NULL){
 	if(is.null(newdata)){ans <- exp(-fit$baseOffset); names(ans) <- 'baseline'; return(ans)}
+	if(is.character(newdata)){
+		if(newdata == 'midValues')
+		ans <- 1
+		names(ans) <- 'Mean Covariate Values'
+		return(ans)
+	}
 	grpNames <- rownames(newdata)
 	reducFormula <- fit$formula
 	reducFormula[[2]] <- NULL

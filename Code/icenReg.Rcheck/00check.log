@@ -1,4 +1,4 @@
-* using log directory ‘/Users/cliffandersonbergman/Desktop/icenReg_gitHub/Code/icenReg.Rcheck’
+* using log directory ‘/Users/cliffandersonbergman/Desktop/icenReg_devel/Code/icenReg.Rcheck’
 * using R version 3.2.0 (2015-04-16)
 * using platform: x86_64-apple-darwin13.4.0 (64-bit)
 * using session charset: UTF-8
@@ -7,25 +7,15 @@
 * this is package ‘icenReg’ version ‘1.2.5’
 * checking package namespace information ... OK
 * checking package dependencies ... OK
-* checking if this is a source package ... WARNING
-Subdirectory ‘icenReg/src’ contains apparent object files/libraries
-  icenReg.o icenReg.so
-Object files/libraries should not be included in a source package.
+* checking if this is a source package ... OK
 * checking if there is a namespace ... OK
 * checking for executable files ... OK
 * checking for hidden files and directories ... NOTE
 Found the following hidden files and directories:
   .DS_Store
-  R/.DS_Store
   R/.Rapp.history
-  data/.DS_Store
-  man/.DS_Store
   man/.Rapp.history
   src/.DS_Store
-  src/Eigen_local/.DS_Store
-  src/Eigen_local/src/.DS_Store
-  src/Eigen_local/src/Core/.DS_Store
-  src/icenReg_files/.DS_Store
 These were most likely included in error. See section ‘Package
 structure’ in the ‘Writing R Extensions’ manual.
 * checking for portable file names ... OK
@@ -66,4 +56,4 @@ structure’ in the ‘Writing R Extensions’ manual.
 * checking examples ... OK
 * checking PDF version of manual ... OK
 * DONE
-Status: 1 WARNING, 1 NOTE
+Status: 1 NOTE

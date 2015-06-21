@@ -93,42 +93,19 @@ Loading required package: foreach
 > 
 > ### ** Examples
 > 
-> 	data(essIncData)
-> 	
-> 	lnormFit <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 	
-+ 	                   data = essIncData,
-+ 	                   model = 'po',
-+ 	                   dist = 'loglogistic')
-> 	
-> 	summary(lnormFit)
-
-Model: Proportional Odds
-Baseline: loglogistic
-Call = 
-ic_par(formula = Surv(inc_l, inc_u, type = "interval2") ~ eduLevel * 
-    cntry, data = essIncData, model = "po", dist = "loglogistic")
-
-                               Estimate  Exp(Est) Std. Error  z-value         p
-log_alpha                       7.75000 2322.0000    0.02028 382.1000 0.000e+00
-log_beta                        1.04300    2.8360    0.01190  87.6300 0.000e+00
-eduLevel[12,16)                 1.12300    3.0740    0.08921  12.5900 0.000e+00
-eduLevel[16,Inf)                2.17100    8.7700    0.11870  18.2900 0.000e+00
-cntryPoland                     2.69700   14.8400    0.09554  28.2300 0.000e+00
-cntryRussia                     0.96120    2.6150    0.08485  11.3300 0.000e+00
-cntrySlovakia                   1.12500    3.0800    0.11390   9.8790 0.000e+00
-eduLevel[12,16):cntryPoland    -0.20260    0.8166    0.13960  -1.4510 1.467e-01
-eduLevel[16,Inf):cntryPoland   -0.20600    0.8139    0.17060  -1.2080 2.272e-01
-eduLevel[12,16):cntryRussia    -0.06104    0.9408    0.12290  -0.4968 6.193e-01
-eduLevel[16,Inf):cntryRussia   -0.38800    0.6784    0.16740  -2.3180 2.043e-02
-eduLevel[12,16):cntrySlovakia  -0.28680    0.7507    0.14740  -1.9450 5.176e-02
-eduLevel[16,Inf):cntrySlovakia -0.81890    0.4409    0.18740  -4.3690 1.249e-05
-
-final llk =  -14410.81 
-Iterations =  108 
+> #	Not run
+> 
+> #	data(essIncData)
+> #	
+> #	lnormFit <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 	
+> #	                   data = essIncData,
+> #	                   model = 'po',
+> #	                   dist = 'loglogistic')
+> #	
+> #	summary(lnormFit)
 > 
 > 
 > 
-> graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("getFitEsts")
 > ### * getFitEsts
@@ -233,12 +210,12 @@ ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData,
     dist = "loglogistic")
 
           Estimate Exp(Est) Std. Error z-value       p
-log_alpha   6.7760  876.500     0.1670  40.570 0.00000
-log_beta    0.9077    2.479     0.3979   2.281 0.02254
-grpge       0.8015    2.229     0.3236   2.477 0.01325
+log_alpha   6.6310  758.500    0.08673  76.460 0.00000
+log_beta    0.9596    2.611    0.38670   2.481 0.01309
+grpge       0.8098    2.247    0.32280   2.509 0.01212
 
-final llk =  -80.24882 
-Iterations =  57 
+final llk =  -80.23726 
+Iterations =  24 
 > 	summary(logist_po_fit)
 
 Model: Proportional Odds
@@ -248,12 +225,12 @@ ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData,
     model = "po", dist = "loglogistic")
 
           Estimate Exp(Est) Std. Error z-value        p
-log_alpha    6.746 851.0000     0.1445  46.700 0.000000
-log_beta     1.001   2.7200     0.3828   2.614 0.008947
-grpge       -1.172   0.3097     0.4713  -2.487 0.012880
+log_alpha    6.603 737.2000    0.07747  85.230 0.000000
+log_beta     1.001   2.7200    0.38280   2.614 0.008947
+grpge       -1.172   0.3097    0.47130  -2.487 0.012880
 
 final llk =  -80.30575 
-Iterations =  31 
+Iterations =  16 
 > 
 > 
 > 
@@ -286,7 +263,7 @@ ic_sp(formula = Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data)
 x1   0.5458   1.7260
 x2  -0.5146   0.5977
 final llk =  -643.8913 
-Iterations =  22 
+Iterations =  23 
 Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samples" > 0 (suggested at least 1000)> 	# Regression estimates close to true 0.5 and -0.5 values
 > 
 > 
@@ -310,7 +287,7 @@ ic_sp(formula = Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data,
 x1  -0.6966   0.4983
 x2   0.7135   2.0410
 final llk =  -664.025 
-Iterations =  12 
+Iterations =  9 
 Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samples" > 0 (suggested at least 1000)> 	
 > 	# Not run: how to set up multiple cores
 > 	# library(doParallel)
@@ -338,12 +315,6 @@ Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samp
 > 	coxph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ grp, 
 + 	                   bs_samples = 50,	
 + 	                   data = miceData)
-warning: likelihood decreased! difference = -0.000050
-warning: likelihood decreased! difference = -0.000039
-warning: likelihood decreased! difference = -0.000065
-warning: likelihood decreased! difference = -0.000055
-warning: likelihood decreased! difference = -0.000048
-warning: likelihood decreased! difference = -0.000051
 > 	
 > 	#In practice, more bootstrap samples should be used for inference
 > 	#Keeping it quick for CRAN testing purposes 
@@ -357,13 +328,12 @@ ic_sp(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData,
     bs_samples = 50)
 
       Estimate Exp(Est) Std. Error z-value      p
-grpge   0.6277    1.873     0.4272    1.47 0.1417
+grpge   0.6277    1.873     0.4516    1.39 0.1645
 
 final llk =  -76.53436 
-Iterations =  49 
+Iterations =  28 
 Bootstrap samples =  50 
 CAUTION: recommend more bootstrap samples for inference!
-Iterations =  49 
 > 
 > 
 > 
@@ -381,7 +351,7 @@ Iterations =  49
 > ### ** Examples
 > 
 > 	set.seed(1)
-> 	sim_data <- simIC_weib(n = 2000, b1 = .3, b2 = -.3, model = 'ph', 
+> 	sim_data <- simIC_weib(n = 500, b1 = .3, b2 = -.3, model = 'ph', 
 + 	                       shape = 2, scale = 2, inspections = 6, inspectLength = 1)
 > 	#simulates data from a cox-ph with beta weibull distribution.
 > 	
@@ -396,7 +366,7 @@ Iterations =  49
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  7.711 0.016 7.729 0 0 
+Time elapsed:  1.844 0.016 1.864 0 0 
 > grDevices::dev.off()
 null device 
           1 

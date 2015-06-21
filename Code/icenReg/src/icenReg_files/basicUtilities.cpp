@@ -44,7 +44,8 @@ double max(Eigen::VectorXd v){
 }
 
 void mult_vec(double a, vector<double> &vec){
-    for(int i = 0; i < vec.size(); i++)
+    int thisSize = vec.size();
+    for(int i = 0; i < thisSize; i++)
         vec[i] *= a;
 }
 
@@ -101,7 +102,9 @@ double ic_plnorm(double x, double mu, double s){
 
 void pavaForOptim(vector<double> &d1, vector<double> &d2, vector<double> &x, vector<double> &prop_delta){
     int k = d1.size();
-    if(k != d2.size() || k!= x.size()){ Rprintf("incorrect sizes provided to pavaForOptim\n"); return;}
+    int d2_size = d2.size();
+    int x_size = x.size();
+    if(k != d2_size || k!= x_size){ Rprintf("incorrect sizes provided to pavaForOptim\n"); return;}
     prop_delta.resize(k);
     vector<double> y(k);
     vector<double> w(k);
@@ -110,8 +113,8 @@ void pavaForOptim(vector<double> &d1, vector<double> &d2, vector<double> &x, vec
         y[i] = -d1[i]/d2[i] + x[i];
         w[i] = d2[i]/2;
     }
-    
-    pava( &y[0], &w[0], &k );
+    int k_sign = k;
+    pava( &y[0], &w[0], &k_sign );
     for(int i = 0; i < k; i++){
         prop_delta[i] = y[i] - x[i];
     }
@@ -120,8 +123,8 @@ void pavaForOptim(vector<double> &d1, vector<double> &d2, vector<double> &x, vec
 void addIfNeeded(vector<int> &points, int l, int r, int max){
     if(r > max)     {Rprintf("warning: r > max\n"); return;}
     bool chg_btw = false;
-    
-    for(int i = 0; i < points.size(); i++){
+    int thisSize = points.size();
+    for(int i = 0; i < thisSize; i++){
         if(l < points[i] && (r + 1) >= points[i]) { chg_btw = true;};
  //       if(l <= points[i])  l_below = true;
  //       if( r >= points[i]) r_geq   = true;
