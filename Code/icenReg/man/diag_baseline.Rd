@@ -27,16 +27,19 @@ diag_baseline(object, data, model = "ph", weights = NULL,
 
 }
 \examples{
-	# Not run: requires data from the straweib library. 
+	 data(essIncData_small)
+	 useData <- essIncData_small
+	 
+	 #Note to user: suggest replacing useData with essIncData
+	 #instead of essIncData_small. Using small dataset to quickly 
+	 #pass CRAN tests
+	 
+	 fit_po <- ic_sp(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry,
+	                 data = useData, bs_samples = 0, model = 'po')
 	
-	# library(straweib)
-	# data(tooth24)
-	# fit_po <- ic_sp(Surv(left, right, type = 'interval2') ~ dmf + sex,
-	#                 data = tooth24, bs_samples = 0, model = 'po')
-	#
-	# diag_baseline(fit_po)
+	 diag_baseline(fit_po)
 
-	# Weibull model appears best fit
+	 #Weibull model appears best fit
 }
 \author{
   Clifford Anderson-Bergman

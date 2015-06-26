@@ -79,17 +79,18 @@ cal/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [6]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7]
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 352--353
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (6.05704pt too wide) in paragraph at lines 399--400
 []\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
 ial", "weibull", "gamma", "lnorm" and "loglo-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 415--416
+[8] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [9]
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 462--463
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[9] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [10]
+[10] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [11]
 No file Rd2.ind.
-[11] (./Rd2.aux)
+[12] (./Rd2.aux)
 
 Package rerunfilecheck Warning: File `Rd2.out' has changed.
 (rerunfilecheck)                Rerun to get outlines right
@@ -105,12 +106,12 @@ s/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
 /urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times
 /utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pf
 b></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (11 pages, 96393 bytes).
+Output written on Rd2.pdf (12 pages, 98061 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.15 [TeX Live 2014] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (12 entries accepted, 0 rejected).
-Sorting entries....done (42 comparisons).
-Generating output file Rd2.ind....done (40 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (13 entries accepted, 0 rejected).
+Sorting entries....done (45 comparisons).
+Generating output file Rd2.ind....done (41 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex)
@@ -192,21 +193,22 @@ ametric
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [6]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7]
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 352--353
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
+Overfull \hbox (6.05704pt too wide) in paragraph at lines 399--400
 []\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
 ial", "weibull", "gamma", "lnorm" and "loglo-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 415--416
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [9]
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 462--463
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[9] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [10]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [11] (./Rd2.ind
-[12]
+[10] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [11]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [12] (./Rd2.ind
+[13]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 26.
+(Font)              using `T1/zi4/m/n' instead on input line 27.
 
-[13]) (./Rd2.aux)
+[14]) (./Rd2.aux)
 
 Package rerunfilecheck Warning: File `Rd2.out' has changed.
 (rerunfilecheck)                Rerun to get outlines right
@@ -225,12 +227,12 @@ s/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
 /urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times
 /utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pf
 b></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (13 pages, 99429 bytes).
+Output written on Rd2.pdf (14 pages, 101395 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.15 [TeX Live 2014] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (12 entries accepted, 0 rejected).
-Sorting entries....done (42 comparisons).
-Generating output file Rd2.ind....done (40 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (13 entries accepted, 0 rejected).
+Sorting entries....done (45 comparisons).
+Generating output file Rd2.ind....done (41 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex)
@@ -312,21 +314,22 @@ ametric
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [6]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7]
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 352--353
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
+Overfull \hbox (6.05704pt too wide) in paragraph at lines 399--400
 []\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
 ial", "weibull", "gamma", "lnorm" and "loglo-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 415--416
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [9]
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 462--463
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[9] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [10]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [11] (./Rd2.ind
-[12]
+[10] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [11]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [12] (./Rd2.ind
+[13]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 26.
+(Font)              using `T1/zi4/m/n' instead on input line 27.
 
-[13]) (./Rd2.aux)
+[14]) (./Rd2.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -340,8 +343,8 @@ s/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
 /urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times
 /utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pf
 b></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (13 pages, 100143 bytes).
+Output written on Rd2.pdf (14 pages, 102101 bytes).
 Transcript written on Rd2.log.
 Saving output to 'icenReg-manual.pdf' ...
 Done
-You may want to clean up by 'rm -rf /var/folders/sj/v7zs5bys1ysfnbwq1cnjkfp40000gp/T//RtmpwAG8qC/Rd2pdfe8d8cfc6473'
+You may want to clean up by 'rm -rf /var/folders/sj/v7zs5bys1ysfnbwq1cnjkfp40000gp/T//RtmpCpR1PO/Rd2pdf11b957455118e'

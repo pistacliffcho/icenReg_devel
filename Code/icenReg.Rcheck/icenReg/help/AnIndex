@@ -1,6 +1,7 @@
 diag_baseline	diag_baseline
 diag_covar	diag_covar
 essIncData	essIncData
+essIncData_small	essIncData_small
 getFitEsts	getFitEsts
 getSCurves	getSCurves
 ic_par	ic_par

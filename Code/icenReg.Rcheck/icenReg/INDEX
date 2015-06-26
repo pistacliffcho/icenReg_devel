@@ -3,6 +3,8 @@ diag_baseline           Compare parametric baseline distributions with
 diag_covar              Evaluate covariate effect for regression model
 essIncData              Interval Censored Income Data from European
                         Social Survey
+essIncData_small        Interval Censored Income Data from European
+                        Social Survey
 getFitEsts              Get Estimates from icenReg Regression Model
 getSCurves              Get Estimated Survival Curves from
                         Semi-parametric Model for Interval Censored

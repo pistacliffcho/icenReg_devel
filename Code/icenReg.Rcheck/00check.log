@@ -1,13 +1,20 @@
-* using log directory ‘/Users/cliffandersonbergman/Desktop/icenReg_devel/Code/icenReg.Rcheck’
+* using log directory ‘/Users/cliffandersonbergman/Desktop/gitProjects/icenReg_devel/Code/icenReg.Rcheck’
 * using R version 3.2.0 (2015-04-16)
 * using platform: x86_64-apple-darwin13.4.0 (64-bit)
 * using session charset: UTF-8
+* using option ‘--as-cran’
 * checking for file ‘icenReg/DESCRIPTION’ ... OK
 * checking extension type ... Package
 * this is package ‘icenReg’ version ‘1.2.5’
+* checking CRAN incoming feasibility ... Note_to_CRAN_maintainers
+Maintainer: ‘Clifford Anderson-Bergman <pistacliffcho@gmail.com>’
 * checking package namespace information ... OK
-* checking package dependencies ... OK
-* checking if this is a source package ... OK
+* checking package dependencies ... NOTE
+  No repository set, so cyclic dependency check skipped
+* checking if this is a source package ... WARNING
+Subdirectory ‘icenReg/src’ contains apparent object files/libraries
+  icenReg.o icenReg.so
+Object files/libraries should not be included in a source package.
 * checking if there is a namespace ... OK
 * checking for executable files ... OK
 * checking for hidden files and directories ... NOTE
@@ -18,6 +25,10 @@ Found the following hidden files and directories:
   src/.DS_Store
 These were most likely included in error. See section ‘Package
 structure’ in the ‘Writing R Extensions’ manual.
+
+CRAN-pack does not know about
+  .DS_Store
+  src/.DS_Store
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
 * checking whether package ‘icenReg’ can be installed ... OK
@@ -35,6 +46,7 @@ structure’ in the ‘Writing R Extensions’ manual.
 * checking whether the package can be unloaded cleanly ... OK
 * checking whether the namespace can be loaded with stated dependencies ... OK
 * checking whether the namespace can be unloaded cleanly ... OK
+* checking use of S3 registration ... OK
 * checking dependencies in R code ... OK
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
@@ -42,6 +54,7 @@ structure’ in the ‘Writing R Extensions’ manual.
 * checking R code for possible problems ... OK
 * checking Rd files ... OK
 * checking Rd metadata ... OK
+* checking Rd line widths ... OK
 * checking Rd cross-references ... OK
 * checking for missing documentation entries ... OK
 * checking for code/documentation mismatches ... OK
@@ -56,4 +69,4 @@ structure’ in the ‘Writing R Extensions’ manual.
 * checking examples ... OK
 * checking PDF version of manual ... OK
 * DONE
-Status: 1 NOTE
+Status: 1 WARNING, 2 NOTEs

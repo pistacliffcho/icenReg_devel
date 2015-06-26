@@ -46,22 +46,19 @@ If \code{varName} is not provided, will attempt to figure out how to divide up e
 	\code{lgdLocation} is an argument placed to \code{legend} dictating where the legend will be placed. If \code{lgdLocation = NULL}, will use standard placement given \code{yType}. See \code{?legend} for more details. 
 }
 \examples{
-	# Not run: requires data from the straweib library. 
-	
-	# library(straweib)
-	# data(tooth24)
-	#
-	# diag_covar(Surv(left, right, type = 'interval2') ~ sex + dmf, 
-	#                 data = tooth24, model = 'po')
-	# quartz()
-	# diag_covar(Surv(left, right, type = 'interval2') ~ sex + dmf, 
-	#                 data = tooth24, model = 'ph')
-
-	# For sex, both models fit pretty well
-	# dmf looks a problematic; proportional odds looks a little better
-	# proportional odds also leads to lower final likelihood
-	
-}
+	 data(essIncData_small)
+	 useData <- essIncData_small
+	 
+	 #Note to user: suggest replacing useData with essIncData
+	 #instead of essIncData_small. Using small dataset to quickly 
+	 #pass CRAN tests
+	 par(mfrow = c(1,2))
+	 	 
+	 diag_covar(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 
+		         data = useData, model = 'po')
+		
+	 diag_covar(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 
+		         data = useData, model = 'ph')}
 \author{
   Clifford Anderson-Bergman
 }
