@@ -150,26 +150,25 @@ Loading required package: foreach
 > 	
 > 	summary(lnormFit)
 
-Model: Proportional Odds
-Baseline: loglogistic
-Call = 
-ic_par(formula = Surv(inc_l, inc_u, type = "interval2") ~ eduLevel * 
+Model:  Proportional Odds 
+Baseline:  loglogistic 
+Call: ic_par(formula = Surv(inc_l, inc_u, type = "interval2") ~ eduLevel * 
     cntry, data = essIncData_small, model = "po", dist = "loglogistic")
 
-                               Estimate  Exp(Est) Std. Error  z-value         p
-log_alpha                       8.35200 4239.0000    0.02784 300.0000 0.000e+00
-log_beta                        1.05500    2.8730    0.04375  24.1200 0.000e+00
-eduLevel[12,16)                 1.23600    3.4430    0.34400   3.5940 3.255e-04
-eduLevel[16,Inf)                2.75300   15.6900    0.47150   5.8390 5.260e-09
-cntryPoland                     2.24200    9.4090    0.35070   6.3920 1.638e-10
-cntryRussia                     1.08300    2.9540    0.32040   3.3810 7.211e-04
-cntrySlovakia                   1.15000    3.1580    0.37650   3.0540 2.259e-03
-eduLevel[12,16):cntryPoland     0.22100    1.2470    0.53910   0.4100 6.818e-01
-eduLevel[16,Inf):cntryPoland   -0.01386    0.9862    0.64150  -0.0216 9.828e-01
-eduLevel[12,16):cntryRussia    -0.38500    0.6805    0.47050  -0.8183 4.132e-01
-eduLevel[16,Inf):cntryRussia   -1.04800    0.3507    0.60980  -1.7180 8.574e-02
-eduLevel[12,16):cntrySlovakia  -0.59840    0.5497    0.51260  -1.1670 2.430e-01
-eduLevel[16,Inf):cntrySlovakia -1.15400    0.3155    0.69200  -1.6670 9.554e-02
+                               Estimate  Exp(Est) Std.Error  z-value         p
+log_alpha                       8.35200 4239.0000   0.02784 300.0000 0.000e+00
+log_beta                        1.05500    2.8730   0.04375  24.1200 0.000e+00
+eduLevel[12,16)                 1.23600    3.4430   0.34400   3.5940 3.255e-04
+eduLevel[16,Inf)                2.75300   15.6900   0.47150   5.8390 5.260e-09
+cntryPoland                     2.24200    9.4090   0.35070   6.3920 1.638e-10
+cntryRussia                     1.08300    2.9540   0.32040   3.3810 7.211e-04
+cntrySlovakia                   1.15000    3.1580   0.37650   3.0540 2.259e-03
+eduLevel[12,16):cntryPoland     0.22100    1.2470   0.53910   0.4100 6.818e-01
+eduLevel[16,Inf):cntryPoland   -0.01386    0.9862   0.64150  -0.0216 9.828e-01
+eduLevel[12,16):cntryRussia    -0.38500    0.6805   0.47050  -0.8183 4.132e-01
+eduLevel[16,Inf):cntryRussia   -1.04800    0.3507   0.60980  -1.7180 8.574e-02
+eduLevel[12,16):cntrySlovakia  -0.59840    0.5497   0.51260  -1.1670 2.430e-01
+eduLevel[16,Inf):cntrySlovakia -1.15400    0.3155   0.69200  -1.6670 9.554e-02
 
 final llk =  -1053.966 
 Iterations =  17 
@@ -283,31 +282,29 @@ Iterations =  17
 > 
 > 	summary(logist_ph_fit)
 
-Model: Cox PH
-Baseline: loglogistic
-Call = 
-ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData, 
+Model:  Cox PH 
+Baseline:  loglogistic 
+Call: ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData, 
     dist = "loglogistic")
 
-          Estimate Exp(Est) Std. Error z-value       p
-log_alpha   6.6310  758.500    0.08673  76.460 0.00000
-log_beta    0.9596    2.611    0.38670   2.481 0.01309
-grpge       0.8098    2.247    0.32280   2.509 0.01212
+          Estimate Exp(Est) Std.Error z-value       p
+log_alpha   6.6310  758.500   0.08673  76.460 0.00000
+log_beta    0.9596    2.611   0.38670   2.481 0.01309
+grpge       0.8098    2.247   0.32280   2.509 0.01212
 
 final llk =  -80.23726 
 Iterations =  24 
 > 	summary(logist_po_fit)
 
-Model: Proportional Odds
-Baseline: loglogistic
-Call = 
-ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData, 
+Model:  Proportional Odds 
+Baseline:  loglogistic 
+Call: ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData, 
     model = "po", dist = "loglogistic")
 
-          Estimate Exp(Est) Std. Error z-value        p
-log_alpha    6.603 737.2000    0.07747  85.230 0.000000
-log_beta     1.001   2.7200    0.38280   2.614 0.008947
-grpge       -1.172   0.3097    0.47130  -2.487 0.012880
+          Estimate Exp(Est) Std.Error z-value        p
+log_alpha    6.603 737.2000   0.07747  85.230 0.000000
+log_beta     1.001   2.7200   0.38280   2.614 0.008947
+grpge       -1.172   0.3097   0.47130  -2.487 0.012880
 
 final llk =  -80.30575 
 Iterations =  16 
@@ -338,16 +335,19 @@ Iterations =  16
 > 	
 > 	summary(ph_fit)		
 
-Model: Cox PH
-Baseline: semi-parametric
-Call = 
-ic_sp(formula = Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data)
+Model:  Cox PH 
+Baseline:  semi-parametric 
+Call: ic_sp(formula = Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data)
+
    Estimate Exp(Est)
 x1   0.5458   1.7260
 x2  -0.5146   0.5977
+
 final llk =  -643.8913 
 Iterations =  23 
-Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samples" > 0 (suggested at least 1000)> 	# Regression estimates close to true 0.5 and -0.5 values
+Bootstrap Samples =  0 
+WARNING: only  0  bootstrap samples used for standard errors. Suggest using more bootstrap samples for inference
+> 	# Regression estimates close to true 0.5 and -0.5 values
 > 
 > 
 > 	new_data <- data.frame(x1 = c(0,1), x2 = c(1, 1) )
@@ -361,17 +361,20 @@ Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samp
 > 	
 > 	summary(po_fit)
 
-Model: Proportional Odds
-Baseline: semi-parametric
-Call = 
-ic_sp(formula = Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data, 
+Model:  Proportional Odds 
+Baseline:  semi-parametric 
+Call: ic_sp(formula = Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data, 
     model = "po")
+
    Estimate Exp(Est)
 x1  -0.6966   0.4983
 x2   0.7135   2.0410
+
 final llk =  -664.025 
 Iterations =  9 
-Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samples" > 0 (suggested at least 1000)> 	
+Bootstrap Samples =  0 
+WARNING: only  0  bootstrap samples used for standard errors. Suggest using more bootstrap samples for inference
+> 	
 > 	# Not run: how to set up multiple cores
 > 	# library(doParallel)
 > 	# myCluster <- makeCluster(2, type = 'FORK') 
@@ -407,19 +410,18 @@ Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samp
 > 	
 > 	summary(coxph_fit)
 
-Model: Cox PH
-Baseline: semi-parametric
-Call = 
-ic_sp(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData, 
+Model:  Cox PH 
+Baseline:  semi-parametric 
+Call: ic_sp(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData, 
     bs_samples = 50)
 
-      Estimate Exp(Est) Std. Error z-value      p
-grpge   0.6277    1.873     0.4516    1.39 0.1645
+      Estimate Exp(Est) Std.Error z-value      p
+grpge   0.6277    1.873    0.4516    1.39 0.1645
 
 final llk =  -76.53436 
 Iterations =  28 
-Bootstrap samples =  50 
-CAUTION: recommend more bootstrap samples for inference!
+Bootstrap Samples =  50 
+WARNING: only  50  bootstrap samples used for standard errors. Suggest using more bootstrap samples for inference
 > 
 > 
 > 
@@ -457,7 +459,7 @@ CAUTION: recommend more bootstrap samples for inference!
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  3.564 0.024 3.595 0 0 
+Time elapsed:  3.354 0.02 3.379 0 0 
 > grDevices::dev.off()
 null device 
           1 

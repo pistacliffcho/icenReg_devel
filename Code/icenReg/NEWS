@@ -1,13 +1,20 @@
 UPDATES:
 
+v1.2.6
+models allow for no covariates
+summary(fit) now returns a summary object rather than just printing
+At C++ level, switched isnan to ISNAN
+removed browser() call
+
 v1.2.5
 Adding “weights” options to model fits
 Cleaned up manual
 Added warning to diag_covar if incorrect yType selected
-Added ESS data set
+Added essIncData and essIncData_small datasets
 Switched to analytic derivatives for ic_sp
 Stabilized ic_par algorithm
 Preprocessed covariates with PCA
+
 
 v1.2.1-4
 Fixing bugs reported by CRAN check

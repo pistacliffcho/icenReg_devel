@@ -33,7 +33,7 @@ double IC_parOpt::calcLike_baseReady(){
         ans += log(lnkFn->con_s(s_v[rc[i].l], expEta[rc[i].nu])) * w[w_ind];
     }
     
-    if(isnan(ans)) ans = R_NegInf;
+    if(ISNAN(ans)) ans = R_NegInf;
     return(ans);
 }
 
@@ -119,7 +119,7 @@ void IC_parOpt::NR_baseline_pars(){
                 if(d2_b_pars(i,i) < -0.001) propVec[i] = -d_b_pars[i]/d2_b_pars(i,i);
                 else propVec[i] = signVal(d_b_pars[i]) * 0.1;
             
-                if(isnan(propVec[i])) propVec[i] = 0;
+                if(ISNAN(propVec[i])) propVec[i] = 0;
         }
     }
     
@@ -259,10 +259,12 @@ void IC_parOpt::fillFullHessianAndScore(SEXP r_mat, SEXP score){
 }
 
 void IC_parOpt::NR_reg_pars(){
+    int k = betas.size();
+    if(k == 0) return;
+    
     numericCovar_dervs();
     
     double lk_0 = calcLike_baseReady();
-    int k = betas.size();
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> esolve(d2_betas);
     Eigen::VectorXd evals(1);
     evals[0] = 1;
@@ -289,7 +291,7 @@ void IC_parOpt::NR_reg_pars(){
             if(d2_betas(i,i) < 0)   propVec[i] = -d_betas[i] / d2_betas(i,i);
             else propVec[i] = signVal(d_betas[i]) * 0.01;
         
-        if(isnan(propVec[i])) propVec[i] = 0;
+        if(ISNAN(propVec[i])) propVec[i] = 0;
         }
     }
     tries = 0;

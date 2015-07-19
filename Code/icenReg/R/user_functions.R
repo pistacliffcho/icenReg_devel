@@ -1,5 +1,3 @@
-
-
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL){
 	if(missing(data)) stop('data argument required')
 	cl <- match.call()
@@ -204,7 +202,10 @@ plot.icenReg_fit <- function(x, y, ...){
 	}
 }
 
-summary.icenReg_fit <- function(object,...){
+summary.icenReg_fit <- function(object,...)
+	new('icenRegSummary', object)
+	
+summaryOld.icenReg_fit <- function(object,...){
 	sigfigs = 4
 	fit <- object
 	if(inherits(fit, 'impute_par_icph')) cat('\nMultiple Imputations Cox PH model for interval censored data\n')

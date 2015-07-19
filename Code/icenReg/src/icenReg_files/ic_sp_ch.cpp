@@ -25,7 +25,7 @@ double actSet_Abst::sum_llk(){
         update_p_ob(i);
         ans += log(obs_inf[i].pob) * w[i];
     }
-    if(isnan(ans)) ans = R_NegInf;
+    if(ISNAN(ans)) ans = R_NegInf;
     return(ans);
 }
 
@@ -38,7 +38,7 @@ double actSet_Abst::par_llk(int a_ind){
         update_p_ob(thisInd);
         ans += log(obs_inf[thisInd].pob) * w[thisInd];
     }
-    if(isnan(ans)) ans = R_NegInf;
+    if(ISNAN(ans)) ans = R_NegInf;
     return(ans);
 }
 
@@ -406,7 +406,7 @@ void actSet_Abst::uniActiveOptim(int raw_ind){
     int ak = actIndex.size();
     if(act_ind < ak - 1)   upperLim = actIndex[act_ind+1].par - curVal;
     double prop = 0;
-    if(isnan(dv[0]) || isnan(dv[1]) || dv[0] == R_NegInf || dv[0] == R_PosInf || dv[1] == R_NegInf || dv[1] == R_PosInf){
+    if(ISNAN(dv[0]) || ISNAN(dv[1]) || dv[0] == R_NegInf || dv[0] == R_PosInf || dv[1] == R_NegInf || dv[1] == R_PosInf){
         Rprintf("error: degenerate derivative estimated! quiting uniActiveOptim\n");
         return;
     }
@@ -456,7 +456,7 @@ void actSet_Abst::icm_step(){
     numericBaseDervsAllAct(d1, d2);
     int thisSize = d1.size();
     for(int i = 0; i < thisSize; i ++){
-        if(isnan(d2[i]))    {Rprintf("warning: d2 isnan!\n"); return;}
+        if(ISNAN(d2[i]))    {Rprintf("warning: d2 isnan!\n"); return;}
         if(d2[i] >= 0)      {Rprintf("warning: d2 >= 0 in icm step\n"); return;}
     }
     vector<double> x(d1.size());

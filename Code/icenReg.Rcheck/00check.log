@@ -5,22 +5,23 @@
 * using option ‘--as-cran’
 * checking for file ‘icenReg/DESCRIPTION’ ... OK
 * checking extension type ... Package
-* this is package ‘icenReg’ version ‘1.2.5’
-* checking CRAN incoming feasibility ... Note_to_CRAN_maintainers
+* this is package ‘icenReg’ version ‘1.2.6’
+* checking CRAN incoming feasibility ... NOTE
 Maintainer: ‘Clifford Anderson-Bergman <pistacliffcho@gmail.com>’
+
+Number of updates in past 6 months: 7
 * checking package namespace information ... OK
 * checking package dependencies ... NOTE
   No repository set, so cyclic dependency check skipped
-* checking if this is a source package ... WARNING
-Subdirectory ‘icenReg/src’ contains apparent object files/libraries
-  icenReg.o icenReg.so
-Object files/libraries should not be included in a source package.
+* checking if this is a source package ... OK
 * checking if there is a namespace ... OK
 * checking for executable files ... OK
 * checking for hidden files and directories ... NOTE
 Found the following hidden files and directories:
   .DS_Store
   R/.Rapp.history
+  R/.Rhistory
+  man/.DS_Store
   man/.Rapp.history
   src/.DS_Store
 These were most likely included in error. See section ‘Package
@@ -28,6 +29,7 @@ structure’ in the ‘Writing R Extensions’ manual.
 
 CRAN-pack does not know about
   .DS_Store
+  man/.DS_Store
   src/.DS_Store
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
@@ -47,7 +49,8 @@ CRAN-pack does not know about
 * checking whether the namespace can be loaded with stated dependencies ... OK
 * checking whether the namespace can be unloaded cleanly ... OK
 * checking use of S3 registration ... OK
-* checking dependencies in R code ... OK
+* checking dependencies in R code ... NOTE
+package 'methods' is used but not declared
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
@@ -69,4 +72,4 @@ CRAN-pack does not know about
 * checking examples ... OK
 * checking PDF version of manual ... OK
 * DONE
-Status: 1 WARNING, 2 NOTEs
+Status: 4 NOTEs

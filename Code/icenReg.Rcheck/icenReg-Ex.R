@@ -156,7 +156,7 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 	
 	estQ <- getFitEsts(fit, new_data, p = c(.25, .5, .75))
 	
-	estP <- getFitEsts(fit, q = 400)
+	estP <- getFitEsts(fit, q = 2)
 
 
 

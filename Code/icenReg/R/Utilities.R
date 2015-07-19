@@ -12,7 +12,8 @@ findMaximalIntersections <- function(lower, upper){
 
 
 fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights){
-	recenterCovars <- TRUE
+	recenterCovars = TRUE
+	if(getNumCovars(covars) == 0)	recenterCovars <- FALSE
 	mi_info <- findMaximalIntersections(obsMat[,1], obsMat[,2])
 	k = length(mi_info[['mi_l']])
 	covars <- as.matrix(covars)
@@ -78,7 +79,9 @@ expandX <- function(formula, data, fit){
 ###		PARAMETRIC FIT UTILITIES
 
 fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', leftCen = 0, rightCen = Inf, uncenTol = 10^-6, regnames, weights){
-	recenterCovar <- TRUE
+	recenterCovar <- FALSE
+	k_reg <- getNumCovars(x_mat)
+	if(k_reg > 0)	recenterCovar <- TRUE
 	etaOffset = 0
 	if(!is.matrix(x_mat))
 		x_mat <- matrix(x_mat, ncol = 1)
@@ -123,7 +126,8 @@ fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', leftCen = 0, ri
 	else							x_mat_rearranged <- matrix(ncol = 0, nrow = nrow(x_mat))
 	storage.mode(x_mat_rearranged) <- 'double'
 	x_mat_rearranged <- as.matrix(x_mat_rearranged)	
-	k_reg = ncol(x_mat_rearranged)
+	
+	if(k_reg == 0)	x_mat_rearranged <- matrix(nrow = nrow(x_mat), ncol = k_reg)
 		
 	#regnames = colnames(x_mat_rearranged)
 	if(parFam == 'gamma') {parInd = as.integer(1); k_base = 2; bnames = c('log_shape', 'log_scale')}
@@ -464,15 +468,15 @@ getData <- function(fit){
 }
 
 get_tbull_mid_q <- function(p, s_t, tbulls){
+  if(any(is.na(c(p, s_t, tbulls)))) stop('NAs provided to get_tbull_mid_q')
 	x_low <- tbulls[,1]
 	x_hi <- tbulls[,2]
 	x_range <- range(tbulls)
-	s_t <- s_t
 	k <- length(tbulls)
 	
 	ans <- numeric()
 	
-	for(i in 1:length(p)){
+	for(i in seq_along(p)){
 		this_p <- p[i]
 		if(this_p < 0 | this_p > 1)	stop('attempting to find survival quantile for invalid probability')	
 		if(this_p == 0)			ans[i] <- x_range[1]
@@ -480,7 +484,6 @@ get_tbull_mid_q <- function(p, s_t, tbulls){
 		else{
 			this_s <- 1 - this_p
 			s_ind <- min(which(s_t <= this_s))
-	
 	
 			s_res <- this_s - s_t[s_ind]
 			s_jump <- s_t[s_ind- 1] - s_t[s_ind]
@@ -529,7 +532,7 @@ get_tbull_mid_p <- function(q, s_t, tbulls){
 				else
 					ans[i] <- 1 - (s_t[u_ind] - p_jump)
 												
-				if(ans[i] < 0 | ans[i] > 1) browser()								
+				if(ans[i] < 0 | ans[i] > 1) cat('error occurred ')								
 														
 			}
 		}
@@ -552,4 +555,80 @@ PCAFit2OrgParFit <- function(PCA_info, PCA_Hessian, PCA_parEsts, numIdPars){
 	ans$pars <- pcaTransMat %*% PCA_parEsts
 	ans$var  <- pcaTransMat %*% -solve(PCA_Hessian) %*% t(pcaTransMat)
 	return(ans)
+}
+
+
+###			Summary Class
+
+setRefClass('icenRegSummary',
+			fields = c('summaryParameters',
+					    'model', 
+					    'call', 
+					    'baseline',
+					    'sigFigs',
+					    'fullFit',
+					    'final_llk',
+					    'iterations',
+					    'other'),
+			methods = list(
+				initialize = function(fit){
+					sigFigs <<- 4
+					fullFit <<- fit
+					model  <<- if(fit$model == 'ph') 'Cox PH' else 'Proportional Odds'
+					baseline <<- fit$par
+					colNames <- c('Estimate', 'Exp(Est)', 'Std.Error', 'z-value', 'p')
+					coefs <- fit$coefficients
+					sumPars <- matrix(nrow = length(coefs), ncol = length(colNames))
+					se <- sqrt(diag(fit$var))
+					for(i in seq_along(coefs)){
+						sumPars[i,1] <- coefs[i]
+						sumPars[i,2] <- exp(coefs[i])
+						sumPars[i,3] <- se[i]
+						sumPars[i,4] <- coefs[i]/se[i]
+						sumPars[i,5] <- 2 * (1 - pnorm(abs(sumPars[i,4])))
+					}
+					colnames(sumPars) <- colNames
+					rownames(sumPars) <- names(coefs)
+					sumPars <- signif(sumPars, sigFigs)
+					summaryParameters <<- sumPars
+					call <<- fit$call
+					final_llk <<- fit$final_llk
+					iterations <<- fit$iterations
+					otherList <- list()
+					if(inherits(fit, 'sp_fit')){
+						otherList[['bs_samps']] <- max(c(nrow(fit$bsMat),0))
+					}
+					other <<- otherList
+				},
+				show = function(){
+					printSE <- TRUE
+					sampSizeWarn <- FALSE
+					if(baseline == 'semi-parametric'){
+						if(other[['bs_samps']] <= 1) printSE <- FALSE
+						if(other[['bs_samps']] < 100) sampSizeWarn <- TRUE
+					}
+					cat("\nModel: ", model, "\nBaseline: ", baseline, "\nCall: ")
+					print(call)
+					cat('\n')
+					printMat <- summaryParameters
+					if(!printSE) printMat <- printMat[,1:2]	
+					print(printMat)
+					cat('\nfinal llk = ', final_llk, '\nIterations = ', iterations, '\n')
+					if(inherits(fullFit, 'sp_fit')) cat('Bootstrap Samples = ', other[['bs_samps']], '\n')
+					if(sampSizeWarn){
+						cat("WARNING: only ", other[['bs_samps']], " bootstrap samples used for standard errors. Suggest using more bootstrap samples for inference\n")
+					}
+				}
+			)
+	)
+
+
+getNumCovars <- function(object){
+  dimAns <- dim(object)
+  if(is.null(dimAns)){
+    if(length(object) > 0 ) return(1)
+    return(0)
+  }
+  if(length(dimAns) == 2) return(dimAns[2])
+  stop('problem with getNumCovars')
 }
