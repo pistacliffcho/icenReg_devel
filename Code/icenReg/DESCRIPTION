@@ -1,10 +1,10 @@
 Package: icenReg
 Type: Package
 Title: Regression Models for Interval Censored Data 
-Version: 1.2.6
+Version: 1.2.7
 Date: 2015-07-19
 Author: Clifford Anderson-Bergman 
-Depends: survival, foreach
+Depends: survival, foreach, methods
 Maintainer: Clifford Anderson-Bergman <pistacliffcho@gmail.com>
 Description: Regression models for interval censored data. Currently supports Cox-PH and proportional odds models. Allows for both semi and fully parametric models. Includes functions for easy visual diagnostics of model fits. 
 License: GPL-2

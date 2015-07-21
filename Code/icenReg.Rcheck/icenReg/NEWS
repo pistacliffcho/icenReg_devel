@@ -1,9 +1,10 @@
 UPDATES:
 
 v1.2.6
-Fits allow for no covariates
+models allow for no covariates
 summary(fit) now returns a summary object rather than just printing
 At C++ level, switched isnan to ISNAN
+removed browser() call
 
 v1.2.5
 Adding “weights” options to model fits

@@ -15,3 +15,12 @@ export(diag_covar)
 export(diag_baseline)
 
 export(ic_par)
+
+
+importFrom("graphics", "legend", "lines", "par", "plot")
+importFrom("methods", "is", "new")
+importFrom("stats", ".getXlevels", "contrasts", "cov",
+"delete.response", "is.empty.model", "median", "model.frame",
+"model.matrix", "model.response", "na.pass", "optimize", "pexp",
+"pgamma", "pnorm", "prcomp", "pweibull", "qbeta", "qexp", "qweibull",
+"rbinom", "rnorm", "runif", "terms")

@@ -1,5 +1,8 @@
 UPDATES:
 
+v1.2.7
+Added dependencies to “methods” package into NAMESPACE and DESCRIPTION
+
 v1.2.6
 models allow for no covariates
 summary(fit) now returns a summary object rather than just printing
