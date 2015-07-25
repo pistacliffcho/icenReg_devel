@@ -1,7 +1,7 @@
 # icenReg_devel
 Repository for development of R package icenReg
 
-This is an R-package for regression models for interval censored. 
+This is an R-package for regression models for interval censored data. 
 
 Currently supports semi-parametric proportional odds and proportional hazards models
 and fully parametric versions of the same models. Does not fit an AFT model, as a
