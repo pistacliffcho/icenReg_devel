@@ -1,4 +1,7 @@
 UPDATES:
+v1.2.8
+Resolved issue of licenses and gave proper credit to the Eigen team for 
+using their code for matrix algebra
 
 v1.2.7
 Added dependencies to “methods” package into NAMESPACE and DESCRIPTION

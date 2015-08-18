@@ -4,13 +4,10 @@
 * using session charset: UTF-8
 * checking for file ‘icenReg/DESCRIPTION’ ... OK
 * checking extension type ... Package
-* this is package ‘icenReg’ version ‘1.2.6’
+* this is package ‘icenReg’ version ‘1.2.8’
 * checking package namespace information ... OK
 * checking package dependencies ... OK
-* checking if this is a source package ... WARNING
-Subdirectory ‘icenReg/src’ contains apparent object files/libraries
-  icenReg.o icenReg.so
-Object files/libraries should not be included in a source package.
+* checking if this is a source package ... OK
 * checking if there is a namespace ... OK
 * checking for executable files ... OK
 * checking for hidden files and directories ... NOTE
@@ -21,6 +18,7 @@ Found the following hidden files and directories:
   man/.DS_Store
   man/.Rapp.history
   src/.DS_Store
+  src/icenReg_files/.DS_Store
 These were most likely included in error. See section ‘Package
 structure’ in the ‘Writing R Extensions’ manual.
 * checking for portable file names ... OK
@@ -28,7 +26,10 @@ structure’ in the ‘Writing R Extensions’ manual.
 * checking whether package ‘icenReg’ can be installed ... OK
 * checking installed package size ... OK
 * checking package directory ... OK
-* checking DESCRIPTION meta-information ... OK
+* checking DESCRIPTION meta-information ... WARNING
+Non-standard license specification:
+  MPL-2
+Standardizable: FALSE
 * checking top-level files ... OK
 * checking for left-over files ... OK
 * checking index information ... OK

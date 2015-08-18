@@ -191,6 +191,24 @@ void IC_parOpt::numericCovar_dervs(){
     update_etas();
 }
 
+void IC_parOpt::analyticCovar_dervs(){
+    int k = betas.size();
+    d_betas.resize(k);
+    d2_betas.resize(k,k);
+    int n = eta.size();
+    
+    Eigen::VectorXd l_cont(n);
+    Eigen::VectorXd r_cont(n);
+    Eigen::VectorXd totCont(n);
+    
+    Eigen::VectorXd l_cont2(n);
+    Eigen::VectorXd r_cont2(n);
+    Eigen::VectorXd totCont2(n);
+
+    /*NEED TO FINISH UP: COPY FROM ic_sp_ch.cpp starting on line 495*/
+    
+}
+
 void IC_parOpt::fillFullHessianAndScore(SEXP r_mat, SEXP score){
     int k_base = b_pars.size();
     int k_reg = betas.size();

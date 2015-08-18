@@ -6,7 +6,7 @@
 //
 //
 
-#include "pavaAlgorithm.cpp"
+#include "myPAVAalgorithm.cpp"
 
 double max(double a, double b){
     if(a > b) return(a);

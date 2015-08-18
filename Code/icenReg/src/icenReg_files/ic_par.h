@@ -15,6 +15,15 @@ public:
     //Computes conditional survival probability from baseline S and nu
     virtual double con_d(double b_d, double b_s, double nu) =0;
     //Computes condtional density from baseline density, baseline S and nu
+    
+    virtual double con_s_der(double b_s, double nu) = 0;
+    //Computes derivative of conditional survival probability with respect to nu
+    virtual double con_d_der(double b_d, double b_s, double nu) = 0;
+    //Computes derviative of conditional density with respect to nu
+    virtual double con_s_der2(double b_s, double nu) = 0;
+    //Computes 2nd derivative of conditional survival probability with respect to nu
+    virtual double con_d_der2(double b_d, double b_s, double nu) = 0;
+    //Computes 2nd derviative of conditional density with respect to nu
 };
 
 class propOdd : public linkFun{
@@ -25,6 +34,24 @@ public:
         double sqrt_denom = b_s * nu - b_s + 1;
         return( b_d * nu / (sqrt_denom * sqrt_denom));
     }
+    double con_d_der(double b_d, double b_s, double nu){
+        double ans = -b_d * (b_s * nu + b_s - 1)/pow(b_s * (nu - 1) + 1, 3.0);
+        return(ans);
+    }
+    double con_s_der(double b_s, double nu){
+        double ans = ((b_s - 1) * b_s) / pow( (b_s * (nu-1) + 1), 2.0);
+        return(ans);
+    }
+    double con_s_der2(double b_s, double nu){
+        double num = 2 * (b_s - 1) * b_s * b_s;
+        double denom = pow(b_s * (nu - 1) + 1, 3.0);
+        return(num/denom);
+    }
+    double con_d_der2(double b_d, double b_s, double nu){
+        double num = 2 * b_s * b_s * ( b_s * (nu + 2) -2 );
+        double denom = pow(b_s * (nu -1) + 1, 4.0);
+        return(num/denom);
+    }
     virtual ~propOdd(){};
 };
 
@@ -33,6 +60,23 @@ class propHaz : public linkFun{
 public:
     double con_s(double b_s, double nu) { return(pow(b_s, nu));}
     double con_d(double b_d, double b_s, double nu){return( b_d * nu * pow(b_s, nu -1));}
+    double con_d_der(double b_d, double b_s, double nu){
+        double ans = b_d * pow(b_s, nu - 1);
+        ans *= (nu * log(b_s) + 1);
+        return(ans);
+    }
+    double con_s_der(double b_s, double nu){
+        double ans = log(b_s) * pow(b_s, nu);
+        return(ans);
+    }
+    double con_s_der2(double b_s, double nu){
+        double logS = log(b_s);
+        return(pow(b_s, nu) * logS * logS);
+    }
+    double con_d_der2(double b_d, double b_s, double nu){
+        double logS = log(b_s);
+        return(b_d * pow(b_s, nu - 1) * logS * (nu * logS + 2) );
+    }
     virtual ~propHaz(){};
 };
 
@@ -192,7 +236,7 @@ public:
     
     void calc_baseline_dervs();
     void numericCovar_dervs();
-
+    void analyticCovar_dervs();
     
     void fillFullHessianAndScore(SEXP r_mat, SEXP score);
     //for filling out the full hessian and score at the MLE
