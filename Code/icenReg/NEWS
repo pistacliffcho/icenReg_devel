@@ -2,6 +2,7 @@ UPDATES:
 v1.2.8
 Resolved issue of licenses and gave proper credit to the Eigen team for 
 using their code for matrix algebra
+Switched to reference classes for fits, rather than lists with reassigned classes
 
 v1.2.7
 Added dependencies to “methods” package into NAMESPACE and DESCRIPTION

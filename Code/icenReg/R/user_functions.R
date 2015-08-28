@@ -112,7 +112,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
     fitInfo$reg_pars <- fitInfo$coefficients
     fitInfo$terms <- mt
     fitInfo$xlevels <- .getXlevels(mt, mf)
-    class(fitInfo) <- c(callText, 'icenReg_fit', 'sp_fit')
+#    class(fitInfo) <- c(callText, 'icenReg_fit', 'sp_fit')
    return(fitInfo)
 }
 
@@ -667,18 +667,21 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
 	if(min(weights) < 0)				stop('negative weights not allowed!')
 	if(sum(is.na(weights)) > 0)			stop('cannot have weights = NA')
 	if(is.null(ncol(x))) recenterCovar = FALSE
-   	fitInfo <- fit_par(yMat, x, parFam = dist, link = model, leftCen = 0, rightCen = Inf, uncenTol = 10^-6, regnames = xNames, weights = weights)
+   	fitInfo <- fit_par(yMat, x, parFam = dist, link = model, 
+   	                   leftCen = 0, rightCen = Inf, uncenTol = 10^-6, 
+   	                   regnames = xNames, weights = weights,
+   	                   callText = callText)
 	fitInfo$call = cl
 	fitInfo$formula = formula
-    class(fitInfo) <- c(callText, 'icenReg_fit', 'par_fit')
-    fitInfo$.dataEnv = new.env()
-    fitInfo$.dataEnv$data = data
+#    class(fitInfo) <- c(callText, 'icenReg_fit', 'par_fit')
+  fitInfo$.dataEnv = new.env()
+  fitInfo$.dataEnv$data = data
 	fitInfo$par = dist
 	fitInfo$model = model
-    fitInfo$terms <- mt
-    fitInfo$xlevels <- .getXlevels(mt, mf)
+  fitInfo$terms <- mt
+  fitInfo$xlevels <- .getXlevels(mt, mf)
 
-   return(fitInfo)
+  return(fitInfo)
 }
 
 getFitEsts <-function(fit, newdata, p, q){
