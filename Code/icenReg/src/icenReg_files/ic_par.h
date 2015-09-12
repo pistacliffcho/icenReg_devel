@@ -199,6 +199,11 @@ public:
     //vector of linear predictions
     Eigen::VectorXd expEta;                 //initialized
     //vector of exponential of linear predictors
+    Eigen::VectorXd dobs_deta;
+    //vector of derivatives of observation with respect to nu
+    Eigen::VectorXd d2obs_d2eta;
+    //vector of 2nd derviatives with respect to nu
+    
     
     Eigen::VectorXd s_t;                    //initialized
     //vector of times associated with survival probabilities to calculate
@@ -233,10 +238,11 @@ public:
     void NR_reg_pars();
 
     void update_etas();
+    void update_dobs_detas();
     
     void calc_baseline_dervs();
     void numericCovar_dervs();
-    void analyticCovar_dervs();
+    void partAnalyticCovar_dervs();
     
     void fillFullHessianAndScore(SEXP r_mat, SEXP score);
     //for filling out the full hessian and score at the MLE

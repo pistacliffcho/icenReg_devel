@@ -76,8 +76,13 @@ expandX <- function(formula, data, fit){
 	Terms <- delete.response(tt)
 	 m <- model.frame(Terms, data, na.action = na.pass, xlev = fit$xlevels)
 	 x <- model.matrix(Terms, m)
-	 
-	 return(as.matrix(x[,-1]) )
+	 ans <- as.matrix(x[,-1])
+	 if(nrow(ans) != nrow(x)){
+	   ans <- t(ans)
+	   if(nrow(ans) != nrow(x) ){stop('nrow(ans) != nrow(x)')}
+	   if(ncol(ans) != (ncol(x) - 1) ) {stop('ncol(ans) != ncol(x) - 1')}
+	 }
+	 return(ans)
 }
 
 
