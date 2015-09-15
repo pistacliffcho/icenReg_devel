@@ -544,10 +544,10 @@ void actSet_Abst::calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d
     for(int i = 0; i < n; i++){
         for(int a = 0; a < k; a++){
             d1[a] += covars(i,a) * totCont[i];
-            for(int b = 0; b < a; b++){
+    /*        for(int b = 0; b < a; b++){
                 hess(a,b) += covars(i,a) * covars(i,b) * totCont2[i];
                 hess(b,a) = hess(a,b);
-            }
+            }       ignorable due to PCA    */
             hess(a,a) += covars(i,a) * covars(i,a) * totCont2[i];
         }
     }

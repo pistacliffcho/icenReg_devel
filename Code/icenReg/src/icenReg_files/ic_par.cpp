@@ -39,52 +39,81 @@ double IC_parOpt::calcLike_baseReady(){
 
 
 void IC_parOpt::update_dobs_detas(){
-    double con0, con_l, con_h, thisEta, thisExpEta;
+    double con0, con_l, con_h, thisEta, thisExpEta, this_d, this_sl, this_sr;
+//    double con_2l, con_2h;
     int w_ind = -1;
     int thisSize = uc.size();
+    
+    double this_h = h * 0.1;
+    
     for(int i = 0; i < thisSize; i++){
         w_ind++;
         thisEta  = eta[uc[i].nu];
-        con0 = log(lnkFn->con_d(d_v[uc[i].d], s_v[uc[i].s], exp(thisEta) ) ) * w[w_ind] ;
-        con_h = log(lnkFn->con_d(d_v[uc[i].d], s_v[uc[i].s], exp(thisEta + h) ) ) * w[w_ind] ;
-        con_l = log(lnkFn->con_d(d_v[uc[i].d], s_v[uc[i].s], exp(thisEta - h) ) ) * w[w_ind] ;
-        
-        dobs_deta[w_ind] = (con_h - con_l) / (2 * h);
-        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (h * h);
+        this_d = d_v[uc[i].d];
+        this_sl = s_v[uc[i].s];
+        con0 = log(lnkFn->con_d(this_d, this_sl, exp(thisEta) ) ) * w[w_ind] ;
+        con_h = log(lnkFn->con_d(this_d, this_sl, exp(thisEta + this_h) ) ) * w[w_ind] ;
+        con_l = log(lnkFn->con_d(this_d, this_sl, exp(thisEta - this_h) ) ) * w[w_ind] ;
+
+    /*    con_2h = log(lnkFn->con_d(this_d, this_sl, exp(thisEta + 2 * this_h) ) ) * w[w_ind] ;
+        con_2l = log(lnkFn->con_d(this_d, this_sl, exp(thisEta - 2 * this_h) ) ) * w[w_ind] ;
+     
+        dobs_deta[w_ind] = (con_2l - 8 * con_l + 8 * con_h - con_2l)/(12 * this_h);     */
+        dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
+        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
         
     }
     thisSize = gic.size();
     for(int i = 0; i < thisSize; i++){
         w_ind++;
         thisEta = eta[gic[i].nu];
+        this_sl = s_v[gic[i].l];
+        this_sr = s_v[gic[i].r];
         thisExpEta = exp(thisEta);
-        con0 = log(lnkFn->con_s(s_v[gic[i].l], thisExpEta)
-                   -lnkFn->con_s(s_v[gic[i].r], thisExpEta) ) * w[w_ind];
+        con0 = log(lnkFn->con_s(this_sl, thisExpEta)
+                   -lnkFn->con_s(this_sr, thisExpEta) ) * w[w_ind];
         
-        thisExpEta = exp(thisEta + h);
+        thisExpEta = exp(thisEta + this_h);
         
-        con_h = log(lnkFn->con_s(s_v[gic[i].l], thisExpEta)
-                    -lnkFn->con_s(s_v[gic[i].r], thisExpEta) ) * w[w_ind];
+        con_h = log(lnkFn->con_s(this_sl, thisExpEta)
+                    -lnkFn->con_s(this_sr, thisExpEta) ) * w[w_ind];
         
-        thisExpEta = exp(thisEta - h);
-        con_l = log(lnkFn->con_s(s_v[gic[i].l], thisExpEta)
-                    -lnkFn->con_s(s_v[gic[i].r], thisExpEta) ) * w[w_ind];
+        thisExpEta = exp(thisEta - this_h);
+        con_l = log(lnkFn->con_s(this_sl, thisExpEta)
+                    -lnkFn->con_s(this_sr, thisExpEta) ) * w[w_ind];
+
+        thisExpEta = exp(thisEta + 2 * this_h);
         
-        dobs_deta[w_ind] = (con_h - con_l) / (2 * h);
-        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (h * h);
+/*        con_2h = log(lnkFn->con_s(this_sl, thisExpEta)
+                    -lnkFn->con_s(this_sr, thisExpEta) ) * w[w_ind];
+        
+        thisExpEta = exp(thisEta - 2 * this_h);
+        con_2l = log(lnkFn->con_s(this_sl, thisExpEta)
+                    -lnkFn->con_s(this_sr, thisExpEta) ) * w[w_ind];
+
+        
+        dobs_deta[w_ind] = (con_2l - 8 * con_l + 8 * con_h - con_2l)/(12 * this_h); */
+        dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
+        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
         
     }
     thisSize = lc.size();
     for(int i = 0; i < thisSize; i++){
         w_ind++;
         thisEta = eta[lc[i].nu];
-        con0 = log(1.0 - lnkFn->con_s(s_v[lc[i].r], exp(thisEta) ) ) * w[w_ind];
+        this_sl = s_v[lc[i].r];
+        con0 = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta) ) ) * w[w_ind];
         
-        con_h = log(1.0 - lnkFn->con_s(s_v[lc[i].r], exp(thisEta + h) ) ) * w[w_ind];
-        con_l = log(1.0 - lnkFn->con_s(s_v[lc[i].r], exp(thisEta - h) ) ) * w[w_ind];
+        con_h = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta + this_h) ) ) * w[w_ind];
+        con_l = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta - this_h) ) ) * w[w_ind];
+
+/*        con_2h = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta + 2 * this_h) ) ) * w[w_ind];
+        con_2l = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta - 2 * this_h) ) ) * w[w_ind];
+
         
-        dobs_deta[w_ind] = (con_h - con_l) / (2 * h);
-        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (h * h);
+        dobs_deta[w_ind] = (con_2l - 8 * con_l + 8 * con_h - con_2l)/(12 * this_h); */
+        dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
+        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
 
     }
     thisSize = rc.size();
@@ -92,13 +121,18 @@ void IC_parOpt::update_dobs_detas(){
         w_ind++;
         
         thisEta = eta[rc[i].nu];
+        this_sr = s_v[rc[i].l];
+        con0 = log(lnkFn->con_s(this_sr, exp(thisEta) ) ) * w[w_ind];
+        con_h = log(lnkFn->con_s(this_sr, exp(thisEta + this_h) ) ) * w[w_ind];
+        con_l = log(lnkFn->con_s(this_sr, exp(thisEta - this_h) ) ) * w[w_ind];
+
+/*        con_2h = log(lnkFn->con_s(this_sr, exp(thisEta + 2 * this_h) ) ) * w[w_ind];
+        con_2l = log(lnkFn->con_s(this_sr, exp(thisEta - 2 * this_h) ) ) * w[w_ind];
+
         
-        con0 = log(lnkFn->con_s(s_v[rc[i].l], exp(thisEta) ) ) * w[w_ind];
-        con_h = log(lnkFn->con_s(s_v[rc[i].l], exp(thisEta + h) ) ) * w[w_ind];
-        con_l = log(lnkFn->con_s(s_v[rc[i].l], exp(thisEta - h) ) ) * w[w_ind];
-        
-        dobs_deta[w_ind] = (con_h - con_l) / (2 * h);
-        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (h * h);
+        dobs_deta[w_ind] = (con_2l - 8 * con_l + 8 * con_h - con_2l)/(12 * this_h);     */
+        dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
+        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
     }
   
 }
@@ -232,16 +266,21 @@ void IC_parOpt::partAnalyticCovar_dervs(){
     
     double this_d1;
     double this_d2;
+    double this_cov_ij;
     for(int i = 0; i < n; i++){
         this_d1 = dobs_deta[i];
         this_d2 = d2obs_d2eta[i];
         for(int j = 0; j < k; j++){
-            d_betas[j] += this_d1 * covars(i,j);
+            this_cov_ij = covars(i,j);
+            d_betas[j] += this_d1 * this_cov_ij;
             for(int m = 0; m <=j ; m++){
-                d2_betas(m ,j) += this_d2 * (covars(i, j) * covars(i, m) );
-                d2_betas(j, m) = d2_betas(m, j);
+                d2_betas(m ,j) += this_d2 * this_cov_ij * covars(i, m) ;
             }
         }
+    }
+
+    for(int i = 0; i < k; i++){
+        for(int j = i + 1; j < k; j++){ d2_betas(j,i) = d2_betas(i, j); }
     }
 }
 
@@ -253,6 +292,12 @@ void IC_parOpt::numericCovar_dervs(){
     d2_betas.resize(k,k);
     
     double lk_0 = calcLike_baseReady();
+    
+    for(int i = 0; i < k; i++){
+        for(int j = 0; j < k; j++){
+            d2_betas(i,j) = 0;
+        }
+    }
     
     
     for(int i = 0; i < k; i++){
@@ -266,7 +311,6 @@ void IC_parOpt::numericCovar_dervs(){
         d_betas[i] = (lk_h[i] - lk_l[i])/(2 * h);
         d2_betas(i,i) = (lk_h[i] + lk_l[i] - 2*lk_0) / (h*h);
     }
-    
     double lk_ll, lk_hh, rho;
     for(int i = 0; i < k; i++){
         for(int j = 0; j < k; j++){
@@ -369,7 +413,7 @@ void IC_parOpt::NR_reg_pars(){
     if(k == 0) return;
     
     partAnalyticCovar_dervs();
-    //numericCovar_dervs();
+//    numericCovar_dervs();
     
     double lk_0 = calcLike_baseReady();
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> esolve(d2_betas);
@@ -525,7 +569,7 @@ IC_parOpt::IC_parOpt(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
         rc[i].nu = i + n_1 + n_2 + n_3;
     }
     
-    h = 0.0001;
+    h = pow(10.0, -5.0);
     UNPROTECT(2);
 }
 
@@ -540,7 +584,7 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
     double lk_old = R_NegInf;
     int iter = 0;
     int maxIter = 1000;
-    double tol = pow(10, -10);
+    double tol = pow(10, -13);
     double lk_new = optObj.calcLike_all();
 
     if(lk_new == R_NegInf){
@@ -585,7 +629,6 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
         lk_old = lk_new;
         iter++;
         optObj.NR_baseline_pars();
-        
         optObj.NR_reg_pars();
         lk_new = optObj.calcLike_baseReady();
         
