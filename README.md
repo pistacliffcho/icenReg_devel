@@ -7,5 +7,8 @@ Currently supports semi-parametric proportional hazards or odds models,
 along with fully parametric versions of the same models. Does not fit an AFT model, as a
 parametric model of this sort can be fit using survival's survreg() function.
 
+It can also fit the non-parametric maximum likelihood estimate (NPMLE) for interval censored data 
+(by leaving covariates blank in semi-parametric model).
+
 If you use the package and find a bug, want a feature added or can think of someway to
 improve it, please let me know!
