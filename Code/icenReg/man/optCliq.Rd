@@ -1,11 +1,17 @@
 \name{optCliq}
 \alias{optCliq}
+\alias{cliqOptInfo}
 \docType{package}
 \title{
 Computes the MLE for a Binary Mixture Model. 
 }
 \description{
-Computes the MLE for a Binary Mixture Model. Used internally for ICNPMLE, but may be useful in other problems.
+Computes the MLE for a Binary Mixture Model. Used internally for ICNPMLE, but may be useful in other problems. In the abstraction, solves the problem 
+
+\deqn{
+\arg\max_p \displaystyle \sum_{i = 1}^n \log \left( \sum_{j = 1} p_j C_{ij} \right)
+}
+
 }
 \usage{
 optCliq(cliqMat, tol = 10^-10, 

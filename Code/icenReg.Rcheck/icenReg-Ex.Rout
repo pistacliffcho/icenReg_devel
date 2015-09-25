@@ -1,5 +1,5 @@
 
-R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+R version 3.2.2 (2015-08-14) -- "Fire Safety"
 Copyright (C) 2015 The R Foundation for Statistical Computing
 Platform: x86_64-apple-darwin13.4.0 (64-bit)
 
@@ -20,16 +20,61 @@ Type 'q()' to quit R.
 > pkgname <- "icenReg"
 > source(file.path(R.home("share"), "R", "examples-header.R"))
 > options(warn = 1)
+> base::assign(".ExTimings", "icenReg-Ex.timings", pos = 'CheckExEnv')
+> base::cat("name\tuser\tsystem\telapsed\n", file=base::get(".ExTimings", pos = 'CheckExEnv'))
+> base::assign(".format_ptime",
++ function(x) {
++   if(!is.na(x[4L])) x[1L] <- x[1L] + x[4L]
++   if(!is.na(x[5L])) x[2L] <- x[2L] + x[5L]
++   options(OutDec = '.')
++   format(x[1L:3L], digits = 7L)
++ },
++ pos = 'CheckExEnv')
+> 
+> ### * </HEADER>
 > library('icenReg')
 Loading required package: survival
+Loading required package: MLEcens
 > 
 > base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("ICNPMLE")
+> ### * ICNPMLE
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: ICNPMLE
+> ### Title: Computes the NPMLE for Univariate or Bivariate Interval Censored
+> ###   Data
+> ### Aliases: ICNPMLE IC_NPMLE
+> 
+> ### ** Examples
+> 
+> simData <- simBVCen(500)
+> 
+> fit <- ICNPMLE(simData)
+> 
+> fit
+Bivariate Interval Censored Optimization Results
+Final log likelihood =  -799.561 
+Numeric Error =  7.646639e-11 
+Total iterations =  222 
+Outer iterations =  5 
+Number of maximal intersections =  4046 
+Number of maximal intersections w/ positive mass =  58 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("ICNPMLE", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("diag_baseline")
 > ### * diag_baseline
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: diag_baseline
 > ### Title: Compare parametric baseline distributions with semi-parametric
 > ###   baseline
@@ -53,12 +98,15 @@ Loading required package: survival
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("diag_baseline", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("diag_covar")
 > ### * diag_covar
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: diag_covar
 > ### Title: Evaluate covariate effect for regression model
 > ### Aliases: diag_covar
@@ -80,6 +128,8 @@ Loading required package: survival
 + 		         data = useData, model = 'ph')
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("diag_covar", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("essIncData")
@@ -87,6 +137,7 @@ Loading required package: survival
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: essIncData
 > ### Title: Interval Censored Income Data from European Social Survey
 > ### Aliases: essIncData
@@ -106,12 +157,15 @@ Loading required package: survival
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("essIncData", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("essIncData_small")
 > ### * essIncData_small
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: essIncData_small
 > ### Title: Interval Censored Income Data from European Social Survey
 > ### Aliases: essIncData_small
@@ -132,26 +186,28 @@ Baseline:  loglogistic
 Call: ic_par(formula = Surv(inc_l, inc_u, type = "interval2") ~ eduLevel * 
     cntry, data = essIncData_small, model = "po", dist = "loglogistic")
 
-                               Estimate  Exp(Est) Std.Error  z-value         p
-log_alpha                       8.35200 4239.0000   0.02784 300.0000 0.000e+00
-log_beta                        1.05500    2.8730   0.04375  24.1200 0.000e+00
-eduLevel[12,16)                 1.23600    3.4430   0.34400   3.5940 3.255e-04
-eduLevel[16,Inf)                2.75300   15.6900   0.47150   5.8390 5.260e-09
-cntryPoland                     2.24200    9.4090   0.35070   6.3920 1.638e-10
-cntryRussia                     1.08300    2.9540   0.32040   3.3810 7.211e-04
-cntrySlovakia                   1.15000    3.1580   0.37650   3.0540 2.259e-03
-eduLevel[12,16):cntryPoland     0.22100    1.2470   0.53910   0.4100 6.818e-01
-eduLevel[16,Inf):cntryPoland   -0.01386    0.9862   0.64150  -0.0216 9.828e-01
-eduLevel[12,16):cntryRussia    -0.38500    0.6805   0.47050  -0.8183 4.132e-01
-eduLevel[16,Inf):cntryRussia   -1.04800    0.3507   0.60980  -1.7180 8.574e-02
-eduLevel[12,16):cntrySlovakia  -0.59840    0.5497   0.51260  -1.1670 2.430e-01
-eduLevel[16,Inf):cntrySlovakia -1.15400    0.3155   0.69200  -1.6670 9.554e-02
+                               Estimate  Exp(Est) Std.Error   z-value         p
+log_alpha                       8.35200 4239.0000   0.02784 300.00000 0.000e+00
+log_beta                        1.05500    2.8730   0.04374  24.13000 0.000e+00
+eduLevel[12,16)                 1.23600    3.4430   0.34340   3.60000 3.181e-04
+eduLevel[16,Inf)                2.75300   15.6900   0.47000   5.85700 4.703e-09
+cntryPoland                     2.24200    9.4090   0.35020   6.40100 1.548e-10
+cntryRussia                     1.08300    2.9540   0.31990   3.38600 7.094e-04
+cntrySlovakia                   1.15000    3.1580   0.37580   3.06000 2.216e-03
+eduLevel[12,16):cntryPoland     0.22100    1.2470   0.53830   0.41060 6.814e-01
+eduLevel[16,Inf):cntryPoland   -0.01386    0.9862   0.64010  -0.02165 9.827e-01
+eduLevel[12,16):cntryRussia    -0.38500    0.6805   0.46980  -0.81950 4.125e-01
+eduLevel[16,Inf):cntryRussia   -1.04800    0.3507   0.60840  -1.72200 8.502e-02
+eduLevel[12,16):cntrySlovakia  -0.59840    0.5497   0.51170  -1.16900 2.422e-01
+eduLevel[16,Inf):cntrySlovakia -1.15400    0.3155   0.69050  -1.67000 9.483e-02
 
 final llk =  -1053.966 
-Iterations =  17 
+Iterations =  18 
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("essIncData_small", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("getFitEsts")
@@ -159,6 +215,7 @@ Iterations =  17
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: getFitEsts
 > ### Title: Get Estimates from icenReg Regression Model
 > ### Aliases: getFitEsts
@@ -178,6 +235,8 @@ Iterations =  17
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("getFitEsts", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("getSCurves")
@@ -185,6 +244,7 @@ Iterations =  17
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: getSCurves
 > ### Title: Get Estimated Survival Curves from Semi-parametric Model for
 > ###   Interval Censored Data
@@ -228,12 +288,15 @@ Iterations =  17
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("getSCurves", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("ic_par")
 > ### * ic_par
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: ic_par
 > ### Title: Parametric Regression Models for Interval Censored Data
 > ### Aliases: ic_par
@@ -257,11 +320,11 @@ Call: ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData,
 
           Estimate Exp(Est) Std.Error z-value       p
 log_alpha   6.6310  758.500   0.08673  76.460 0.00000
-log_beta    0.9596    2.611   0.38670   2.481 0.01309
-grpge       0.8098    2.247   0.32280   2.509 0.01212
+log_beta    0.9596    2.611   0.38670   2.482 0.01308
+grpge       0.8098    2.247   0.32280   2.509 0.01211
 
 final llk =  -80.23726 
-Iterations =  24 
+Iterations =  30 
 > 	summary(logist_po_fit)
 
 Model:  Proportional Odds 
@@ -270,15 +333,17 @@ Call: ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData,
     model = "po", dist = "loglogistic")
 
           Estimate Exp(Est) Std.Error z-value        p
-log_alpha    6.603 737.2000   0.07747  85.230 0.000000
-log_beta     1.001   2.7200   0.38280   2.614 0.008947
+log_alpha    6.603 737.2000   0.07747  85.240 0.000000
+log_beta     1.001   2.7200   0.38280   2.614 0.008943
 grpge       -1.172   0.3097   0.47130  -2.487 0.012880
 
 final llk =  -80.30575 
-Iterations =  16 
+Iterations =  20 
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("ic_par", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("ic_sp")
@@ -286,6 +351,7 @@ Iterations =  16
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: ic_sp
 > ### Title: Semi-Parametric models for Interval Censored Data
 > ### Aliases: ic_sp vcov.icenReg_fit summary.icenReg_fit plot.icenReg_fit
@@ -349,12 +415,15 @@ WARNING: only  0  bootstrap samples used for standard errors. Suggest using more
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("ic_sp", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("miceData")
 > ### * miceData
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: miceData
 > ### Title: Lung Tumor Interval Censored Data from Hoel and Walburg 1972
 > ### Aliases: miceData
@@ -378,7 +447,7 @@ Call: ic_sp(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData,
     bs_samples = 50)
 
       Estimate Exp(Est) Std.Error z-value      p
-grpge   0.6277    1.873    0.4516    1.39 0.1645
+grpge   0.6277    1.873     0.497   1.263 0.2066
 
 final llk =  -76.53436 
 Iterations =  28 
@@ -387,12 +456,79 @@ WARNING: only  50  bootstrap samples used for standard errors. Suggest using mor
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("miceData", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("optCliq")
+> ### * optCliq
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: optCliq
+> ### Title: Computes the MLE for a Binary Mixture Model.
+> ### Aliases: optCliq cliqOptInfo
+> 
+> ### ** Examples
+> 
+> testData <- simBVCen()
+> #simulate bivariate interval censored data
+> 
+> cliqMat <- MLEcens::reduc(testData, cm = TRUE)$cm
+> #computes the cliqMat associated with data
+> 
+> cliqFit <- optCliq(cliqMat)
+> #optimizes the component weights for clique matrix
+> 
+> cliqFit 
+Clique Optimizer Object
+Final log likelihood =  -1746.673 
+Numeric Error =  6.782241e-11 
+Total iterations =  411 
+Outer iterations =  5 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("optCliq", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("simBVCen")
+> ### * simBVCen
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: simBVCen
+> ### Title: Simulates Bivariate Interval Censored Data
+> ### Aliases: simBVCen
+> 
+> ### ** Examples
+> 
+>   testData <- simBVCen()
+>   #simulate bivariate interval censored data
+>   
+>  bvcenFit <- ICNPMLE(testData)
+>  
+>  bvcenFit
+Bivariate Interval Censored Optimization Results
+Final log likelihood =  -1746.673 
+Numeric Error =  6.782241e-11 
+Total iterations =  411 
+Outer iterations =  5 
+Number of maximal intersections =  17800 
+Number of maximal intersections w/ positive mass =  90 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("simBVCen", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("simIC_weib")
 > ### * simIC_weib
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: simIC_weib
 > ### Title: Simulates interval censored data from regression model with a
 > ###   Weibull baseline
@@ -412,11 +548,13 @@ WARNING: only  50  bootstrap samples used for standard errors. Suggest using mor
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("simIC_weib", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > ### * <FOOTER>
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  3.717 0.027 3.753 0 0 
+Time elapsed:  3.972 0.091 4.068 0 0 
 > grDevices::dev.off()
 null device 
           1 

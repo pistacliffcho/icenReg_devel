@@ -24,13 +24,15 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 		 bs_samples = 0
 	}
 	
-    yMat <- as.matrix(y)[,1:2]
+  yMat <- as.matrix(y)[,1:2]
+  if(is(y, 'Surv')){
     rightCens <- mf[,1][,3] == 0
-	yMat[rightCens,2] <- Inf
-	
-	exact <- mf[,1][,3] == 1
-	yMat[exact, 2] = yMat[exact, 1]
-    storage.mode(yMat) <- 'double'
+  	yMat[rightCens,2] <- Inf
+  	exact <- mf[,1][,3] == 1
+  	yMat[exact, 2] = yMat[exact, 1]
+  }
+  
+	storage.mode(yMat) <- 'double'
     
     if(sum(is.na(mf)) > 0)
     	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")
@@ -644,12 +646,15 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
 		xNames <- xNames[-ind]
 	}
 		
-    yMat <- as.matrix(y)[,1:2]
+  yMat <- as.matrix(y)[,1:2]
+  
+  if(is(y, "Surv")){
     rightCens <- mf[,1][,3] == 0
-	yMat[rightCens,2] <- Inf
+	  yMat[rightCens,2] <- Inf
 	
-	exact <- mf[,1][,3] == 1
-	yMat[exact, 2] = yMat[exact, 1]
+	  exact <- mf[,1][,3] == 1
+	  yMat[exact, 2] = yMat[exact, 1]
+  }
     storage.mode(yMat) <- 'double'
     
     if(sum(is.na(mf)) > 0)

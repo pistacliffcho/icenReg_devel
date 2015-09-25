@@ -382,14 +382,33 @@ void actSet_Abst::analyticBase1stDerv(vector<double> &d1){
     for(int i = 1; i < k; i++)
         d1[i] = 0;
     
-    int nextInd;
+/*    int nextInd;
     for(int i = 1; i < (k - 1); i++){
         d1[i] += raw_dervs[i];
         nextInd = getNextActRawInd(i);
         for(int j = i+1; j < nextInd; j++) {
             d1[i] += raw_dervs[j];
         }
+    }   */
+    
+    int nextInd;
+    int lastInd = -1;
+    double curSum = 0;
+    for(int i = 1; i <(k-1); i++){
+        nextInd = getNextActRawInd(i);
+        if(nextInd == lastInd){
+            curSum -= raw_dervs[i-1];
+        }
+        else{
+            lastInd = nextInd;
+            curSum = 0;
+            for(int j = i; j < nextInd; j++){
+                curSum += raw_dervs[j];
+            }
+        }
+        d1[i] = curSum;
     }
+    
     d1[k-1] = raw_dervs[k-1];
 }
 
@@ -407,7 +426,8 @@ void actSet_Abst::uniActiveOptim(int raw_ind){
     if(act_ind < ak - 1)   upperLim = actIndex[act_ind+1].par - curVal;
     double prop = 0;
     if(ISNAN(dv[0]) || ISNAN(dv[1]) || dv[0] == R_NegInf || dv[0] == R_PosInf || dv[1] == R_NegInf || dv[1] == R_PosInf){
-        Rprintf("error: degenerate derivative estimated! quiting uniActiveOptim\n");
+       // Rprintf("error: degenerate derivative estimated! quiting uniActiveOptim\n");
+       // Rprintf("current parameter value = %f, C++ index = %d, first derivative = %f, second derivative %f\n", baseCH[raw_ind], raw_ind, dv[0], dv[1]);
         return;
     }
     if(dv[1] < -.00001){
@@ -481,6 +501,12 @@ void actSet_Abst::icm_step(){
     if(llk_new < llk_st){
         act_addPar(prop);
         llk_new = sum_llk();
+        mult_vec(0, prop);
+    }
+    
+    maxBaseChg = 0;
+    for(int i = 0; i < thisSize; i++){
+        maxBaseChg = max(maxBaseChg, abs(prop[i]));
     }
     
     thisSize = actIndex.size();
@@ -540,15 +566,20 @@ void actSet_Abst::calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d
         }
     }
 
-
+    double this_covar;
+    double this_w;
+    double this_w_covar;
     for(int i = 0; i < n; i++){
+        this_w = w[i];
         for(int a = 0; a < k; a++){
-            d1[a] += covars(i,a) * totCont[i];
+            this_covar = covars(i,a);
+            this_w_covar = this_w * this_covar;
+            d1[a] += this_w_covar * totCont[i];
     /*        for(int b = 0; b < a; b++){
                 hess(a,b) += covars(i,a) * covars(i,b) * totCont2[i];
                 hess(b,a) = hess(a,b);
             }       ignorable due to PCA    */
-            hess(a,a) += covars(i,a) * covars(i,a) * totCont2[i];
+            hess(a,a) += this_w_covar * this_covar * totCont2[i];
         }
     }
 
@@ -689,7 +720,10 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w){
         
         optObj->vem_step();
         if(optObj->hasCovars)       optObj->covar_nr_step();
-        for(int i = 0; i < 10; i++)  {optObj->icm_step(); }
+        for(int i = 0; i < 10; i++)  {
+            optObj->icm_step();
+            if(optObj->maxBaseChg < pow(10.0, -12.0)){break;}
+        }
         llk_new = optObj->sum_llk();
         
         if(llk_new - llk_old > tol){metOnce = false;}

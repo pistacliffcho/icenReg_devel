@@ -65,32 +65,35 @@ No file Rd2.aux.
 [Loading MPS to PDF converter (version 2006.09.02).]
 ) (/usr/local/texlive/2014/texmf-dist/tex/latex/hyperref/nameref.sty
 (/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/t1phv.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
 Underfull \hbox (badness 1546) in paragraph at lines 29--29
 []\T1/ptm/m/it/10 Compare para-met-ric base-line dis-tri-bu-tions with semi-par
 ametric
-(/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [1{/usr/lo
-cal/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+[1{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [2] [3]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd) [4]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [4]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [6]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 400--401
+Overfull \hbox (6.05704pt too wide) in paragraph at lines 448--449
 []\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
 ial", "weibull", "gamma", "lnorm" and "loglo-
-[8] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [9]
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 463--464
+[9] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [10]
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 511--512
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[10] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [11]
+[11] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [12]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [13]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [14]
 No file Rd2.ind.
-[12] (./Rd2.aux)
+[15] (./Rd2.aux)
 
 Package rerunfilecheck Warning: File `Rd2.out' has changed.
 (rerunfilecheck)                Rerun to get outlines right
@@ -102,16 +105,21 @@ xmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/usr/local/texlive/2014/texmf-
 dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2014/texmf-dist/fonts/enc/
 dvips/inconsolata/i4-t1-0.enc}</usr/local/texlive/2014/texmf-dist/fonts/type1/p
 ublic/inconsolata/Inconsolata-zi4r.pfb></usr/local/texlive/2014/texmf-dist/font
-s/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
-/urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times
-/utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pf
-b></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (12 pages, 98126 bytes).
+s/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2014/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2014/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2014/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/u
+rw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/time
+s/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.p
+fb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
+ocal/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (15 pages, 146275 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.15 [TeX Live 2014] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (13 entries accepted, 0 rejected).
-Sorting entries....done (45 comparisons).
-Generating output file Rd2.ind....done (41 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (18 entries accepted, 0 rejected).
+Sorting entries....done (70 comparisons).
+Generating output file Rd2.ind....done (54 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex)
@@ -179,6 +187,7 @@ Writing index file Rd2.idx
 ) (/usr/local/texlive/2014/texmf-dist/tex/latex/hyperref/nameref.sty
 (/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
 (./Rd2.out) (./Rd2.out)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
@@ -186,29 +195,31 @@ Underfull \hbox (badness 1546) in paragraph at lines 29--29
 []\T1/ptm/m/it/10 Compare para-met-ric base-line dis-tri-bu-tions with semi-par
 ametric
 [1{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [2] [3]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [2]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [3]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [4]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [6]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 400--401
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7] [8]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [9]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (6.05704pt too wide) in paragraph at lines 448--449
 []\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
 ial", "weibull", "gamma", "lnorm" and "loglo-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [9]
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 463--464
+[10] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 511--512
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[10] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [11]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [12] (./Rd2.ind
-[13]
+[11] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [12]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [13]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [14] (./Rd2.ind
+[15]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 27.
+(Font)              using `T1/zi4/m/n' instead on input line 3.
 
-[14]) (./Rd2.aux)
+[16]) (./Rd2.aux)
 
 Package rerunfilecheck Warning: File `Rd2.out' has changed.
 (rerunfilecheck)                Rerun to get outlines right
@@ -223,16 +234,21 @@ xmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/usr/local/texlive/2014/texmf-
 dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2014/texmf-dist/fonts/enc/
 dvips/inconsolata/i4-t1-0.enc}</usr/local/texlive/2014/texmf-dist/fonts/type1/p
 ublic/inconsolata/Inconsolata-zi4r.pfb></usr/local/texlive/2014/texmf-dist/font
-s/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
-/urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times
-/utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pf
-b></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (14 pages, 101371 bytes).
+s/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2014/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2014/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2014/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/u
+rw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/time
+s/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.p
+fb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
+ocal/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (16 pages, 149463 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.15 [TeX Live 2014] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (13 entries accepted, 0 rejected).
-Sorting entries....done (45 comparisons).
-Generating output file Rd2.ind....done (41 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (18 entries accepted, 0 rejected).
+Sorting entries....done (70 comparisons).
+Generating output file Rd2.ind....done (54 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex)
@@ -300,6 +316,7 @@ Writing index file Rd2.idx
 ) (/usr/local/texlive/2014/texmf-dist/tex/latex/hyperref/nameref.sty
 (/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
 (./Rd2.out) (./Rd2.out)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
@@ -307,29 +324,31 @@ Underfull \hbox (badness 1546) in paragraph at lines 29--29
 []\T1/ptm/m/it/10 Compare para-met-ric base-line dis-tri-bu-tions with semi-par
 ametric
 [1{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [2] [3]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [2]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [3]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [4]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [6]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [8]
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 400--401
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [7] [8]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [9]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (6.05704pt too wide) in paragraph at lines 448--449
 []\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
 ial", "weibull", "gamma", "lnorm" and "loglo-
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [9]
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 463--464
+[10] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 511--512
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[10] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [11]
-(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [12] (./Rd2.ind
-[13]
+[11] (/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [12]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [13]
+(/usr/local/texlive/2014/texmf-dist/tex/latex/base/utf8.def) [14] (./Rd2.ind
+[15]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 27.
+(Font)              using `T1/zi4/m/n' instead on input line 3.
 
-[14]) (./Rd2.aux)
+[16]) (./Rd2.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -339,12 +358,17 @@ xmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/usr/local/texlive/2014/texmf-
 dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2014/texmf-dist/fonts/enc/
 dvips/inconsolata/i4-t1-0.enc}</usr/local/texlive/2014/texmf-dist/fonts/type1/p
 ublic/inconsolata/Inconsolata-zi4r.pfb></usr/local/texlive/2014/texmf-dist/font
-s/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1
-/urw/times/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times
-/utmr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pf
-b></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (14 pages, 102063 bytes).
+s/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2014/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2014/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2014/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/u
+rw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/time
+s/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.p
+fb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
+ocal/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (16 pages, 149823 bytes).
 Transcript written on Rd2.log.
 Saving output to 'icenReg-manual.pdf' ...
 Done
-You may want to clean up by 'rm -rf /var/folders/sj/v7zs5bys1ysfnbwq1cnjkfp40000gp/T//Rtmp4Tm4r0/Rd2pdfdc7292a67cb'
+You may want to clean up by 'rm -rf /var/folders/sj/v7zs5bys1ysfnbwq1cnjkfp40000gp/T//Rtmpph49aw/Rd2pdf55ec71f10753'

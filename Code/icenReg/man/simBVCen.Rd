@@ -19,7 +19,7 @@
   testData <- simBVCen()
   #simulate bivariate interval censored data
   
- bvcenFit <- bivariateNPMLE(testData)
+ bvcenFit <- ICNPMLE(testData)
  
  bvcenFit
 }

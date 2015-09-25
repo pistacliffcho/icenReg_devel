@@ -24,3 +24,13 @@ importFrom("stats", ".getXlevels", "contrasts", "cov",
 "model.matrix", "model.response", "na.pass", "optimize", "pexp",
 "pgamma", "pnorm", "prcomp", "pweibull", "qbeta", "qexp", "qweibull",
 "rbinom", "rnorm", "runif", "terms")
+
+
+## BIVARIATE CENSORED EXPORTS
+importFrom(MLEcens, reduc)
+export(optCliq)
+export(ICNPMLE)
+export(simBVCen)
+#export(initICNPMLE)
+#exportClasses(IC_NPMLE)
+#exportClasses(cliqOptInfo)

@@ -1,3 +1,5 @@
+ICNPMLE                 Computes the NPMLE for Univariate or Bivariate
+                        Interval Censored Data
 diag_baseline           Compare parametric baseline distributions with
                         semi-parametric baseline
 diag_covar              Evaluate covariate effect for regression model
@@ -15,5 +17,7 @@ ic_sp                   Semi-Parametric models for Interval Censored
                         Data
 miceData                Lung Tumor Interval Censored Data from Hoel and
                         Walburg 1972
+optCliq                 Computes the MLE for a Binary Mixture Model.
+simBVCen                Simulates Bivariate Interval Censored Data
 simIC_weib              Simulates interval censored data from
                         regression model with a Weibull baseline

@@ -135,6 +135,7 @@ public:
 
     vector<double> w;
     
+    double maxBaseChg;      //Max change in baseline parameters during icm step
     double h;
     bool hasCovars;
 };
