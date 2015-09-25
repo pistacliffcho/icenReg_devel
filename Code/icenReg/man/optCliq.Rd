@@ -12,6 +12,8 @@ Computes the MLE for a Binary Mixture Model. Used internally for ICNPMLE, but ma
 \arg\max_p \displaystyle \sum_{i = 1}^n \log \left( \sum_{j = 1} p_j C_{ij} \right)
 }
 
+where \eqn{C_{ij} } is an indicator of whether the i-th observation could have come from the j-th source. \eqn{C} is referred to as the \emph{clique matrix}.
+
 }
 \usage{
 optCliq(cliqMat, tol = 10^-10, 

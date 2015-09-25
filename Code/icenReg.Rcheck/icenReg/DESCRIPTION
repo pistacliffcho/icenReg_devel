@@ -10,4 +10,4 @@ Maintainer: Clifford Anderson-Bergman <pistacliffcho@gmail.com>
 Description: Regression models for interval censored data. Currently supports Cox-PH and proportional odds models. Allows for both semi and fully parametric models. Includes functions for easy visual diagnostics of model fits. Includes functions for fitting both the univariate and bivariate NPMLE.  
 License: LGPL (>= 2.0, < 3)
 Packaged: 2014-08-20 19:43:34 UTC; cliff
-Built: R 3.2.2; x86_64-apple-darwin13.4.0; 2015-09-25 19:43:44 UTC; unix
+Built: R 3.2.2; x86_64-apple-darwin13.4.0; 2015-09-25 21:18:18 UTC; unix
