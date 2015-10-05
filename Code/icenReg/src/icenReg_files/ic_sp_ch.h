@@ -32,15 +32,15 @@ public:
     double pob;
 };
 
-class actPointInf{
+/*class actPointInf{
 public:
     int ind;                   //beginning and ending of parameters affected by adjusting active points
     double par;
     vector<int> dep_obs;
 //    vector<int> dep_nodes;      //don't think this is necessary; l, r tells us all this!
-};
+};  */
 
-class actSet_Abst{
+class icm_Abst{
 public:
     void update_p_ob(int i);    //done, not checked
     
@@ -48,71 +48,29 @@ public:
     // calculates the entire likelihood function.
     // Does not update eta or hazards!
     
-    double par_llk(int a_ind);     //done, not checked
+    double par_llk(int ind);     //done, not checked
     // only calculates partial likelihood based on an active index
-    
-    void act_setPar(int act_i, double val);     //done, not checked
-    //updates the active index act_i according to an active set update
-    //updates baseline hazards and dependent observations
-    
-    void act_addPar(int act_i, double delta){
-        double newVal = actIndex[act_i].par + delta;
-        act_setPar(act_i, newVal);
-    }
-    
-    void act_addPar(vector<double> &delta);
-    
-    void addDepNodes(vector<int> &intoVec, int l, int r);
-    // adds dependent obs into vector for use in par_llk
     
     vector<obInf> obs_inf;
     vector<node_info> node_inf;
-    
-    vector<actPointInf> actIndex;
-    //vector of active point infos
-    int getNextRawActInd(int act_i);
-    
-    void update_etas();
 
+    void numericBaseDervsAllRaw(vector<double> &d1, vector<double> &d2);
     
-    void uniActiveOptim(int raw_ind);
-    //univariate update of active points
+    void icm_addPar(vector<double> &delta);
 
     void numericBaseDervsOne(int raw_ind, vector<double> &d);
     void numericBaseDervsAllAct(vector<double> &d1, vector<double> &d2);
-    void numericBaseDervsAllRaw(vector<double> &d1, vector<double> &d2);
 
-    void analyticBase1stDerv(vector<double> &d1);
     
-    void vem_step();
+    void update_etas();
+    
     void icm_step();
     
     
     void numericRegDervs();
     void covar_nr_step();
     
-    int getActInd(int raw_ind);
-    //takes in a raw index and gives back the corresponding active index.
-    //returns -1 if not an index
-    
-    int getRawInd(int act_ind){return(actIndex[act_ind].ind);}
-    //returns the raw index from the i_th active index
-    
-    
-    
-    void addActive(int raw_ind, double par);        //done
-    //add active point
-
-    void addActive(int raw_ind){ addActive(raw_ind, baseCH[raw_ind]);}
-    // adds active point without adjusting it
-    
-    void removeActive(int act_ind); //done
-    //remove active point
-    
-    int getNextActRawInd(int raw_ind);
-    
-    void checkIfActShouldDrop(int act_ind); //checks an active point and sees if it should be dropped
-    
+     
     virtual double basHaz2CondS(double ch, double eta) = 0;     //done
     virtual double base_d1_contr(double h, double pob, double eta) = 0; //done, not checked
     virtual double reg_d1_lnk(double ch, double xb, double log_p) = 0;
@@ -140,15 +98,15 @@ public:
     bool hasCovars;
 };
 
-void setupActSet(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, actSet_Abst* actSet);
+void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj);
 //function for setting up a actSet_Abst class
 
-void addDepNodes(vector<int> &intoVec, int l, int r, vector<node_info> &nf);
+//void addDepNodes(vector<int> &intoVec, int l, int r, vector<node_info> &nf);
 //
 
 void cumhaz2p_hat(Eigen::VectorXd &ch, vector<double> &p);
 
-class actSet_ph : public actSet_Abst{
+class icm_ph : public icm_Abst{
 public:
     double basHaz2CondS(double ch, double eta){
         if(ch == R_NegInf)  return(1);
@@ -169,11 +127,11 @@ public:
         double term2 = exp(term1 - log_p);
         return(term1 * term2 + term1 * term1 *term2);
     }
-    virtual ~actSet_ph(){};
+    virtual ~icm_ph(){};
 };
 
 
-class actSet_po : public actSet_Abst{
+class icm_po : public icm_Abst{
 public:
     double basHaz2CondS(double ch, double eta){
         if(ch == R_NegInf)  return(1);
@@ -205,7 +163,7 @@ public:
         double ans = top/(bottom * exp(log_p));
         return(ans);
     }
-    virtual ~actSet_po(){};
+    virtual ~icm_po(){};
 };
 
 extern "C" {
