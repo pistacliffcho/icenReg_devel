@@ -72,6 +72,7 @@ public:
     
      
     virtual double basHaz2CondS(double ch, double eta) = 0;     //done
+    virtual double baseS2CondS(double s, double eta) = 0;
     virtual double base_d1_contr(double h, double pob, double eta) = 0; //done, not checked
     virtual double reg_d1_lnk(double ch, double xb, double log_p) = 0;
     virtual double reg_d2_lnk(double ch, double xb, double log_p) = 0;
@@ -96,6 +97,29 @@ public:
     double maxBaseChg;      //Max change in baseline parameters during icm step
     double h;
     bool hasCovars;
+    
+    bool startGD;
+    vector<double> baseS;
+    vector<double> baseP;
+//    vector<double> d_base_p;
+    vector<double> d_cond_S_left;
+    vector<double> d_cond_S_right;
+//    vector<double> conS_d_Sum;
+    vector<double> base_p_derv;
+    vector<double> prop_p;
+//    double gd_mult;
+    double llk_from_p();
+    
+    double dervConS_fromBaseS(double s, double eta);
+    void baseCH_2_baseS();
+    void baseS_2_baseP();
+    void baseP_2_baseS();
+    void baseS_2_baseCH();
+    void makeConS_Sum();
+    void calc_cond_S_derv();
+    void calc_base_p_derv();
+    double getMaxScaleSize( vector<double> &p, vector<double> &prop_p);
+    void gradientDescent_step();
 };
 
 void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj);
@@ -112,6 +136,15 @@ public:
         if(ch == R_NegInf)  return(1);
         if(ch == R_PosInf)  return(0);
         return(exp(-exp(ch + eta) )) ;}
+    
+    double baseS2CondS(double s, double eta){
+        if(s == 1.0) return(1);
+        if(s == 0.0) return(0);
+        double expEta = exp(eta);
+        double ans = pow(s, expEta);
+        return(ans);
+    }
+    
     double base_d1_contr(double ch, double pob, double eta){
         double expVal = -exp(eta + ch);
         double logAns = eta + ch + expVal - log(pob);
@@ -140,6 +173,13 @@ public:
         double s = exp(-mu);
         double s_nu = exp(eta - mu);
         return( (s_nu) / (s_nu - s + 1)) ;}
+    
+    double baseS2CondS(double s, double eta){
+        double nu = exp(eta);
+        double s_nu = s * nu;
+        return((s_nu)/ (s_nu - s + 1) );
+    }
+    
     double base_d1_contr(double ch, double pob, double eta){
         double s = exp(-exp(ch));
         double s_nu = exp(eta - exp(ch));

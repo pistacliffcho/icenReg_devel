@@ -49,6 +49,24 @@ void mult_vec(double a, vector<double> &vec){
         vec[i] *= a;
 }
 
+void add_vec(double a, vector<double> &vec){
+    int thisSize = vec.size();
+    for(int i = 0; i < thisSize; i++)
+        vec[i] += a;
+}
+
+void add_vec(vector<double> &a, vector<double> &vec){
+    int thisSize = vec.size();
+    int thisSize2 = a.size();
+    if(thisSize != thisSize2){
+        Rprintf("warning: sizes do not match in add_vec\n");
+        return;
+    }
+    for(int i = 0; i < thisSize; i++)
+        vec[i] += a[i];
+}
+
+
 double signVal(double x){
     if(x > 0) return 1.0;
     return -1.0;
@@ -338,4 +356,22 @@ void getRelValIndices(double relVal, std::vector<double> &vals, std::vector<int>
         }
     }
     
+}
+
+double directional_derv(vector<double> &derv, vector<double> &delta){
+    int k = derv.size();
+    int k2 = delta.size();
+    if(k != k2){
+        Rprintf("warning: sizes don't match in directional_derv\n");
+        return(0.0);
+    }
+    double abs_sum = 0.0;
+    for(int i = 0; i < k; i++){
+        abs_sum = abs( delta[i] );
+    }
+    double ans = 0.0;
+    for(int i = 0; i < k; i++){
+        ans += derv[i] * delta[i] / abs_sum;
+    }
+    return(ans);
 }
