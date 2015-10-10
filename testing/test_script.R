@@ -1,6 +1,7 @@
 SAVE = FALSE
 CHECK = TRUE
-
+library(icenReg)
+data(essIncData_small)
 setwd('/Users/cliff/Desktop/icenReg_devel/testing')
 
 makeTestObjects <- function(){

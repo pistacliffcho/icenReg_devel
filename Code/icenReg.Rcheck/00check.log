@@ -1,4 +1,4 @@
-* using log directory ‘/Users/cliffandersonbergman/Desktop/gitProjects/icenReg_devel/Code/icenReg.Rcheck’
+* using log directory ‘/Volumes/User Files/cliff/Desktop/icenReg_devel/Code/icenReg.Rcheck’
 * using R version 3.2.2 (2015-08-14)
 * using platform: x86_64-apple-darwin13.4.0 (64-bit)
 * using session charset: UTF-8
@@ -13,26 +13,28 @@ Number of updates in past 6 months: 8
 * checking package namespace information ... OK
 * checking package dependencies ... NOTE
   No repository set, so cyclic dependency check skipped
+<<<<<<< Updated upstream
 * checking if this is a source package ... WARNING
 Subdirectory ‘icenReg/src’ contains apparent object files/libraries
   icenReg.o icenReg.so
 Object files/libraries should not be included in a source package.
+=======
+* checking if this is a source package ... OK
+>>>>>>> Stashed changes
 * checking if there is a namespace ... OK
 * checking for executable files ... OK
 * checking for hidden files and directories ... NOTE
 Found the following hidden files and directories:
-  .DS_Store
   R/.Rapp.history
   R/.Rhistory
-  man/.DS_Store
   man/.Rapp.history
   man/.Rhistory
   src/.DS_Store
-  src/icenReg_files/.DS_Store
 These were most likely included in error. See section ‘Package
 structure’ in the ‘Writing R Extensions’ manual.
 
 CRAN-pack does not know about
+<<<<<<< Updated upstream
   .DS_Store
   man/.DS_Store
   src/.DS_Store
@@ -78,3 +80,13 @@ CRAN-pack does not know about
 * checking PDF version of manual ... OK
 * DONE
 Status: 1 WARNING, 3 NOTEs
+=======
+  src/.DS_Store
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘icenReg’ can be installed ... ERROR
+Installation failed.
+See ‘/Volumes/User Files/cliff/Desktop/icenReg_devel/Code/icenReg.Rcheck/00install.out’ for details.
+* DONE
+Status: 1 ERROR, 3 NOTEs
+>>>>>>> Stashed changes

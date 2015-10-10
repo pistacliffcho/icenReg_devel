@@ -97,7 +97,8 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
         if(n != icm_obj->covars.rows()) {Rprintf("covar rows not equal to n!\n"); return;}
     }
     icm_obj->reg_d1.resize(reg_k);
-    icm_obj->reg_d2.resize(reg_k, reg_k);
+//    icm_obj->reg_d2.resize(reg_k, reg_k);
+    icm_obj->reg_d2.resize(reg_k);
     icm_obj->reg_par.resize(reg_k);
     for(int i = 0; i < reg_k; i++){ icm_obj->reg_par[i] = 0; }
     
@@ -113,8 +114,8 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     for(int i = 0; i <= maxInd; i++){ icm_obj->baseCH[i] = R_NegInf; }
     icm_obj->baseCH[maxInd+1] = R_PosInf;
     
-    icm_obj->H_d1.resize(maxInd - 1);
-    icm_obj->H_d2.resize(maxInd - 1, maxInd - 1);
+/*    icm_obj->H_d1.resize(maxInd - 1);
+    icm_obj->H_d2.resize(maxInd - 1, maxInd - 1);   */
     
     vector<int> minActPoints;
     int this_l, this_r;
@@ -286,7 +287,7 @@ void icm_Abst::icm_step(){
     
 }
 
-void icm_Abst::calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d1){
+void icm_Abst::calcAnalyticRegDervs(Eigen::VectorXd &hess, Eigen::VectorXd &d1){
     int k = reg_par.size();
     int n = etas.size();
     
@@ -325,13 +326,11 @@ void icm_Abst::calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d1){
         totCont2[i] = l_cont2[i] + r_cont2[i] - totCont[i] * totCont[i];
     }
     
-    hess.resize(k,k);
+    hess.resize(k);
     d1.resize(k);
     for(int i = 0; i < k; i++){
         d1[i] = 0;
-        for(int j = 0; j < k; j++){
-            hess(i,j) = 0;
-        }
+        hess[i] = 0;
     }
 
     double this_covar;
@@ -347,18 +346,20 @@ void icm_Abst::calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d1){
                 hess(a,b) += covars(i,a) * covars(i,b) * totCont2[i];
                 hess(b,a) = hess(a,b);
             }       ignorable due to PCA    */
-            hess(a,a) += this_w_covar * this_covar * totCont2[i];
+            hess[a] += this_w_covar * this_covar * totCont2[i];
         }
     }
 
 }
 
+/*
 void icm_Abst::numericRegDervs(){
     int k = reg_par.size();
     vector<double> lk_l(k);
     vector<double> lk_h(k);
     reg_d1.resize(k);
-    reg_d2.resize(k,k);
+//    reg_d2.resize(k,k);
+    reg_d2.resize(k);
     
     double lk_0 = sum_llk();
     
@@ -397,12 +398,14 @@ void icm_Abst::numericRegDervs(){
     }
     update_etas();
 }
-
+*/
+ 
+ 
 void icm_Abst::covar_nr_step(){
     int k = reg_par.size();
     calcAnalyticRegDervs(reg_d2, reg_d1);
     double lk_0 = sum_llk();
-    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> esolve(reg_d2);
+/*    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> esolve(reg_d2);
     Eigen::VectorXd evals(1);
     evals[0] = 1;
     
@@ -422,9 +425,18 @@ void icm_Abst::covar_nr_step(){
     
     if(max(evals) > 0){
         return;
+    }       */
+    for(int i = 0; i < k; i++){
+        if(reg_d2[i] >= -0.0000001 || ISNAN(reg_d2[i])){
+            reg_d2[i] = -100.00;
+        }
+        if(ISNAN(reg_d1[i]) ){reg_d1[i] = 0;}
     }
-    Eigen::VectorXd propVec = -reg_d2.ldlt().solve(reg_d1);
-    tries = 0;
+ 
+//    Eigen::VectorXd propVec = -reg_d2.ldlt().solve(reg_d1);
+    Eigen::VectorXd propVec(k);
+    for(int i = 0; i < k; i++){propVec[i] = -reg_d1[i]/reg_d2[i];}
+    int tries = 0;
     reg_par += propVec;
     propVec *= -1;
     update_etas();

@@ -77,21 +77,22 @@ public:
     virtual double reg_d1_lnk(double ch, double xb, double log_p) = 0;
     virtual double reg_d2_lnk(double ch, double xb, double log_p) = 0;
     
-    void calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d1);
+    void calcAnalyticRegDervs(Eigen::VectorXd &hess, Eigen::VectorXd &d1);
     void rawDervs2ActDervs();
     
     Eigen::VectorXd     baseCH;     //Vector of baseline log cumulative hazards.
                                     //baseH[0] fixed to -Inf, baseH[k-1] = Inf
-    Eigen::VectorXd     H_d1;       //Vector of derivatives for CH's
-    Eigen::MatrixXd     H_d2;       //Hessian for CH's
+ /*   Eigen::VectorXd     H_d1;       //Vector of derivatives for CH's
+    Eigen::MatrixXd     H_d2;       //Hessian for CH's          */
     Eigen::VectorXd     base_p_obs; //Baseline probability of each observation  //initialized
     Eigen::VectorXd     etas;       //linear combination of regression parameters   //initialized
     Eigen::VectorXd     expEtas;    //exp(etas) //initialized
     Eigen::VectorXd     reg_par;    //regression parameters //initialized
     Eigen::MatrixXd     covars;     //covariates        //initialized
     Eigen::VectorXd     reg_d1;     //first derivatives of regression parameters        //initialized
-    Eigen::MatrixXd     reg_d2;     //Hessian for derivatives       //initialized
-
+//    Eigen::MatrixXd     reg_d2;     //Hessian for derivatives       //initialized
+    Eigen::VectorXd     reg_d2;     //second derivatives: ignoring off diagonals!
+    
     vector<double> w;
     
     double maxBaseChg;      //Max change in baseline parameters during icm step
