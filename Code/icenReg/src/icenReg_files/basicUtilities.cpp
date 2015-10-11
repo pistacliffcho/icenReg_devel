@@ -66,6 +66,17 @@ void add_vec(vector<double> &a, vector<double> &vec){
         vec[i] += a[i];
 }
 
+void add_vec(double lambda, vector<double> &a, vector<double> &vec){
+    int thisSize = vec.size();
+    int thisSize2 = a.size();
+    if(thisSize != thisSize2){
+        Rprintf("warning: sizes do not match in add_vec\n");
+        return;
+    }
+    for(int i = 0; i < thisSize; i++)
+        vec[i] += a[i] * lambda;
+}
+
 
 double signVal(double x){
     if(x > 0) return 1.0;
@@ -374,4 +385,16 @@ double directional_derv(vector<double> &derv, vector<double> &delta){
         ans += derv[i] * delta[i] / abs_sum;
     }
     return(ans);
+}
+
+
+void makeUnitVector(vector<double> &v){
+    double sum = 0;
+    int k = v.size();
+    for(int i = 0; i < k; i++){
+        sum += abs(v[i]);
+    }
+    for(int i = 0; i < k; i++){
+        v[i] = v[i]/sum;
+    }
 }
