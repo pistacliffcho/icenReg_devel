@@ -53,7 +53,7 @@ public:
     
     vector<obInf> obs_inf;
     vector<node_info> node_inf;
-
+    
     void numericBaseDervsAllRaw(vector<double> &d1, vector<double> &d2);
     
     void icm_addPar(vector<double> &delta);
@@ -66,11 +66,9 @@ public:
     
     void icm_step();
     
-    
     void numericRegDervs();
     void covar_nr_step();
     
-     
     virtual double basHaz2CondS(double ch, double eta) = 0;     //done
     virtual double baseS2CondS(double s, double eta) = 0;
     virtual double base_d1_contr(double h, double pob, double eta) = 0; //done, not checked
@@ -102,13 +100,10 @@ public:
     bool startGD;
     vector<double> baseS;
     vector<double> baseP;
-//    vector<double> d_base_p;
     vector<double> d_cond_S_left;
     vector<double> d_cond_S_right;
-//    vector<double> conS_d_Sum;
     vector<double> base_p_derv;
     vector<double> prop_p;
-//    double gd_mult;
     double llk_from_p();
     
     double dervConS_fromBaseS(double s, double eta);
@@ -116,7 +111,7 @@ public:
     void baseS_2_baseP();
     void baseP_2_baseS();
     void baseS_2_baseCH();
-    void makeConS_Sum();
+//    void makeConS_Sum();
     void calc_cond_S_derv();
     void calc_base_p_derv();
     double getMaxScaleSize( vector<double> &p, vector<double> &prop_p);
@@ -139,8 +134,8 @@ public:
         return(exp(-exp(ch + eta) )) ;}
     
     double baseS2CondS(double s, double eta){
-        if(s == 1.0) return(1);
-        if(s == 0.0) return(0);
+        if(s == 1.0) return(1.0);
+        if(s == 0.0) return(0.0);
         double expEta = exp(eta);
         double ans = pow(s, expEta);
         return(ans);

@@ -234,57 +234,11 @@ void icm_Abst::icm_step(){
         mult_vec(0, prop);
     }
     
-/*    for(int i = 0; i < thisSize; i++)
-        Rprintf("%f  ", prop[i]);
-    Rprintf("\n");  */
-
     maxBaseChg = 0;
     for(int i = 0; i < thisSize; i++){
         maxBaseChg = max(maxBaseChg, abs(prop[i]) );
     }
 
-    
-/*
-    for(int i = 0; i < thisSize; i++){prop[i] = h;}
-    icm_addPar(prop);
-    double llk_h = sum_llk();
-    mult_vec(-2.0, prop);
-    icm_addPar(prop);
-    double llk_l = sum_llk();
-    mult_vec(-0.5, prop);
-    icm_addPar(prop);
-    double llk_0 = sum_llk();
-    
-    double d1_val = (llk_h - llk_l) / (h + h);
-    double d2_val = (llk_h + llk_l - 2.0 * llk_0) / (h*h);
-    double delta = -d1_val/d2_val;
-    if(ISNAN(delta)){return;}
-    if(delta == R_PosInf || delta == R_NegInf){return;}
-    for(int i = 0; i < thisSize; i++){prop[i] = delta;}
-    
-    icm_addPar(prop);
-    llk_new = sum_llk();
-    llk_st = llk_0;
-    
-//    Rprintf("d1_val = %f, d2_val = %f, delta = %f, first change in llk = %f\n", d1_val, d2_val, delta, llk_new - llk_st);
-    
-    mult_vec(-1.0, prop);
-    tries = 0;
-    while(llk_st > llk_new && tries < 5){
-        tries++;
-        mult_vec(0.5, prop);
-        icm_addPar(prop);
-        llk_new = sum_llk();
-    }
-    if(llk_new < llk_st){
-        icm_addPar(prop);
-        llk_new = sum_llk();
-        mult_vec(0, prop);
-    }
-
-//    Rprintf("improvement from middle step = %f\n", llk_new - llk_st);
-*/    
-    
 }
 
 void icm_Abst::calcAnalyticRegDervs(Eigen::VectorXd &hess, Eigen::VectorXd &d1){

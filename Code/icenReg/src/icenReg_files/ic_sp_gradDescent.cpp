@@ -68,7 +68,7 @@ double icm_Abst::dervConS_fromBaseS(double s, double eta){
     s += h;
     f_h = baseS2CondS(s, eta);
     s -= 2*h;
-    f_l = basHaz2CondS(s, eta);
+    f_l = baseS2CondS(s, eta);
     ans = (f_h - f_l) / (2 * h);
     if(adjust_h){
         h = org_h;
@@ -80,7 +80,6 @@ double icm_Abst::dervConS_fromBaseS(double s, double eta){
 }
 
 void icm_Abst::calc_cond_S_derv(){
-    //    double this_base_ch;
     double this_eta, this_p_obs;
     double s_l, s_r;
     int n = expEtas.size();
@@ -98,29 +97,60 @@ void icm_Abst::calc_cond_S_derv(){
         this_eta = etas[i];
         this_p_obs = obs_inf[i].pob;
         if(l_ind > 0){
-            s_l = exp( - exp( baseCH[l_ind - 1]) );
-            d_cond_S_left[l_ind - 1] = -1.0 * dervConS_fromBaseS( s_l , this_eta) / this_p_obs;
+            s_l = exp( - exp( baseCH[l_ind]) );
+            d_cond_S_left[l_ind - 1] -= dervConS_fromBaseS( s_l , this_eta) / this_p_obs;
         }
         if(r_ind < (k-1) ){
             s_r = exp( - exp( baseCH[r_ind + 1]) );
-            d_cond_S_right[r_ind] = dervConS_fromBaseS( s_r , this_eta) / this_p_obs;
+            d_cond_S_right[r_ind] += dervConS_fromBaseS( s_r , this_eta) / this_p_obs;
         }
     }
 }
 
 
-void icm_Abst::makeConS_Sum(){
+/*  void icm_Abst::makeConS_Sum(){
     int k = baseCH.size();
     base_p_derv.resize(k - 1);
     base_p_derv[0] = d_cond_S_left[0] + d_cond_S_right[0];
     for(int i = 1; i < (k-1); i++){
         base_p_derv[i] = base_p_derv[i - 1] + d_cond_S_left[i] + d_cond_S_right[i];
     }
-}
+}   */
 
 void icm_Abst::calc_base_p_derv(){
     calc_cond_S_derv();
-    makeConS_Sum();
+    int k = baseCH.size() - 1;
+    base_p_derv.resize(k);
+    base_p_derv[ k-1 ] = 0;
+    int k_l, k_r, l_ind, r_ind;
+    k_l = node_inf[ k-1 ].l.size();
+    k_r = node_inf[ k-1 ].r.size();
+    for(int j = 0; j < k_l; j++){
+        l_ind = node_inf[ k-1 ].l[j];
+        base_p_derv[ k-1 ] += d_cond_S_left[l_ind];
+    }
+    for(int j = 0; j < k_r; j++){
+        r_ind = node_inf[ k-1 ].r[j];
+        base_p_derv[ k-1 ] += d_cond_S_right[r_ind + 1];
+    }
+    
+    for(int i = k - 2; i >= 0; i--){
+        base_p_derv[i] = base_p_derv[i+1];
+        k_l = node_inf[i].l.size();
+        k_r = node_inf[i].r.size();
+        
+        for(int j = 0; j < k_l; j++){
+            l_ind = node_inf[i].l[j];
+            base_p_derv[i] += d_cond_S_left[l_ind];
+        }
+        for(int j = 0; j < k_r; j++){
+            r_ind = node_inf[i].r[j];
+            base_p_derv[i] += d_cond_S_right[r_ind + 1];
+        }
+
+        
+    }
+    
     Rprintf("3 base derivative = %f, %f, %f\n", base_p_derv[0], base_p_derv[1], base_p_derv[base_p_derv.size()-1]);
 }
 
@@ -155,20 +185,26 @@ void icm_Abst::gradientDescent_step(){
     calc_base_p_derv();
     int k = base_p_derv.size();
     prop_p.resize(k);
-    double prop_sum = 0;
+    double prop_mean = 0;
+    int act_sum = 0;
     
     vector<bool> isActive(k);
     for(int i = 0; i < k; i++){
-        if(base_p_derv[i] >= 0 || baseP[i] > 0){ isActive[i] = true; }
+        if(base_p_derv[i] >= 0 || baseP[i] > 0){
+            isActive[i] = true;
+            act_sum++;
+        }
         else { isActive[i] = false; }
     }
     
     for(int i = 0; i < k; i++){
-        if(isActive[i]){ prop_sum += base_p_derv[i]; }
+        if(isActive[i]){ prop_mean += base_p_derv[i]; }
     }
     
+    prop_mean = prop_mean / act_sum;
+    
     for(int i = 0; i < k; i++){
-        if(isActive[i]){ prop_p[i] = base_p_derv[i] - prop_sum;}
+        if(isActive[i]){ prop_p[i] = base_p_derv[i] - prop_mean;}
         else {prop_p[i] = 0.0;}
     }
     
@@ -195,7 +231,7 @@ void icm_Abst::gradientDescent_step(){
     double llk_0 = llk_from_p();
     
     for(int i = 0; i < k; i++){
-        if(isActive[i]){ prop_p[i] = base_p_derv[i] - prop_sum; }
+        if(isActive[i]){ prop_p[i] = base_p_derv[i] - prop_mean; }
         else{ prop_p[i] = 0.0;}
     }
     
