@@ -105,17 +105,22 @@ public:
     vector<double> base_p_derv;
     vector<double> prop_p;
     double llk_from_p();
+    double numeric_p_der(int i);
     
     double dervConS_fromBaseS(double s, double eta);
     void baseCH_2_baseS();
     void baseS_2_baseP();
     void baseP_2_baseS();
     void baseS_2_baseCH();
-//    void makeConS_Sum();
     void calc_cond_S_derv();
     void calc_base_p_derv();
     double getMaxScaleSize( vector<double> &p, vector<double> &prop_p);
     void gradientDescent_step();
+    
+    void numeric_dobs_dp();
+    double cal_log_obs(double s1, double s2, double eta);
+    
+    double almost_inf;
 };
 
 void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj);
@@ -203,7 +208,7 @@ public:
 };
 
 extern "C" {
-    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w);
+    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter);
     SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals);
 }
 #endif /* defined(____ic_sp_cm__) */

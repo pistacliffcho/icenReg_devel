@@ -76,6 +76,7 @@ void icm_Abst::icm_addPar(vector<double> &delta){
 /*      INITIALIZATION TOOLS    */
 void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj){
     icm_obj->h = 0.0001;
+    icm_obj->almost_inf = 1.0/icm_obj->h;
     int n = LENGTH(Rlind);
     if(n != LENGTH(Rrind)){Rprintf("length of Rlind and Rrind not equal\n"); return;}
     icm_obj->base_p_obs.resize(n);
@@ -171,6 +172,22 @@ void icm_Abst::numericBaseDervsOne(int raw_ind, vector<double> &dvec){
     
     dvec[0] = (llk_h - llk_l)/(2*h);
     dvec[1] = (llk_h + llk_l - 2 * llk_st) / (h * h);
+    
+    if(dvec[1] == R_NegInf){
+        h = h/25.0;
+        
+        baseCH[raw_ind] += h;
+        double llk_h = par_llk(raw_ind);
+        baseCH[raw_ind] -= 2*h;
+        double llk_l = par_llk(raw_ind);
+        baseCH[raw_ind] += h;
+        double llk_st = par_llk(raw_ind);
+        
+        dvec[0] = (llk_h - llk_l)/(2*h);
+        dvec[1] = (llk_h + llk_l - 2 * llk_st) / (h * h);
+        
+        h *=25.0;
+    }
 }
 
 void icm_Abst::numericBaseDervsAllAct(vector<double> &d1, vector<double> &d2){
@@ -205,8 +222,9 @@ void icm_Abst::icm_step(){
     numericBaseDervsAllRaw(d1, d2);
     int thisSize = d1.size();
     for(int i = 0; i < thisSize; i ++){
+        if(d2[i] == R_NegInf){d2[i] = -almost_inf;}
         if(ISNAN(d2[i]))    {Rprintf("warning: d2 isnan!\n"); return;}
-        if(d2[i] >= 0 || d2[i] == R_NegInf)      {Rprintf("warning: invalid d2 in icm step. i = %d, d2 = %f. Quiting icm step\n", i, d2[i]); return;}
+        if(d2[i] >= 0)      {Rprintf("warning: invalid d2 in icm step. i = %d, d2 = %f. Quiting icm step\n", i, d2[i]); return;}
     }
     vector<double> x(d1.size());
     if(x.size() != baseCH.size() - 2){Rprintf("warning: x.size()! = actIndex.size()\n"); return;}
@@ -306,80 +324,14 @@ void icm_Abst::calcAnalyticRegDervs(Eigen::VectorXd &hess, Eigen::VectorXd &d1){
 
 }
 
-/*
-void icm_Abst::numericRegDervs(){
-    int k = reg_par.size();
-    vector<double> lk_l(k);
-    vector<double> lk_h(k);
-    reg_d1.resize(k);
-//    reg_d2.resize(k,k);
-    reg_d2.resize(k);
-    
-    double lk_0 = sum_llk();
-    
-    
-    for(int i = 0; i < k; i++){
-        reg_par[i] += h;
-        update_etas();
-        lk_h[i] = sum_llk();
-        reg_par[i] -= 2 * h;
-        update_etas();
-        lk_l[i] = sum_llk();
-        reg_par[i] += h;
-        reg_d1[i] = (lk_h[i] - lk_l[i])/(2 * h);
-        reg_d2(i,i) = (lk_h[i] + lk_l[i] - 2*lk_0) / (h*h);
-    }
-    
-    double lk_ll, lk_hh, rho;
-    for(int i = 0; i < k; i++){
-        for(int j = 0; j < k; j++){
-            if(i != j){
-                reg_par[i] += h;
-                reg_par[j] += h;
-                update_etas();
-                lk_hh = sum_llk();
-                reg_par[i] -= 2 * h;
-                reg_par[j] -= 2 * h;
-                update_etas();
-                lk_ll = sum_llk();
-                reg_par[i] += h;
-                reg_par[j] += h;
-                rho = (lk_hh + lk_ll + 2 * lk_0 - lk_h[i] - lk_h[j] - lk_l[i] - lk_l[j])/(2 * h * h);
-                reg_d2(i,j) = rho;
-                reg_d2(j,i) = rho;
-            }
-        }
-    }
-    update_etas();
-}
-*/
+
  
  
 void icm_Abst::covar_nr_step(){
     int k = reg_par.size();
     calcAnalyticRegDervs(reg_d2, reg_d1);
     double lk_0 = sum_llk();
-/*    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> esolve(reg_d2);
-    Eigen::VectorXd evals(1);
-    evals[0] = 1;
-    
-    if(esolve.info() == Eigen::Success)
-        evals = esolve.eigenvalues();
-    int tries = 0;
-    double delta = 1;
-    while(max(evals) > -0.000001 && tries < 10){
-        tries++;
-        for(int i = 0; i < k; i++)
-            reg_d2(i,i) -= delta;
-        delta *= 2;
-        esolve.compute(reg_d2);
-        if(esolve.info() == Eigen::Success)
-            evals = esolve.eigenvalues();
-    }
-    
-    if(max(evals) > 0){
-        return;
-    }       */
+
     for(int i = 0; i < k; i++){
         if(reg_d2[i] >= -0.0000001 || ISNAN(reg_d2[i])){
             reg_d2[i] = -100.00;
@@ -406,8 +358,9 @@ void icm_Abst::covar_nr_step(){
 
 
 /*      CALLING ALGORITHM FROM R     */
-SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w){
+SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter){
     icm_Abst* optObj;
+    bool useGD = LOGICAL(R_use_GD)[0] == TRUE;
     if(INTEGER(fitType)[0] == 1){
         optObj = new icm_ph;
     }
@@ -418,30 +371,24 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w){
 
     setup_icm(Rlind, Rrind, Rcovars, R_w, optObj);
     
-    double gd_llk_1, gd_llk_2;
-    
     double llk_old = R_NegInf;
     double llk_new = optObj->sum_llk();
     int tries = 0;
     
     bool metOnce = false;
     double tol = pow(10, -10);
-    while(tries < 500 && (llk_new - llk_old) > tol){
+    int maxIter = INTEGER(R_maxiter)[0];
+    while(tries < maxIter && (llk_new - llk_old) > tol){
         tries++;
-//        if(tries % 20 == 0){R_CheckUserInterrupt();}
         llk_old = llk_new;
         if(optObj->hasCovars)       optObj->covar_nr_step();
-        for(int i = 0; i < 10; i++)  {
-            optObj->icm_step();
-            
-            gd_llk_1 = optObj->sum_llk();
-            
-            optObj->gradientDescent_step();
 
-            gd_llk_2 = optObj->sum_llk();
-            Rprintf("change from gradientDescent step = %f\n", gd_llk_2 - gd_llk_1);
- 
-            
+        if(useGD){
+            optObj->gradientDescent_step();
+        }
+
+        for(int i = 0; i < 1; i++)  {
+            optObj->icm_step();
             if(optObj->maxBaseChg < pow(10.0, -12.0)){break;}
         }
         llk_new = optObj->sum_llk();

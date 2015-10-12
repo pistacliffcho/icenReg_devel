@@ -11,7 +11,7 @@ findMaximalIntersections <- function(lower, upper){
 }
 
 
-fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights){
+fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, useGD, maxIter){
 	recenterCovars = TRUE
 	if(getNumCovars(covars) == 0)	recenterCovars <- FALSE
 	mi_info <- findMaximalIntersections(obsMat[,1], obsMat[,2])
@@ -26,7 +26,7 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights){
 		covars <- as.matrix(pca_info$x)
 	}
 	
-	c_ans <- .Call('ic_sp_ch', mi_info$l_inds, mi_info$r_inds, covars, fitType, as.numeric(weights)) 
+	c_ans <- .Call('ic_sp_ch', mi_info$l_inds, mi_info$r_inds, covars, fitType, as.numeric(weights), useGD, as.integer(maxIter)) 
 	names(c_ans) <- c('p_hat', 'coefficients', 'final_llk', 'iterations', 'score')
 	myFit <- new(callText)
 	myFit$p_hat <- c_ans$p_hat
@@ -62,11 +62,11 @@ bs_sampleData <- function(rawDataEnv, weights){
 	return(sampEnv)
 }
 
-getBS_coef <- function(sampDataEnv, callText = 'ic_ph'){
+getBS_coef <- function(sampDataEnv, callText = 'ic_ph', useGD, maxIter){
 	xMat <- cbind(sampDataEnv$x,1)
 	invertResult <- try(diag(solve(t(xMat) %*% xMat )), silent = TRUE)
 	if(is(invertResult, 'try-error')) {return( rep(NA, ncol(xMat) -1) ) }
-	output <- fit_ICPH(sampDataEnv$y, sampDataEnv$x, callText, sampDataEnv$w)$coefficients
+	output <- fit_ICPH(sampDataEnv$y, sampDataEnv$x, callText, sampDataEnv$w, useGD= useGD, maxIter = maxIter)$coefficients
 	return(output)
 }
 

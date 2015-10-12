@@ -1,4 +1,5 @@
-ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL){
+ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL,
+                  useGD = TRUE, maxIter = 500){
 	if(missing(data)) stop('data argument required')
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -52,7 +53,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	
 	if(is.null(ncol(x)) ) recenterCovars = FALSE
 	
-   	fitInfo <- fit_ICPH(yMat, x, callText, weights)
+   	fitInfo <- fit_ICPH(yMat, x, callText, weights, useGD = useGD, maxIter = maxIter)
 	dataEnv <- list()
 	dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
 	if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- as.character(formula[[3]])
@@ -67,7 +68,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	 		for(i in 1:bs_samples){
 	    		set.seed(i + seed)
 	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, callText = callText))
+				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, callText = callText, useGD = useGD, maxIter = maxIter))
 	    	}
 	    }
 	    else{
@@ -75,7 +76,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	    					.combine = 'rbind') %dopar%{
 	    		set.seed(i)
 	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				getBS_coef(sampDataEnv, callText = callText)
+				getBS_coef(sampDataEnv, callText = callText, useGD = useGD, maxIter = maxIter)
 	    	}
 	    }
    	 }

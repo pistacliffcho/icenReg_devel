@@ -1,74 +1,12 @@
 * installing *source* package ‘icenReg’ ...
 ** libs
-clang++ -I/Library/Frameworks/R.framework/Resources/include -DNDEBUG  -I/usr/local/include -I/usr/local/include/freetype2 -I/opt/X11/include    -fPIC  -Wall -mtune=core2 -g -O2  -c icenReg.cpp -o icenReg.o
-In file included from icenReg.cpp:20:
-./icenReg_files/ic_sp_ch.cpp:385:20: error: redefinition of 'i'
-    for(int i = 0, i < k; i++){
-                   ^
-./icenReg_files/ic_sp_ch.cpp:385:13: note: previous definition is here
-    for(int i = 0, i < k; i++){
-            ^
-./icenReg_files/ic_sp_ch.cpp:385:22: error: expected ';' in 'for' statement specifier
-    for(int i = 0, i < k; i++){
-                     ^
-./icenReg_files/ic_sp_ch.cpp:385:22: error: expected expression
-./icenReg_files/ic_sp_ch.cpp:395:5: error: use of undeclared identifier 'tries'
-    tries = 0;
-    ^
-./icenReg_files/ic_sp_ch.cpp:400:28: error: use of undeclared identifier 'tries'
-    while(lk_new < lk_0 && tries < 10){
-                           ^
-./icenReg_files/ic_sp_ch.cpp:401:9: error: use of undeclared identifier 'tries'
-        tries++;
-        ^
-In file included from icenReg.cpp:9:
-In file included from ./Eigen_local/Dense:1:
-In file included from ./Eigen_local/Core:277:
-./Eigen_local/src/Core/DenseCoeffsBase.h:376:27: error: no member named 'THE_BRACKET_OPERATOR_IS_ONLY_FOR_VECTORS__USE_THE_PARENTHESIS_OPERATOR_INSTEAD' in 'Eigen::internal::static_assertion<false>'
-                          THE_BRACKET_OPERATOR_IS_ONLY_FOR_VECTORS__USE_THE_PARENTHESIS_OPERATOR_INSTEAD)
-                          ^
-./Eigen_local/src/Core/util/StaticAssert.h:112:65: note: expanded from macro 'EIGEN_STATIC_ASSERT'
-        if (Eigen::internal::static_assertion<bool(CONDITION)>::MSG) {}
-                                                                ^
-./icenReg_files/ic_sp_ch.cpp:386:18: note: in instantiation of member function 'Eigen::DenseCoeffsBase<Eigen::Matrix<double, -1, -1, 0, -1, -1>, 1>::operator[]' requested here
-        if(reg_d2[i] >= -0.0000001 || ISNAN(reg_d2[i])){
-                 ^
-7 errors generated.
-make: *** [icenReg.o] Error 1
-clang++ -I/Library/Frameworks/R.framework/Resources/include -DNDEBUG  -I/usr/local/include -I/usr/local/include/freetype2 -I/opt/X11/include    -fPIC  -Wall -mtune=core2 -g -O2  -c icenReg.cpp -o icenReg.o
-In file included from icenReg.cpp:20:
-./icenReg_files/ic_sp_ch.cpp:385:20: error: redefinition of 'i'
-    for(int i = 0, i < k; i++){
-                   ^
-./icenReg_files/ic_sp_ch.cpp:385:13: note: previous definition is here
-    for(int i = 0, i < k; i++){
-            ^
-./icenReg_files/ic_sp_ch.cpp:385:22: error: expected ';' in 'for' statement specifier
-    for(int i = 0, i < k; i++){
-                     ^
-./icenReg_files/ic_sp_ch.cpp:385:22: error: expected expression
-./icenReg_files/ic_sp_ch.cpp:395:5: error: use of undeclared identifier 'tries'
-    tries = 0;
-    ^
-./icenReg_files/ic_sp_ch.cpp:400:28: error: use of undeclared identifier 'tries'
-    while(lk_new < lk_0 && tries < 10){
-                           ^
-./icenReg_files/ic_sp_ch.cpp:401:9: error: use of undeclared identifier 'tries'
-        tries++;
-        ^
-In file included from icenReg.cpp:9:
-In file included from ./Eigen_local/Dense:1:
-In file included from ./Eigen_local/Core:277:
-./Eigen_local/src/Core/DenseCoeffsBase.h:376:27: error: no member named 'THE_BRACKET_OPERATOR_IS_ONLY_FOR_VECTORS__USE_THE_PARENTHESIS_OPERATOR_INSTEAD' in 'Eigen::internal::static_assertion<false>'
-                          THE_BRACKET_OPERATOR_IS_ONLY_FOR_VECTORS__USE_THE_PARENTHESIS_OPERATOR_INSTEAD)
-                          ^
-./Eigen_local/src/Core/util/StaticAssert.h:112:65: note: expanded from macro 'EIGEN_STATIC_ASSERT'
-        if (Eigen::internal::static_assertion<bool(CONDITION)>::MSG) {}
-                                                                ^
-./icenReg_files/ic_sp_ch.cpp:386:18: note: in instantiation of member function 'Eigen::DenseCoeffsBase<Eigen::Matrix<double, -1, -1, 0, -1, -1>, 1>::operator[]' requested here
-        if(reg_d2[i] >= -0.0000001 || ISNAN(reg_d2[i])){
-                 ^
-7 errors generated.
-make: *** [icenReg.o] Error 1
-ERROR: compilation failed for package ‘icenReg’
-* removing ‘/Volumes/User Files/cliff/Desktop/icenReg_devel/Code/icenReg.Rcheck/icenReg’
+make: Nothing to be done for `all'.
+installing to /Volumes/User Files/cliff/Desktop/icenReg_devel/Code/icenReg.Rcheck/icenReg/libs
+** R
+** data
+** preparing package for lazy loading
+** help
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded
+* DONE (icenReg)

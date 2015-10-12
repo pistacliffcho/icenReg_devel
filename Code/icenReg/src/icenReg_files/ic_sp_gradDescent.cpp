@@ -85,10 +85,9 @@ void icm_Abst::calc_cond_S_derv(){
     double this_eta, this_p_obs, this_mult;
     double s_l, s_r;
     int n = expEtas.size();
-    int k = baseCH.size();
     int l_ind, r_ind;
-    d_cond_S_left.resize(k);
-    d_cond_S_right.resize(k);
+    d_cond_S_left.resize(n);
+    d_cond_S_right.resize(n);
     for(int i = 0; i < n; i++){
         d_cond_S_left[i] = 0;
         d_cond_S_right[i] = 0;
@@ -104,6 +103,20 @@ void icm_Abst::calc_cond_S_derv(){
         s_r = exp( - exp( baseCH[r_ind + 1]) );
         d_cond_S_right[i] += dervConS_fromBaseS( s_r , this_eta) * this_mult;
     }
+}
+
+double icm_Abst::numeric_p_der(int i){
+    double llk_l, llk_h;
+    double this_h = h/100;
+    baseP[i] += this_h;
+    llk_h = llk_from_p();
+    baseP[i] -= 2.0 * this_h;
+    llk_l = llk_from_p();
+    baseP[i] += this_h;
+    baseP_2_baseS();
+    baseS_2_baseCH();
+    
+    return( (llk_h - llk_l)/(2*this_h) );
 }
 
 void icm_Abst::calc_base_p_derv(){
@@ -123,35 +136,12 @@ void icm_Abst::calc_base_p_derv(){
         }
     }
     
+  
     
-/*    for(int j = 0; j < k_l; j++){
-        l_ind = nd->l[j];
-        base_p_derv[ k-1 ] += d_cond_S_left[l_ind];
-    }
-    for(int j = 0; j < k_r; j++){
-        r_ind = nd->r[j];
-        base_p_derv[ k-1 ] += d_cond_S_right[r_ind];
-    }
+/*    for(int i = 0; i < k; i++){
+        base_p_derv[i] = numeric_p_der(i);
+    }   */
     
-    for(int i = k - 2; i >= 0; i--){
-        base_p_derv[i] = base_p_derv[i+1];
-        nd = &node_inf[i];
-        k_l = nd->l.size();
-        k_r = nd->r.size();
-        
-        for(int j = 0; j < k_l; j++){
-            l_ind = nd->l[j];    //these are observation for which this is the left side
-            base_p_derv[i] += d_cond_S_left[l_ind];
-        }
-        for(int j = 0; j < k_r; j++){
-            r_ind = nd->r[j];
-            base_p_derv[i] += d_cond_S_right[r_ind];
-        }
-
-        
-    }
-    */
-    Rprintf("3 base derivative = %f, %f, %f\n", base_p_derv[0], base_p_derv[1], base_p_derv[k-1]);
 }
 
 double icm_Abst::getMaxScaleSize(vector<double> &p, vector<double> &prop_p){
@@ -179,10 +169,13 @@ double icm_Abst::getMaxScaleSize(vector<double> &p, vector<double> &prop_p){
 
 
 void icm_Abst::gradientDescent_step(){
+    
+    bool printDerInfo = false;
+    
     baseCH_2_baseS();
     baseS_2_baseP();
     
-    calc_base_p_derv();
+    numeric_dobs_dp();
     int k = base_p_derv.size();
     prop_p.resize(k);
     double prop_mean = 0;
@@ -190,7 +183,7 @@ void icm_Abst::gradientDescent_step(){
     
     vector<bool> isActive(k);
     for(int i = 0; i < k; i++){
-        if(base_p_derv[i] >= 0 || baseP[i] > 0){
+        if(baseP[i] > 0 && !ISNAN(base_p_derv[i])){
             isActive[i] = true;
             act_sum++;
         }
@@ -210,20 +203,23 @@ void icm_Abst::gradientDescent_step(){
     }
     makeUnitVector(prop_p);
     
+    double prop_sum = 0;
+    for(int i = 0; i < k; i++){
+        prop_sum += prop_p[i];
+    }
     
     double scale_max = getMaxScaleSize(baseP, prop_p);
     double delta_val = scale_max/2.0;
     
     delta_val = min(delta_val, h);
+    delta_val = delta_val/100.0;
     
     if(delta_val == 0){
         Rprintf("delta_val = 0, quitting gradientDescent_step\n");
         return;
     }
     
-    Rprintf("delta_val = %f for finding directional derivative\n", delta_val);
-    
-    
+
     add_vec(delta_val, prop_p, baseP);
     double llk_h = llk_from_p();
     add_vec(-2.0 * delta_val, prop_p, baseP);
@@ -233,16 +229,22 @@ void icm_Abst::gradientDescent_step(){
     
     double d1 = ( llk_h - llk_l ) / ( 2.0 * delta_val );
     double d2 = (llk_h + llk_l - 2.0 * llk_0 ) / (delta_val * delta_val);
+    
+    
+    if(printDerInfo){
+        double analyticDircDerv = directional_derv(base_p_derv, prop_p);
+        Rprintf("Direct Derivative: Analytic: %f, Numeric: %f. h used = %f\n", analyticDircDerv, d1, delta_val);
+        Rprintf("4 base derivative = %f, %f, %f, %f\n", base_p_derv[0], base_p_derv[1],base_p_derv[k-2] ,base_p_derv[k-1]);
+        Rprintf("numeric dervs = %f, %f, %f, %f \n", numeric_p_der(0), numeric_p_der(1),numeric_p_der(k-2) ,numeric_p_der(k-1) );
+    }
     delta_val = -d1/d2;
-    
-    double analyticDircDerv = directional_derv(base_p_derv, prop_p);
-    Rprintf("Direct Derivative: Analytic: %f, Numeric: %f\n", analyticDircDerv, d1);
-    
+
+
     if(delta_val <= 0){
         Rprintf("note: delta_val <= 0, equal to %f. d1 = %f, Quitting GD step.\n", delta_val, d1);
         return;
     }
-    
+
     delta_val = min( delta_val, scale_max );
     
     add_vec(delta_val, prop_p, baseP);
@@ -267,5 +269,113 @@ void icm_Abst::gradientDescent_step(){
                     new_llk - llk_0);
         }
     }
+}
+
+
+
+
+double icm_Abst::cal_log_obs(double s1, double s2, double eta){
+    double l = baseS2CondS(s1, eta);
+    double r = baseS2CondS(s2, eta);
+    return(log(l - r) );
+}
+
+
+
+void icm_Abst::numeric_dobs_dp(){
+    baseCH_2_baseS();
+    
+    int p_k = baseS.size();
+    int n = etas.size();
+    vector<double> dob_dp_both(n);
+    vector<double> dob_dp_rightOnly(n);
+
+    double sl, sr, llk_h,llk_l, this_eta, this_h;
+    
+    double h_mult = 0.01;
+    
+    h *= h_mult;
+    
+    for(int i = 0; i < n; i++){
+        sl = baseS[ obs_inf[i].l];
+        sr = baseS[ obs_inf[i].r + 1];
+        this_eta = etas[i];
+        if(sl == 1.0 && sr == 0.0){
+            dob_dp_rightOnly[i] = 0;
+            dob_dp_both[i] = 0;
+        }
+        else if(sr == 0){
+            dob_dp_rightOnly[i] = 0;
+            this_h = min(sl/2.0, h);
+            sl -= this_h;
+            llk_h = cal_log_obs(sl, sr, this_eta);
+            sl += this_h * 2.0;
+            llk_l = cal_log_obs(sl, sr, this_eta);
+            dob_dp_both[i] = (llk_h - llk_l) / (2 * this_h);
+        }
+        else if( sl == 1.0 ){
+            this_h = min(sr / 2.0, h);
+            sr -= this_h;
+            llk_h = cal_log_obs(sl, sr, this_eta);
+            sr += 2.0 * this_h;
+            llk_l = cal_log_obs(sl, sr, this_eta);
+            dob_dp_both[i] = (llk_h - llk_l)/(2*this_h);
+            dob_dp_rightOnly[i] = dob_dp_both[i];
+        }
+        else{
+            this_h = min(sr /2.0, h);
+            sr -= this_h;
+            llk_h = cal_log_obs(sl, sr, this_eta);
+            sr += 2.0 * this_h;
+            llk_l = cal_log_obs(sl, sr, this_eta);
+            sr -= this_h;
+            dob_dp_rightOnly[i] = (llk_h - llk_l)/(2*this_h);
+            sr -= this_h;
+            sl -= this_h;
+            llk_h = cal_log_obs(sl, sr, this_eta);
+            
+            sr += 2.0 * this_h;
+            sl += 2.0 * this_h;
+            llk_l = cal_log_obs(sl, sr, this_eta);
+            dob_dp_both[i] = (llk_h - llk_l)/(2*this_h);
+            
+        }
+    }
+    int lind, rind;
+    
+    int k = p_k - 1;
+    base_p_derv.resize(k);
+
+    int k_l, k_r;
+    node_info* nd;
+    for(int j = k-1; j >=0; j--){
+        nd = &node_inf[j+1];
+        k_r = nd->r.size();
+        k_l = nd->l.size();
+        if(j != k-1){
+            base_p_derv[j] = base_p_derv[j+1];
+        }
+        else{
+            base_p_derv[j] = 0;
+        }
+        for(int i = 0; i < k_r; i++){
+            rind = nd->r[i];
+            base_p_derv[j] += dob_dp_rightOnly[rind];
+        }
+        for(int i = 0; i < k_l; i++){
+            lind = nd->l[i];
+            base_p_derv[j] -= dob_dp_rightOnly[lind];
+            base_p_derv[j] += dob_dp_both[lind];
+        }
+    }
+    
+    
+
+    h = h/h_mult;
+/*    for(int i = 0; i < k; i++){
+        base_p_derv[i] = numeric_p_der(i);
+    }   */
+
+
 }
 

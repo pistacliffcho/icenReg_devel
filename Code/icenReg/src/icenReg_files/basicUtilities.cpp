@@ -376,13 +376,9 @@ double directional_derv(vector<double> &derv, vector<double> &delta){
         Rprintf("warning: sizes don't match in directional_derv\n");
         return(0.0);
     }
-    double abs_sum = 0.0;
+     double ans = 0.0;
     for(int i = 0; i < k; i++){
-        abs_sum = abs( delta[i] );
-    }
-    double ans = 0.0;
-    for(int i = 0; i < k; i++){
-        ans += derv[i] * delta[i] / abs_sum;
+        ans += derv[i] * delta[i];
     }
     return(ans);
 }

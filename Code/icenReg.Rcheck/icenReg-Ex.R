@@ -307,7 +307,9 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 	# myCluster <- makeCluster(2, type = 'FORK') 
 	# registerDoParallel(myCluster)
 	# fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2,
-	#              data = sim_data, useMCores = TRUE)	
+	#              data = sim_data, useMCores = TRUE
+	#              bs_samples = 500)
+	# stopCluster(myCluster)
 
 
 
