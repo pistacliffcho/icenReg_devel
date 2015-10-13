@@ -21,6 +21,13 @@ makeTestObjects <- function(){
   ans[9:10] <- getFitEsts(fit, p = c(.25, .75)) 
   newdata <- data.frame(x1 = c(1,2), x2 = c(-1,-2)) 
   ans[11:12] <- getFitEsts(fit, newdata, q = 1)
+  
+  ans[13] <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, data = essIncData, model = 'po', dist = 'exponential')$final_llk
+  ans[14] <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, data = essIncData, model = 'po', dist = 'weibull')$final_llk
+  ans[15] <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, data = essIncData, model = 'po', dist = 'loglogistic')$final_llk
+  ans[16] <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, data = essIncData, model = 'po', dist = 'lnorm')$final_llk
+  
+  
   ans_names <- c(rep('ic_sp_llk', 2), rep('ic_par_llk', 5), rep('fitted values', 5) )
   names(ans) <- ans_names
   return(ans)

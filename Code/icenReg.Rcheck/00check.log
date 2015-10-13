@@ -1,4 +1,4 @@
-* using log directory ‘/Volumes/User Files/cliff/Desktop/icenReg_devel/Code/icenReg.Rcheck’
+* using log directory ‘/Users/cliffandersonbergman/Desktop/gitProjects/icenReg_devel/Code/icenReg.Rcheck’
 * using R version 3.2.2 (2015-08-14)
 * using platform: x86_64-apple-darwin13.4.0 (64-bit)
 * using session charset: UTF-8
@@ -6,80 +6,4 @@
 * checking for file ‘icenReg/DESCRIPTION’ ... OK
 * checking extension type ... Package
 * this is package ‘icenReg’ version ‘1.2.8’
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: ‘Clifford Anderson-Bergman <pistacliffcho@gmail.com>’
-
-Number of updates in past 6 months: 8
-* checking package namespace information ... OK
-* checking package dependencies ... NOTE
-  No repository set, so cyclic dependency check skipped
-* checking if this is a source package ... WARNING
-Subdirectory ‘icenReg/src’ contains apparent object files/libraries
-  icenReg.o icenReg.so
-Object files/libraries should not be included in a source package.
-* checking if there is a namespace ... OK
-* checking for executable files ... OK
-* checking for hidden files and directories ... NOTE
-Found the following hidden files and directories:
-  R/.Rapp.history
-  R/.Rhistory
-  man/.Rapp.history
-  man/.Rhistory
-  src/.DS_Store
-These were most likely included in error. See section ‘Package
-structure’ in the ‘Writing R Extensions’ manual.
-
-CRAN-pack does not know about
-  src/.DS_Store
-* checking for portable file names ... OK
-* checking for sufficient/correct file permissions ... OK
-* checking whether package ‘icenReg’ can be installed ... OK
-* checking installed package size ... OK
-* checking package directory ... OK
-* checking DESCRIPTION meta-information ... OK
-* checking top-level files ... OK
-* checking for left-over files ... OK
-* checking index information ... OK
-* checking package subdirectories ... OK
-* checking R files for non-ASCII characters ... OK
-* checking R files for syntax errors ... OK
-* checking whether the package can be loaded ... OK
-* checking whether the package can be loaded with stated dependencies ... OK
-* checking whether the package can be unloaded cleanly ... OK
-* checking whether the namespace can be loaded with stated dependencies ... OK
-* checking whether the namespace can be unloaded cleanly ... OK
-* checking use of S3 registration ... OK
-* checking dependencies in R code ... OK
-* checking S3 generic/method consistency ... OK
-* checking replacement functions ... OK
-* checking foreign function calls ... OK
-* checking R code for possible problems ... OK
-* checking Rd files ... OK
-* checking Rd metadata ... OK
-* checking Rd line widths ... OK
-* checking Rd cross-references ... OK
-* checking for missing documentation entries ... OK
-* checking for code/documentation mismatches ... WARNING
-Codoc mismatches from documentation object 'ic_sp':
-ic_sp
-  Code: function(formula, data, model = "ph", weights = NULL,
-                 bs_samples = 0, useMCores = F, seed = NULL, useGD =
-                 TRUE, maxIter = 500)
-  Docs: function(formula, data, model = "ph", weights = NULL,
-                 bs_samples = 0, useMCores = F, seed = NULL, useGD = T,
-                 maxIter = 500)
-  Mismatches in argument default values:
-    Name: 'useGD' Code: TRUE Docs: T
-
-* checking Rd \usage sections ... OK
-* checking Rd contents ... OK
-* checking for unstated dependencies in examples ... OK
-* checking contents of ‘data’ directory ... OK
-* checking data for non-ASCII characters ... OK
-* checking data for ASCII and uncompressed saves ... OK
-* checking line endings in C/C++/Fortran sources/headers ... OK
-* checking compiled code ... OK
-* checking examples ... OK
-* checking PDF version of manual ... OK
-* DONE
-Status: 2 WARNINGs, 3 NOTEs
+* checking CRAN incoming feasibility ...

@@ -157,8 +157,7 @@ double icm_Abst::getMaxScaleSize(vector<double> &p, vector<double> &prop_p){
         if(prop_p[i] != 0 && p[i] > 0){
             thisMax = max(-p[i]/prop_p[i], (1.0 - p[i]) / prop_p[i]);
             if(ISNAN(thisMax)){
-                Rprintf("\nWarning: ISNAN(thisMax). p[i] = %f, prop_p[i] = %f\n",
-                        p[i], prop_p[i]);
+                thisMax = 1.0;
             }
         }
         max_scale = min(max_scale, thisMax);
@@ -215,7 +214,7 @@ void icm_Abst::gradientDescent_step(){
     delta_val = delta_val/100.0;
     
     if(delta_val == 0){
-        Rprintf("delta_val = 0, quitting gradientDescent_step\n");
+        //Rprintf("delta_val = 0, quitting gradientDescent_step\n");
         return;
     }
     
@@ -241,7 +240,7 @@ void icm_Abst::gradientDescent_step(){
 
 
     if(delta_val <= 0){
-        Rprintf("note: delta_val <= 0, equal to %f. d1 = %f, Quitting GD step.\n", delta_val, d1);
+        //Rprintf("note: delta_val <= 0, equal to %f. d1 = %f, Quitting GD step.\n", delta_val, d1);
         return;
     }
 

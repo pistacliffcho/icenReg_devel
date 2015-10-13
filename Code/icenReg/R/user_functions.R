@@ -1,5 +1,5 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL,
-                  useGD = TRUE, maxIter = 500){
+                  useGD = T, maxIter = 500){
 	if(missing(data)) stop('data argument required')
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)

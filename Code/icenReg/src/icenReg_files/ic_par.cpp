@@ -624,7 +624,11 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
         Rprintf("failed to find adequate starting point! Please contact maintainer of package\n");
         return(R_NilValue);
     }
-    
+
+    for(int i = 0; i < 5; i++){
+        optObj.NR_baseline_pars();
+
+    }
     while(iter < maxIter && lk_new - lk_old > tol){
         lk_old = lk_new;
         iter++;
