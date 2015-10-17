@@ -3,7 +3,8 @@
 \title{Simulates interval censored data from regression model with a Weibull baseline}
 \usage{
   simIC_weib(n = 100, b1 = 0.5, b2 = -0.5, model = "ph", shape = 2, 
-    scale = 2, inspections = 2, inspectLength = 2.5, rndDigits = NULL)
+    scale = 2, inspections = 2, inspectLength = 2.5, rndDigits = NULL,
+    prob_cen = 0.5)
 }
 \arguments{
   \item{n}{Number of samples simulated}
@@ -15,6 +16,7 @@
   \item{inspections}{number of inspections times of censoring process}
   \item{inspectLength}{max length of inspection interval}
   \item{rndDigits}{number of digits to which the inspection time is rounded to, creating a discrete inspection time. If \code{rndDigits = NULL}, the inspection time is not rounded, resulting in a continuous inspection time}
+  \item{prob_cen}{probability event being censored. If event is uncensored, l == u}
 }
 \description{
   Simulates interval censored data from a regression model with a weibull baseline distribution. Used for demonstration

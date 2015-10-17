@@ -1,5 +1,5 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL,
-                  useGD = T, maxIter = 500){
+                  useGA = T, maxIter = 500){
 	if(missing(data)) stop('data argument required')
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -53,7 +53,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	
 	if(is.null(ncol(x)) ) recenterCovars = FALSE
 	
-   	fitInfo <- fit_ICPH(yMat, x, callText, weights, useGD = useGD, maxIter = maxIter)
+   	fitInfo <- fit_ICPH(yMat, x, callText, weights, useGA = useGA, maxIter = maxIter)
 	dataEnv <- list()
 	dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
 	if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- as.character(formula[[3]])
@@ -68,7 +68,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	 		for(i in 1:bs_samples){
 	    		set.seed(i + seed)
 	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, callText = callText, useGD = useGD, maxIter = maxIter))
+				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, callText = callText, useGA = useGA, maxIter = maxIter))
 	    	}
 	    }
 	    else{
@@ -76,7 +76,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	    					.combine = 'rbind') %dopar%{
 	    		set.seed(i)
 	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				getBS_coef(sampDataEnv, callText = callText, useGD = useGD, maxIter = maxIter)
+				getBS_coef(sampDataEnv, callText = callText, useGA = useGA, maxIter = maxIter)
 	    	}
 	    }
    	 }
@@ -378,7 +378,7 @@ impute_ic_ph <- function(formula, data, imps = 100, eta = 10^-10, rightCenVal = 
 simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', 
 					   shape = 2, scale = 2, 
 					   inspections = 2, inspectLength = 2.5,
-					   rndDigits = NULL){
+					   rndDigits = NULL, prob_cen = 0.5){
 	rawQ <- runif(n)
     x1 <- rnorm(n)
     x2 <- 1 - 2 * rbinom(n, 1, 0.5)
@@ -418,6 +418,11 @@ simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph',
     u[needsCatch] <- Inf
     
     if(sum(l > u) > 0)	stop('warning: l > u! Bug in code')
+    
+    isCensored <- rbinom(n = n, size = 1, prob = prob_cen) == 1
+
+    l[!isCensored] <- trueTimes[!isCensored]
+    u[!isCensored] <- trueTimes[!isCensored]
     
     return(data.frame(l = l, u = u, x1 = x1, x2 = x2))
 }
@@ -475,9 +480,10 @@ diag_covar <- function(object, varName,
            factorSplit = TRUE, 
            numericCuts, col, 
            xlab, ylab, main, 
-           max_n_use = 10000, lgdLocation = NULL){
+           lgdLocation = NULL){
 	if(!yType %in% c('survival', 'transform', 'meanRemovedTransform')) stop("yType not recognized. Options = 'survival', 'transform' or 'meanRemovedTransform'")
-	subDataInfo <- subSampleData(data, max_n_use, weights)
+  max_n_use <- nrow(data) #for backward compability. No longer need max_n_use
+  subDataInfo <- subSampleData(data, max_n_use, weights)
 	data <- subDataInfo$data
 	weights <- subDataInfo$w
 	if(is.null(weights)) weights <- rep(1, nrow(data))
@@ -752,14 +758,14 @@ getFitEsts <-function(fit, newdata, p, q){
 
 diag_baseline <- function(object, data, model = 'ph', weights = NULL,
 						  dists = c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic'),
-						  max_n_use = 10000, cols = NULL, lgdLocation = 'bottomleft',
+						  cols = NULL, lgdLocation = 'bottomleft',
 						  useMidCovars = T){
-						  	
 	newdata = NULL
 	if(useMidCovars) newdata <- 'midValues'
 	formula <- getFormula(object)
 	if(missing(data))	data <- getData(object)
-
+	max_n_use = nrow(data)	#no longer necessary, for backward compatability				  	
+	
 	subDataInfo <- subSampleData(data, max_n_use, weights)
 	sp_data <- subDataInfo$data
 	weights <- subDataInfo$w

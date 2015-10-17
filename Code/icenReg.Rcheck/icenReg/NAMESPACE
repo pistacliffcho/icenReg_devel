@@ -1,0 +1,36 @@
+import(survival)
+import(foreach)
+useDynLib(icenReg)
+export(ic_sp)
+#export(impute_ic_ph)
+#export(simICPH_beta)
+#export(simICPO_beta)
+export(simIC_weib)
+S3method(summary, icenReg_fit)
+S3method(vcov, icenReg_fit)
+S3method(plot, icenReg_fit)
+export(getFitEsts)
+export(getSCurves)
+export(diag_covar)
+export(diag_baseline)
+
+export(ic_par)
+
+
+importFrom("graphics", "legend", "lines", "par", "plot")
+importFrom("methods", "is", "new")
+importFrom("stats", ".getXlevels", "contrasts", "cov",
+"delete.response", "is.empty.model", "median", "model.frame",
+"model.matrix", "model.response", "na.pass", "optimize", "pexp",
+"pgamma", "pnorm", "prcomp", "pweibull", "qbeta", "qexp", "qweibull",
+"rbinom", "rnorm", "runif", "terms")
+
+
+## BIVARIATE CENSORED EXPORTS
+importFrom(MLEcens, reduc)
+export(optCliq)
+export(ICNPMLE)
+export(simBVCen)
+#export(initICNPMLE)
+#exportClasses(IC_NPMLE)
+#exportClasses(cliqOptInfo)

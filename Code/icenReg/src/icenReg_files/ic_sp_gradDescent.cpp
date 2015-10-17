@@ -264,7 +264,7 @@ void icm_Abst::gradientDescent_step(){
         add_vec(this_delta, prop_p, baseP);
         new_llk = llk_from_p();
         if(new_llk < llk_0){
-            Rprintf("warning: new_llk < llk_0 in the very end of GD step! Diff = \n",
+            Rprintf("warning: new_llk < llk_0 in the very end of GD step! Diff = %f\n",
                     new_llk - llk_0);
         }
     }

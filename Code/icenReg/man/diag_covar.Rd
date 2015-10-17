@@ -8,7 +8,6 @@ diag_covar(object, varName,
            factorSplit = TRUE, 
            numericCuts, col, 
            xlab, ylab, main, 
-           max_n_use = 10000,
            lgdLocation = NULL) }
 \arguments{
   \item{object}{Either a formula or a model fit with \code{ic_sp} or \code{ic_par}}
@@ -23,7 +22,6 @@ diag_covar(object, varName,
   \item{xlab}{label of x axis}
   \item{ylab}{label of y axis}
   \item{main}{title of plot}
-  \item{max_n_use}{maximum number of observations used to fit semi-parametric model}
   \item{lgdLocation}{where legend should be placed. See details}
 }
 \description{Creates plots to diagnosis fit of covariate effect in a regression model. For a given variable, stratifies the data across different levels of the variable and adjusts for all the other covariates included in \code{fit} and then plots a given function to help diagnosis where covariate effect follows model assumption (i.e. either proportional hazards or proportional odds). See \code{details} for descriptions of the plots. 
@@ -41,8 +39,6 @@ If \code{varName} is not provided, will attempt to figure out how to divide up e
 	
 	For variables that are factors, it will create a strata for each level of the covariate, up to 20 levels. If \code{factorSplit == FALSE}, will divide up numeric covariates according to the cuts provided to numericCuts. 
 	
-	For larger datasets (n > 10,000), the semi-parametric model can become slow. Because of this, \code{diag_covar} allows the user to select \code{max_n_use} samples from their data to assess the fit of their models. 
-
 	\code{lgdLocation} is an argument placed to \code{legend} dictating where the legend will be placed. If \code{lgdLocation = NULL}, will use standard placement given \code{yType}. See \code{?legend} for more details. 
 }
 \examples{

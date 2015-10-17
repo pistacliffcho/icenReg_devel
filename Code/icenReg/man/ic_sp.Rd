@@ -7,7 +7,7 @@
 \usage{
   ic_sp(formula, data, model = 'ph', weights = NULL,
         bs_samples = 0, useMCores = F, seed = NULL,
-        useGD = T, maxIter = 500) 
+        useGA = T, maxIter = 500) 
 }
 \arguments{
   \item{formula}{regression formula. Response must be a \code{Surv} object of type \code{'interval2'}}
@@ -17,7 +17,7 @@
   \item{bs_samples}{Number of bootstrap samples used for estimation of standard errors}
   \item{useMCores}{Should multiple cores be used for bootstrap sample? Does not register cluster (see example)}
   \item{seed}{Seed for bootstrap. If \code{seed == NULL}, a random seed is still used. See details}
-  \item{useGD}{Should a gradient ascent step be used in addition to an icm? See details}
+  \item{useGA}{Should a gradient ascent step be used in addition to an icm? See details}
   \item{maxIter}{Maximum iterations}
 }
 \description{
@@ -32,7 +32,9 @@
 
 	It is very important to note that a random seed is *always* set if bs_samples > 0 (via \code{set.seed(seed)}), which can create problems in simulation studies if the same seed is set in every call to ic_sp during a simulation study. If \code{seed == NULL}, then the starting seed will be \code{round(runif(0, max = 10^8))}, which should be approximately equivalent to not setting a seed. 
 
-  The algorithm used is inspired by the extended ICM algorithm from Wei Pan 1999. However, it uses a conditional Newton Raphson step and an ICM step, rather than one single ICM step. In addition, a gradient ascent can also be used to update the baseline parameters. This step is necessary if the data contains many uncensored observations, very similar to how the EM algorithm greatly accelerates the ICM algorithm for the NPMLE (gradient ascent is used rather than the EM, as the M step is not in closed form for semi-parametric models). However, if the data contains no uncensored observations, the gradient ascent step is likely to be unhelpful. It also worth noting that for each step of the algorithm, 1 conditional Newton Raphson step, 1 gradient ascent step (if selected) and up to 10 icm steps are taken. 
+  The algorithm used is inspired by the extended ICM algorithm from Wei Pan 1999. However, it uses a conditional Newton Raphson step (for the regression parameters) and an ICM step (for the baseline survival parameters), rather than one single ICM step (for both sets). In addition, a gradient ascent can also be used to update the baseline parameters. This step is necessary if the data contains many uncensored observations, very similar to how the EM algorithm greatly accelerates the ICM algorithm for the NPMLE (gradient ascent is used rather than the EM, as the M step is not in closed form for semi-parametric models). 
+  
+  Earlier versions of icenReg used an active set algorithm, which was not as fast for large datasets. 
 } 
 
 \references{
