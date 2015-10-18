@@ -143,7 +143,7 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     double curVal = -2.0;           
  the above was for the log CH. Now trying for survival instead... */
 
-    double stepSize = -1.0/minActPoints.size();
+    double stepSize = -1.0/(1.0 + minActPoints.size() );
     double curVal = 1.0;
     
     int intActIndex = 0;
