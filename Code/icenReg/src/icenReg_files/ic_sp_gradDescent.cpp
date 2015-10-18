@@ -53,7 +53,7 @@ double icm_Abst::llk_from_p(){
     return(ans);
 }
 
-
+/*          NO LONGER USED!
 double icm_Abst::dervConS_fromBaseS(double s, double eta){
     if(s == 0 || s == 1){return(0.0);}
     bool adjust_h = false;
@@ -135,15 +135,11 @@ void icm_Abst::calc_base_p_derv(){
             }
         }
     }
-    
-  
-    
-/*    for(int i = 0; i < k; i++){
-        base_p_derv[i] = numeric_p_der(i);
-    }   */
-    
 }
-
+*/
+ 
+ 
+ 
 double icm_Abst::getMaxScaleSize(vector<double> &p, vector<double> &prop_p){
     double max_scale = 2.0;
     int k = p.size();
@@ -169,7 +165,7 @@ double icm_Abst::getMaxScaleSize(vector<double> &p, vector<double> &prop_p){
 
 void icm_Abst::gradientDescent_step(){
     
-    bool printDerInfo = false;
+    backupCH = baseCH;
     
     baseCH_2_baseS();
     baseS_2_baseP();
@@ -179,6 +175,7 @@ void icm_Abst::gradientDescent_step(){
     prop_p.resize(k);
     double prop_mean = 0;
     int act_sum = 0;
+    double new_llk;
     
     vector<bool> isActive(k);
     for(int i = 0; i < k; i++){
@@ -202,23 +199,33 @@ void icm_Abst::gradientDescent_step(){
     }
     makeUnitVector(prop_p);
     
-    double prop_sum = 0;
-    for(int i = 0; i < k; i++){
-        prop_sum += prop_p[i];
-    }
     
     double scale_max = getMaxScaleSize(baseP, prop_p);
+
+    
+    for(int i = 0; i < k; i++){
+        prop_p[i] *= -1.0;
+    }
+    scale_max = min(scale_max, getMaxScaleSize(baseP, prop_p));
+    for(int i = 0; i < k; i++){
+        prop_p[i] *= -1.0;
+    }
+    
     double delta_val = scale_max/2.0;
     
     delta_val = min(delta_val, h);
-    delta_val = delta_val/100.0;
+    delta_val = delta_val/10.0;
+    
+    double analytic_dd = directional_derv(base_p_derv, prop_p);
+    
     
     if(delta_val == 0){
-        //Rprintf("delta_val = 0, quitting gradientDescent_step\n");
+        failedGA_counts++;
+        baseCH = backupCH;
+        new_llk = sum_llk();
         return;
     }
     
-
     add_vec(delta_val, prop_p, baseP);
     double llk_h = llk_from_p();
     add_vec(-2.0 * delta_val, prop_p, baseP);
@@ -226,29 +233,43 @@ void icm_Abst::gradientDescent_step(){
     add_vec(delta_val, prop_p, baseP);
     double llk_0 = llk_from_p();
     
-    double d1 = ( llk_h - llk_l ) / ( 2.0 * delta_val );
+    double d1 = ( llk_h - llk_l ) / ( 2 * delta_val );
     double d2 = (llk_h + llk_l - 2.0 * llk_0 ) / (delta_val * delta_val);
     
-    
-    if(printDerInfo){
-        double analyticDircDerv = directional_derv(base_p_derv, prop_p);
-        Rprintf("Direct Derivative: Analytic: %f, Numeric: %f. h used = %f\n", analyticDircDerv, d1, delta_val);
-        Rprintf("4 base derivative = %f, %f, %f, %f\n", base_p_derv[0], base_p_derv[1],base_p_derv[k-2] ,base_p_derv[k-1]);
-        Rprintf("numeric dervs = %f, %f, %f, %f \n", numeric_p_der(0), numeric_p_der(1),numeric_p_der(k-2) ,numeric_p_der(k-1) );
+   // Rprintf("analytic dd = %f, numeric dd = %f\n", analytic_dd, d1);
+    if(iter % 2 ==0){
+        d1 = analytic_dd;
+   //     Rprintf("note: using analytic dd, rather than numeric\n");
     }
+    
+    
     delta_val = -d1/d2;
 
 
-    if(delta_val <= 0){
-        //Rprintf("note: delta_val <= 0, equal to %f. d1 = %f, Quitting GD step.\n", delta_val, d1);
+    if(!(delta_val > 0)){
+        failedGA_counts++;
+        baseCH = backupCH;
+        new_llk = sum_llk();
         return;
     }
-
+    
+    if(ISNAN(delta_val)){
+        failedGA_counts++;
+        baseCH= backupCH;
+        new_llk = sum_llk();
+        Rprintf("warning: delta_val is nan in GA step. llk_h = %f, llk_l = %f, llk_0 = %f, scale_max = %f\n", llk_h, llk_l, llk_0, scale_max);
+        return;
+    }
+    
+    
+    
+    
+    scale_max = getMaxScaleSize(baseP, prop_p);
     delta_val = min( delta_val, scale_max );
     
     add_vec(delta_val, prop_p, baseP);
 
-    double new_llk = llk_from_p();
+    new_llk = llk_from_p();
     mult_vec(-1.0, prop_p);
     int tries = 0;
     
@@ -261,13 +282,12 @@ void icm_Abst::gradientDescent_step(){
         new_llk = llk_from_p();
     }
     if(new_llk < llk_0){
-        add_vec(this_delta, prop_p, baseP);
-        new_llk = llk_from_p();
-        if(new_llk < llk_0){
-            Rprintf("warning: new_llk < llk_0 in the very end of GD step! Diff = %f\n",
-                    new_llk - llk_0);
-        }
+        failedGA_counts++;
+        baseCH = backupCH;
+        new_llk = sum_llk();
     }
+    
+//    Rprintf("in GA step, change in llk = %f\n", new_llk - llk_0);
 }
 
 
@@ -291,7 +311,7 @@ void icm_Abst::numeric_dobs_dp(){
 
     double sl, sr, llk_h,llk_l, this_eta, this_h;
     
-    double h_mult = 0.01;
+    double h_mult = 0.001;
     
     h *= h_mult;
     
@@ -367,14 +387,8 @@ void icm_Abst::numeric_dobs_dp(){
             base_p_derv[j] += dob_dp_both[lind];
         }
     }
-    
-    
 
     h = h/h_mult;
-/*    for(int i = 0; i < k; i++){
-        base_p_derv[i] = numeric_p_der(i);
-    }   */
-
 
 }
 

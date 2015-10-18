@@ -80,6 +80,7 @@ public:
     
     Eigen::VectorXd     baseCH;     //Vector of baseline log cumulative hazards.
                                     //baseH[0] fixed to -Inf, baseH[k-1] = Inf
+    Eigen::VectorXd     backupCH;
  /*   Eigen::VectorXd     H_d1;       //Vector of derivatives for CH's
     Eigen::MatrixXd     H_d2;       //Hessian for CH's          */
     Eigen::VectorXd     base_p_obs; //Baseline probability of each observation  //initialized
@@ -121,6 +122,9 @@ public:
     double cal_log_obs(double s1, double s2, double eta);
     
     double almost_inf;
+    int failedGA_counts;
+    int iter;
+    int numBaselineIts;
 };
 
 void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj);
@@ -141,8 +145,10 @@ public:
     double baseS2CondS(double s, double eta){
         if(s == 1.0) return(1.0);
         if(s == 0.0) return(0.0);
-        double expEta = exp(eta);
-        double ans = pow(s, expEta);
+/*        double expEta = exp(eta);
+        double ans = pow(s, expEta);    */
+        double logCH = log( -log(s) );
+        double ans = exp(-exp(logCH + eta));
         return(ans);
     }
     
@@ -208,7 +214,7 @@ public:
 };
 
 extern "C" {
-    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter);
+    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates);
     SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals);
 }
 #endif /* defined(____ic_sp_cm__) */

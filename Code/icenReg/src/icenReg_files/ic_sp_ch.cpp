@@ -114,7 +114,9 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     icm_obj->baseCH.resize(maxInd + 2);
     for(int i = 0; i <= maxInd; i++){ icm_obj->baseCH[i] = R_NegInf; }
     icm_obj->baseCH[maxInd+1] = R_PosInf;
-    
+    icm_obj->baseS.resize(maxInd + 2);
+    icm_obj->baseS[0] = 1.0;
+    icm_obj->baseS[maxInd+1] = 0;
 /*    icm_obj->H_d1.resize(maxInd - 1);
     icm_obj->H_d2.resize(maxInd - 1, maxInd - 1);   */
     
@@ -137,8 +139,12 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     sort(minActPoints.begin(), minActPoints.end());
     
     
-    double stepSize = 4.0/minActPoints.size();
-    double curVal = -2.0;
+/*    double stepSize = 4.0/minActPoints.size();
+    double curVal = -2.0;           
+ the above was for the log CH. Now trying for survival instead... */
+
+    double stepSize = -1.0/minActPoints.size();
+    double curVal = 1.0;
     
     int intActIndex = 0;
     for(int i = 1; i < (maxInd+1); i++){
@@ -148,9 +154,18 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
                 curVal += stepSize;
             }
         }
-        icm_obj->baseCH[i] = curVal;
+//        icm_obj->baseCH[i] = curVal;      TURN ON IF WANT TO SWITCH TO CH START
+        icm_obj->baseS[i] = curVal;
     }
+    
+    icm_obj->baseS_2_baseCH();     //TURN OFF IF WANT TO SWICH TO CH START
+    
+    Rprintf("starting llk = %f\n", icm_obj->sum_llk());
+    
     icm_obj->startGD = false;
+    icm_obj->failedGA_counts = 0;
+    icm_obj->iter = 0;
+    icm_obj->numBaselineIts = 5;
 //    double gd_mult = 1.0;
 }
 
@@ -216,6 +231,8 @@ void icm_Abst::numericBaseDervsAllRaw(vector<double> &d1, vector<double> &d2){
 
  
 void icm_Abst::icm_step(){
+    backupCH = baseCH;
+    double llk_st = sum_llk();
     
     vector<double> d1;
     vector<double> d2;
@@ -224,7 +241,21 @@ void icm_Abst::icm_step(){
     for(int i = 0; i < thisSize; i ++){
         if(d2[i] == R_NegInf){d2[i] = -almost_inf;}
         if(ISNAN(d2[i]))    {Rprintf("warning: d2 isnan!\n"); return;}
-        if(d2[i] >= 0)      {Rprintf("warning: invalid d2 in icm step. i = %d, d2 = %f. Quiting icm step\n", i, d2[i]); return;}
+        if(d2[i] >= 0)      {Rprintf("warning: invalid d2 in icm step. i = %d, d2 = %f. Re-adjusting icm step\n", i, d2[i]);
+            int sum_neg = 0;
+            double sum_neg_d2s = 0.0;
+            for(int j = 0; j < thisSize; j++){
+                if(d2[j] < 0){
+                    sum_neg++;
+                    sum_neg_d2s += d2[j];
+                }
+            }
+            double mean_neg_d2s = sum_neg_d2s / sum_neg;
+            if(ISNAN(mean_neg_d2s) ){mean_neg_d2s = -1.0;}
+            for(int j = 0; j < thisSize; j++){
+                if(d2[j] >= 0){d2[j] = mean_neg_d2s;}
+            }
+        }
     }
     vector<double> x(d1.size());
     if(x.size() != baseCH.size() - 2){Rprintf("warning: x.size()! = actIndex.size()\n"); return;}
@@ -232,7 +263,6 @@ void icm_Abst::icm_step(){
     for(int i = 0; i < thisSize; i++){x[i] = baseCH[i + 1];}
     vector<double> prop(d1.size());
     
-    double llk_st = sum_llk();
     
     pavaForOptim(d1, d2, x, prop);
     
@@ -247,7 +277,7 @@ void icm_Abst::icm_step(){
         llk_new = sum_llk();
     }
     if(llk_new < llk_st){
-        icm_addPar(prop);
+        baseCH = backupCH;
         llk_new = sum_llk();
         mult_vec(0, prop);
     }
@@ -358,7 +388,7 @@ void icm_Abst::covar_nr_step(){
 
 
 /*      CALLING ALGORITHM FROM R     */
-SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter){
+SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates){
     icm_Abst* optObj;
     bool useGD = LOGICAL(R_use_GD)[0] == TRUE;
     if(INTEGER(fitType)[0] == 1){
@@ -373,23 +403,21 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
     
     double llk_old = R_NegInf;
     double llk_new = optObj->sum_llk();
-    int tries = 0;
     
     bool metOnce = false;
     double tol = pow(10, -10);
     int maxIter = INTEGER(R_maxiter)[0];
-    while(tries < maxIter && (llk_new - llk_old) > tol){
-        tries++;
+    int baselineUpdates = INTEGER(R_baselineUpdates)[0];
+    while(optObj->iter < maxIter && (llk_new - llk_old) > tol){
+        optObj->iter++;
         llk_old = llk_new;
         if(optObj->hasCovars)       optObj->covar_nr_step();
 
-        if(useGD){
-            optObj->gradientDescent_step();
-        }
-
-        for(int i = 0; i < 1; i++)  {
+        for(int i = 0; i < baselineUpdates; i++)  {
             optObj->icm_step();
-            if(optObj->maxBaseChg < pow(10.0, -12.0)){break;}
+            if(useGD){
+                optObj->gradientDescent_step();
+            }
         }
         llk_new = optObj->sum_llk();
         
@@ -406,6 +434,11 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
     if((llk_new - llk_old) < -0.001 ){
         Rprintf("warning: likelihood decreased! difference = %f\n", llk_new - llk_old);
     }
+    
+//    int totGAIts = optObj->iter * optObj->numBaselineIts;
+//    double propFailGA = (optObj->failedGA_counts + 0.0) / totGAIts;
+    
+//    Rprintf("Number of failed GA attempts = %d, as a percent of attempts = %f, num total = %d\n", optObj->failedGA_counts, propFailGA, totGAIts);
     
     vector<double> p_hat;
     cumhaz2p_hat(optObj->baseCH, p_hat);
@@ -424,7 +457,7 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
         REAL(R_score)[i] = optObj->reg_d1[i];
     }
     REAL(R_fnl_llk)[0] = llk_new;
-    REAL(R_its)[0] = tries;
+    REAL(R_its)[0] = optObj->iter;
     
     SET_VECTOR_ELT(ans, 0, R_pans);
     SET_VECTOR_ELT(ans, 1, R_coef);

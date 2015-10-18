@@ -1,5 +1,5 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL,
-                  useGA = T, maxIter = 500){
+                  useGA = T, maxIter = 500, baselineUpdates = 5){
 	if(missing(data)) stop('data argument required')
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -53,7 +53,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	
 	if(is.null(ncol(x)) ) recenterCovars = FALSE
 	
-   	fitInfo <- fit_ICPH(yMat, x, callText, weights, useGA = useGA, maxIter = maxIter)
+   	fitInfo <- fit_ICPH(yMat, x, callText, weights, useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates)
 	dataEnv <- list()
 	dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
 	if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- as.character(formula[[3]])
@@ -68,7 +68,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	 		for(i in 1:bs_samples){
 	    		set.seed(i + seed)
 	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, callText = callText, useGA = useGA, maxIter = maxIter))
+				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, callText = callText, useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates))
 	    	}
 	    }
 	    else{
@@ -76,7 +76,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	    					.combine = 'rbind') %dopar%{
 	    		set.seed(i)
 	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				getBS_coef(sampDataEnv, callText = callText, useGA = useGA, maxIter = maxIter)
+				getBS_coef(sampDataEnv, callText = callText, useGA = useGA, maxIter = maxIter, baselineUpdates=baselineUpdates)
 	    	}
 	    }
    	 }
