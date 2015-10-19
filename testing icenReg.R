@@ -1,15 +1,15 @@
 library(icenReg)
-n = 500
-simdata <- simIC_weib(n, model = 'ph', b1 = -.1, b2 = .5, prob_cen = 0)
+n = 5000
+simdata <- simIC_weib(n, model = 'ph', b1 = -.1, b2 = .5, prob_cen = 0.5)
 
-#fit <- ic_sp(cbind(l, u) ~ x1 + x2, maxIter = 100, data = simdata)
+fit <- ic_sp(cbind(l, u) ~ x1 + x2, maxIter = 1000, data = simdata)
 #fit <- ic_sp(cbind(l, u) ~ x1 + x2, maxIter = 500, data = simdata)
 #fit <- ic_sp(cbind(l, u) ~ x1 + x2, maxIter = 500, model = 'po', data = simdata)
 
-iterRange <- 25:200
+iterRange <- 500:505
 fits <- list()
 baseUpdates <- 5
-colChanges <- 20
+colChanges <- 1
 for(i in seq_along(iterRange)){
   thisIter <- iterRange[i]
   fits[[i]] <- ic_sp(cbind(l, u) ~ x1 + x2, data = simdata, maxIter = thisIter, baselineUpdates = baseUpdates)
@@ -24,11 +24,11 @@ for(i in 2:length(fits)){
   maxVal= max(c(p_diffs[[i-1]], maxVal) )
 }
 
-plot(1:n, p_diffs[[1]], type = 'l', ylim = c(minVal, maxVal),
+plot(1:length(p_diffs[[1]]), p_diffs[[1]], type = 'l', ylim = c(minVal, maxVal),
      xlab = "parameter", ylab = "Change in parameter from last iteration", main = "Converge-O-Gram")
 for(i in 2:length(p_diffs)){
   lty = ceiling(i/colChanges)
-  lines(1:n, p_diffs[[i]], col = lty)
+  lines(1:length(p_diffs[[1]]), p_diffs[[i]], col = lty)
 }
 
 numcols = 1:(ceiling(length(fits) / colChanges))
