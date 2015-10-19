@@ -98,8 +98,8 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
         if(n != icm_obj->covars.rows()) {Rprintf("covar rows not equal to n!\n"); return;}
     }
     icm_obj->reg_d1.resize(reg_k);
-//    icm_obj->reg_d2.resize(reg_k, reg_k);
-    icm_obj->reg_d2.resize(reg_k);
+    icm_obj->reg_d2.resize(reg_k, reg_k);
+//    icm_obj->reg_d2.resize(reg_k);
     icm_obj->reg_par.resize(reg_k);
     for(int i = 0; i < reg_k; i++){ icm_obj->reg_par[i] = 0; }
     
@@ -160,13 +160,10 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     
     icm_obj->baseS_2_baseCH();     //TURN OFF IF WANT TO SWICH TO CH START
     
-    Rprintf("starting llk = %f\n", icm_obj->sum_llk());
-    
     icm_obj->startGD = false;
     icm_obj->failedGA_counts = 0;
     icm_obj->iter = 0;
     icm_obj->numBaselineIts = 5;
-//    double gd_mult = 1.0;
 }
 
 
@@ -289,7 +286,7 @@ void icm_Abst::icm_step(){
 
 }
 
-void icm_Abst::calcAnalyticRegDervs(Eigen::VectorXd &hess, Eigen::VectorXd &d1){
+void icm_Abst::calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d1){
     int k = reg_par.size();
     int n = etas.size();
     
@@ -328,30 +325,38 @@ void icm_Abst::calcAnalyticRegDervs(Eigen::VectorXd &hess, Eigen::VectorXd &d1){
         totCont2[i] = l_cont2[i] + r_cont2[i] - totCont[i] * totCont[i];
     }
     
-    hess.resize(k);
+    hess.resize(k, k);
     d1.resize(k);
     for(int i = 0; i < k; i++){
         d1[i] = 0;
-        hess[i] = 0;
+        hess(i,i) = 0;
+        if(useFullHess){
+            for(int j = 0; j < i; j++){hess(i,j) = 0.0; hess(j,i) = 0.0;}
+        }
     }
 
     double this_covar;
     double this_w;
     double this_w_covar;
+    double this_totCont;
+    double this_totCont2;
     for(int i = 0; i < n; i++){
         this_w = w[i];
+        this_totCont = totCont[i];
+        this_totCont2 = totCont2[i];
         for(int a = 0; a < k; a++){
             this_covar = covars(i,a);
             this_w_covar = this_w * this_covar;
-            d1[a] += this_w_covar * totCont[i];
-    /*        for(int b = 0; b < a; b++){
-                hess(a,b) += covars(i,a) * covars(i,b) * totCont2[i];
-                hess(b,a) = hess(a,b);
-            }       ignorable due to PCA    */
-            hess[a] += this_w_covar * this_covar * totCont2[i];
+            d1[a] += this_w_covar * this_totCont;
+            if(useFullHess){
+                for(int b = 0; b < a; b++){
+                    hess(a,b) += this_w_covar * covars(i,b) * this_totCont2;
+                    hess(b,a) = hess(a,b);
+                }
+            }
+            hess(a,a) += this_w_covar * this_covar * this_totCont2;
         }
     }
-
 }
 
 
@@ -362,16 +367,36 @@ void icm_Abst::covar_nr_step(){
     calcAnalyticRegDervs(reg_d2, reg_d1);
     double lk_0 = sum_llk();
 
-    for(int i = 0; i < k; i++){
+/*    for(int i = 0; i < k; i++){
         if(reg_d2[i] >= -0.0000001 || ISNAN(reg_d2[i])){
             reg_d2[i] = -100.00;
         }
         if(ISNAN(reg_d1[i]) ){reg_d1[i] = 0;}
+    }       */
+    
+    propVec.resize(k);
+    if(useFullHess){
+        Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> esolve(reg_d2);
+        Eigen::VectorXd evals(1);
+        evals[0] = 1;
+        
+        if(esolve.info() == Eigen::Success)
+            evals = esolve.eigenvalues();
+        int tries = 0;
+        double delta = 1;
+        while(max(evals) > -0.000001 && tries < 10){
+            tries++;
+            for(int i = 0; i < k; i++)
+                reg_d2(i,i) -= delta;
+            delta *= 2;
+            esolve.compute(reg_d2);
+            if(esolve.info() == Eigen::Success)
+                evals = esolve.eigenvalues();
+        }
+        if(max(evals) > 0){return;}
+        propVec = -reg_d2.ldlt().solve(reg_d1);
     }
- 
-//    Eigen::VectorXd propVec = -reg_d2.ldlt().solve(reg_d1);
-    Eigen::VectorXd propVec(k);
-    for(int i = 0; i < k; i++){propVec[i] = -reg_d1[i]/reg_d2[i];}
+    else{for(int i = 0; i < k; i++){propVec[i] = -reg_d1[i]/reg_d2(i,i);}}
     int tries = 0;
     reg_par += propVec;
     propVec *= -1;
@@ -388,7 +413,7 @@ void icm_Abst::covar_nr_step(){
 
 
 /*      CALLING ALGORITHM FROM R     */
-SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates){
+SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates, SEXP R_useFullHess){
     icm_Abst* optObj;
     bool useGD = LOGICAL(R_use_GD)[0] == TRUE;
     if(INTEGER(fitType)[0] == 1){
@@ -404,6 +429,9 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
     double llk_old = R_NegInf;
     double llk_new = optObj->sum_llk();
     
+    optObj->useFullHess = LOGICAL(R_useFullHess)[0] == TRUE;
+    
+    
     bool metOnce = false;
     double tol = pow(10, -10);
     int maxIter = INTEGER(R_maxiter)[0];
@@ -418,6 +446,8 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
             if(useGD){
                 optObj->gradientDescent_step();
             }
+            optObj->last_p_update();
+            optObj->vem();
         }
         llk_new = optObj->sum_llk();
         

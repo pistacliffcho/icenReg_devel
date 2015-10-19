@@ -75,12 +75,13 @@ public:
     virtual double reg_d1_lnk(double ch, double xb, double log_p) = 0;
     virtual double reg_d2_lnk(double ch, double xb, double log_p) = 0;
     
-    void calcAnalyticRegDervs(Eigen::VectorXd &hess, Eigen::VectorXd &d1);
+    void calcAnalyticRegDervs(Eigen::MatrixXd &hess, Eigen::VectorXd &d1);
     void rawDervs2ActDervs();
     
     Eigen::VectorXd     baseCH;     //Vector of baseline log cumulative hazards.
                                     //baseH[0] fixed to -Inf, baseH[k-1] = Inf
-    Eigen::VectorXd     backupCH;
+    Eigen::VectorXd     backupCH;   //used to save values in optimization steps
+    Eigen::VectorXd     propVec;    //used for proposition step during NR update on regression parameters
  /*   Eigen::VectorXd     H_d1;       //Vector of derivatives for CH's
     Eigen::MatrixXd     H_d2;       //Hessian for CH's          */
     Eigen::VectorXd     base_p_obs; //Baseline probability of each observation  //initialized
@@ -89,8 +90,8 @@ public:
     Eigen::VectorXd     reg_par;    //regression parameters //initialized
     Eigen::MatrixXd     covars;     //covariates        //initialized
     Eigen::VectorXd     reg_d1;     //first derivatives of regression parameters        //initialized
-//    Eigen::MatrixXd     reg_d2;     //Hessian for derivatives       //initialized
-    Eigen::VectorXd     reg_d2;     //second derivatives: ignoring off diagonals!
+    Eigen::MatrixXd     reg_d2;     //Hessian for derivatives       //initialized
+//    Eigen::VectorXd     reg_d2;     //second derivatives: ignoring off diagonals!
     
     vector<double> w;
     
@@ -125,6 +126,11 @@ public:
     int failedGA_counts;
     int iter;
     int numBaselineIts;
+    bool useFullHess;
+    
+    
+    void last_p_update();
+    void vem();
 };
 
 void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj);
@@ -214,7 +220,7 @@ public:
 };
 
 extern "C" {
-    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates);
+    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates, SEXP R_useFullHess);
     SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals);
 }
 #endif /* defined(____ic_sp_cm__) */

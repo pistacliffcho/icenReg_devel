@@ -20,6 +20,9 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 		xNames <- xNames[-ind]
 	}
 	
+  useFullHess = FALSE  
+    
+    
 	if(length(xNames) == 0 & bs_samples > 0){
 		 cat('no covariates included, so bootstrapping is not useful. Setting bs_samples = 0')
 		 bs_samples = 0
@@ -53,7 +56,9 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	
 	if(is.null(ncol(x)) ) recenterCovars = FALSE
 	
-   	fitInfo <- fit_ICPH(yMat, x, callText, weights, useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates)
+  other_info <- list(useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates, useFullHess = useFullHess)  
+    
+   	fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)#, useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates)
 	dataEnv <- list()
 	dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
 	if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- as.character(formula[[3]])
@@ -68,7 +73,8 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	 		for(i in 1:bs_samples){
 	    		set.seed(i + seed)
 	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, callText = callText, useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates))
+				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, callText = callText, other_info = other_info))
+				#useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates))
 	    	}
 	    }
 	    else{
@@ -76,7 +82,8 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	    					.combine = 'rbind') %dopar%{
 	    		set.seed(i)
 	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				getBS_coef(sampDataEnv, callText = callText, useGA = useGA, maxIter = maxIter, baselineUpdates=baselineUpdates)
+				getBS_coef(sampDataEnv, callText = callText, other_info = other_info)
+        #useGA = useGA, maxIter = maxIter, baselineUpdates=baselineUpdates)
 	    	}
 	    }
    	 }

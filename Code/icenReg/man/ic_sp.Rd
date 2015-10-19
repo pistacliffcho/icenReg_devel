@@ -7,7 +7,7 @@
 \usage{
   ic_sp(formula, data, model = 'ph', weights = NULL,
         bs_samples = 0, useMCores = F, seed = NULL,
-        useGA = T, maxIter = 500) 
+        useGA = T, maxIter = 500, baselineUpdates = 5) 
 }
 \arguments{
   \item{formula}{regression formula. Response must be a \code{Surv} object of type \code{'interval2'}}
@@ -19,6 +19,7 @@
   \item{seed}{Seed for bootstrap. If \code{seed == NULL}, a random seed is still used. See details}
   \item{useGA}{Should a gradient ascent step be used in addition to an icm? See details}
   \item{maxIter}{Maximum iterations}
+  \item{baselineUpdates}{number of baseline updates (ICM + GA) per update of regression parameters}
 }
 \description{
  	Fits a semi-parametric model for interval censored data. Can fit either a Cox-PH model or a proportional odds model.  

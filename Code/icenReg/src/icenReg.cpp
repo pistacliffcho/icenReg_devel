@@ -20,3 +20,5 @@ using namespace std;
 #include "icenReg_files/ic_sp_ch.cpp"
 #include "icenReg_files/bivariateNPMLE.cpp"
 #include "icenReg_files/ic_sp_gradDescent.cpp"
+
+#include "icenReg_files/experimentalCode.cpp"

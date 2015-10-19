@@ -194,9 +194,12 @@ void icm_Abst::gradientDescent_step(){
     prop_mean = prop_mean / act_sum;
     
     for(int i = 0; i < k; i++){
-        if(isActive[i]){ prop_p[i] = base_p_derv[i] - prop_mean;}
+        if(isActive[i]){ prop_p[i] = base_p_derv[i];}// - prop_mean;}
         else {prop_p[i] = 0.0;}
     }
+    
+    prop_p[k-1] = -prop_mean * act_sum;
+    
     makeUnitVector(prop_p);
     
     
@@ -236,7 +239,6 @@ void icm_Abst::gradientDescent_step(){
     double d1 = ( llk_h - llk_l ) / ( 2 * delta_val );
     double d2 = (llk_h + llk_l - 2.0 * llk_0 ) / (delta_val * delta_val);
     
-   // Rprintf("analytic dd = %f, numeric dd = %f\n", analytic_dd, d1);
     if(iter % 2 ==0){
         d1 = analytic_dd;
    //     Rprintf("note: using analytic dd, rather than numeric\n");
@@ -260,9 +262,7 @@ void icm_Abst::gradientDescent_step(){
         Rprintf("warning: delta_val is nan in GA step. llk_h = %f, llk_l = %f, llk_0 = %f, scale_max = %f\n", llk_h, llk_l, llk_0, scale_max);
         return;
     }
-    
-    
-    
+
     
     scale_max = getMaxScaleSize(baseP, prop_p);
     delta_val = min( delta_val, scale_max );
@@ -287,7 +287,6 @@ void icm_Abst::gradientDescent_step(){
         new_llk = sum_llk();
     }
     
-//    Rprintf("in GA step, change in llk = %f\n", new_llk - llk_0);
 }
 
 
