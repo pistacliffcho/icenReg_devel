@@ -164,6 +164,9 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     icm_obj->failedGA_counts = 0;
     icm_obj->iter = 0;
     icm_obj->numBaselineIts = 5;
+    
+    icm_obj->usedVec.resize(n);
+    for(int i = 0; i < n; i++){icm_obj->usedVec[i] = false;}
 }
 
 

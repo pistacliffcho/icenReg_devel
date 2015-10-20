@@ -122,11 +122,14 @@ public:
     void numeric_dobs_dp();
     double cal_log_obs(double s1, double s2, double eta);
     
+    vector<bool> usedVec;
+    
     double almost_inf;
     int failedGA_counts;
     int iter;
     int numBaselineIts;
     bool useFullHess;
+    
     
     
     void last_p_update();
