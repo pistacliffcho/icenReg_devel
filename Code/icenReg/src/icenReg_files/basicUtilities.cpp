@@ -394,3 +394,35 @@ void makeUnitVector(vector<double> &v){
         v[i] = v[i]/sum;
     }
 }
+
+void getUniqInts(int i1, int i2, vector<int> &uniqInts, vector<vector<int> > &vec_vec, vector<bool> &usedVec){
+    uniqInts.clear();
+    int tot_pos_lng = 0;
+    int lv = vec_vec.size();
+    if(i1 >= lv){Rprintf("i1 too big in getUniqInts\n");return;}
+    if(i2 >= lv){Rprintf("i2 too big in getUniqInts\n");return;}
+    
+    for(int i = i1; i <= i2; i++){
+        tot_pos_lng += vec_vec[i].size();
+    }
+    
+    uniqInts.reserve(tot_pos_lng);
+    vector<int>* theseIndices;
+    int thisSize;
+    int thisIndex;
+    for(int i = i1; i <= i2; i++){
+        theseIndices = &vec_vec[i];
+        thisSize = theseIndices->size();
+        for(int j = 0; j < thisSize; j++){
+            thisIndex = (*theseIndices)[j];
+            if(usedVec[thisIndex] == false){
+                usedVec[thisIndex] = true;
+                uniqInts.push_back(thisIndex);
+            }
+        }
+    }
+    thisSize = uniqInts.size();
+    for(int i = 0; i < thisSize; i++){
+        usedVec[i] = false;
+    }
+}

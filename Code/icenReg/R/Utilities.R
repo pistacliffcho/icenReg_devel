@@ -16,6 +16,7 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){  
   maxIter <- other_info$maxIter
   baselineUpdates <- other_info$baselineUpdates
   useFullHess <- other_info$useFullHess
+  useExpSteps <- other_info$useExpSteps
   recenterCovars = TRUE
 	if(getNumCovars(covars) == 0)	recenterCovars <- FALSE
 	mi_info <- findMaximalIntersections(obsMat[,1], obsMat[,2])
@@ -32,7 +33,7 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){  
 	
 	c_ans <- .Call('ic_sp_ch', mi_info$l_inds, mi_info$r_inds, covars, fitType, as.numeric(weights), useGA, 
 	               as.integer(maxIter), as.integer(baselineUpdates),
-	               as.logical(useFullHess)) 
+	               as.logical(useFullHess), as.logical(useExpSteps)) 
 	names(c_ans) <- c('p_hat', 'coefficients', 'final_llk', 'iterations', 'score')
 	myFit <- new(callText)
 	myFit$p_hat <- c_ans$p_hat

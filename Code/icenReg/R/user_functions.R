@@ -1,5 +1,5 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL,
-                  useGA = T, maxIter = 500, baselineUpdates = 5){
+                  useGA = T, useExpSteps = F, maxIter = 500, baselineUpdates = 5){
 	if(missing(data)) stop('data argument required')
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -56,7 +56,9 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	
 	if(is.null(ncol(x)) ) recenterCovars = FALSE
 	
-  other_info <- list(useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates, useFullHess = useFullHess)  
+  other_info <- list(useGA = useGA, maxIter = maxIter, 
+                     baselineUpdates = baselineUpdates, 
+                     useFullHess = useFullHess, useExpSteps = useExpSteps)  
     
    	fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)#, useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates)
 	dataEnv <- list()

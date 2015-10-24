@@ -416,9 +416,10 @@ void icm_Abst::covar_nr_step(){
 
 
 /*      CALLING ALGORITHM FROM R     */
-SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates, SEXP R_useFullHess){
+SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates, SEXP R_useFullHess, SEXP R_useExpSteps){
     icm_Abst* optObj;
     bool useGD = LOGICAL(R_use_GD)[0] == TRUE;
+    bool useExpSteps = LOGICAL(R_useExpSteps)[0] == TRUE;
     if(INTEGER(fitType)[0] == 1){
         optObj = new icm_ph;
     }
@@ -449,8 +450,13 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
             if(useGD){
                 optObj->gradientDescent_step();
             }
-            optObj->last_p_update();
-            optObj->vem();
+            if(useExpSteps){
+                optObj->vem();
+                optObj->last_p_update();
+                optObj->vem_sweep();
+//                optObj->vem_sweep2();
+            }
+
         }
         llk_new = optObj->sum_llk();
         

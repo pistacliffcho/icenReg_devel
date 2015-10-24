@@ -130,10 +130,16 @@ public:
     int numBaselineIts;
     bool useFullHess;
     
+    double exchangeAndUpdate(double delta, int i1, int i2);
+    // REQUIRES baseP BEING UP TO DATE!!!
     
+    vector<int> exchangeIndices;
     
     void last_p_update();
     void vem();
+    void exchange_p_opt(int i1, int i2);
+    void vem_sweep();
+    void vem_sweep2();
 };
 
 void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj);
@@ -223,7 +229,7 @@ public:
 };
 
 extern "C" {
-    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates, SEXP R_useFullHess);
+    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates, SEXP R_useFullHess, SEXP R_useExpSteps);
     SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals);
 }
 #endif /* defined(____ic_sp_cm__) */

@@ -2,20 +2,25 @@ library(icenReg)
 n = 500
 simdata <- simIC_weib(n, model = 'ph', b1 = -.1, b2 = .5, prob_cen = 0)
 
-fit <- ic_sp(cbind(l, u) ~ x1 + x2, maxIter = 100, data = simdata)
+fit_po <- ic_sp(cbind(l, u) ~ x1 + x2, maxIter = 500, data = simdata, model = 'po')
+fit <- ic_sp(cbind(l, u) ~ x1 + x2, maxIter = 500, data = simdata)
+fit2 <- ic_sp(cbind(l, u) ~ x1 + x2, maxIter = 500, data = simdata, useExpSteps = T)
 #fit <- ic_sp(cbind(l, u) ~ x1 + x2, maxIter = 500, data = simdata)
 #fit <- ic_sp(cbind(l, u) ~ x1 + x2, maxIter = 500, model = 'po', data = simdata)
 
-iterRange <- 5:35
+iterRange <- 35:55
 fits <- list()
-baseUpdates <- 15
+baseUpdates <- 3
 colChanges <- 5
 useGA = TRUE
+useExp = FALSE
+model = 'ph'
 for(i in seq_along(iterRange)){
   thisIter <- iterRange[i]
   fits[[i]] <- ic_sp(cbind(l, u) ~ x1 + x2, data = simdata, 
                      maxIter = thisIter, baselineUpdates = baseUpdates,
-                     useGA = useGA)
+                     useGA = useGA, useExpSteps = useExp, 
+                     model = model)
 }
 
 p_diffs = list()

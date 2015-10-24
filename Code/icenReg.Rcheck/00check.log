@@ -1,4 +1,4 @@
-* using log directory ‘/Volumes/User Files/cliff/Desktop/icenReg_devel/Code/icenReg.Rcheck’
+* using log directory ‘/Users/cliffandersonbergman/Desktop/gitProjects/icenReg_devel/Code/icenReg.Rcheck’
 * using R version 3.2.2 (2015-08-14)
 * using platform: x86_64-apple-darwin13.4.0 (64-bit)
 * using session charset: UTF-8
@@ -21,16 +21,22 @@ Object files/libraries should not be included in a source package.
 * checking for executable files ... OK
 * checking for hidden files and directories ... NOTE
 Found the following hidden files and directories:
+  .DS_Store
   R/.Rapp.history
   R/.Rhistory
+  man/.DS_Store
   man/.Rapp.history
   man/.Rhistory
   src/.DS_Store
+  src/icenReg_files/.DS_Store
 These were most likely included in error. See section ‘Package
 structure’ in the ‘Writing R Extensions’ manual.
 
 CRAN-pack does not know about
+  .DS_Store
+  man/.DS_Store
   src/.DS_Store
+  src/icenReg_files/.DS_Store
 * checking for portable file names ... OK
 * checking for sufficient/correct file permissions ... OK
 * checking whether package ‘icenReg’ can be installed ... OK
@@ -59,7 +65,21 @@ CRAN-pack does not know about
 * checking Rd line widths ... OK
 * checking Rd cross-references ... OK
 * checking for missing documentation entries ... OK
-* checking for code/documentation mismatches ... OK
+* checking for code/documentation mismatches ... WARNING
+Codoc mismatches from documentation object 'ic_sp':
+ic_sp
+  Code: function(formula, data, model = "ph", weights = NULL,
+                 bs_samples = 0, useMCores = F, seed = NULL, useGA = T,
+                 useExpSteps = F, maxIter = 500, baselineUpdates = 5)
+  Docs: function(formula, data, model = "ph", weights = NULL,
+                 bs_samples = 0, useMCores = F, seed = NULL, useGA = T,
+                 maxIter = 500, baselineUpdates = 5)
+  Argument names in code not in docs:
+    useExpSteps
+  Mismatches in argument names:
+    Position: 9 Code: useExpSteps Docs: maxIter
+    Position: 10 Code: maxIter Docs: baselineUpdates
+
 * checking Rd \usage sections ... OK
 * checking Rd contents ... OK
 * checking for unstated dependencies in examples ... OK
@@ -71,4 +91,4 @@ CRAN-pack does not know about
 * checking examples ... OK
 * checking PDF version of manual ... OK
 * DONE
-Status: 1 WARNING, 3 NOTEs
+Status: 2 WARNINGs, 3 NOTEs
