@@ -77,32 +77,6 @@ void icm_Abst::vem(){
     }
     
     exchange_p_opt(max_ind, min_ind);
-/*    double minLoss = baseP[min_ind];
-    double this_h = min(h, minLoss / 10.0);
-    this_h = min(this_h, baseP[max_ind]);
-    exchange(this_h, min_ind, max_ind, baseP);
-    double llk_h = llk_from_p();
-    exchange(-2.0 * this_h, min_ind, max_ind, baseP);
-    double llk_l = llk_from_p();
-    exchange(this_h, min_ind, max_ind, baseP);
-    double llk_0 = llk_from_p();
-
-    
-    double d1 = (llk_h - llk_l) / (2 * this_h);
-    double d2 = (llk_h + llk_l - 2.0*llk_0) / (this_h * this_h);
-    
-    double delta = -d1/d2;
-    if(!(d2 < 0) || ISNAN(delta) || delta == R_PosInf || delta == R_NegInf ){
-        return;
-    }
-    exchange(delta, min_ind, max_ind, baseP);
-    double llk_new = llk_from_p();
-    if(llk_new < llk_0){
-        exchange(-1.0 * delta, min_ind, max_ind, baseP);
-        llk_new = llk_from_p();
-    }
- //   Rprintf("delta llk in vem step = %f\n", llk_new - llk_0);
- */
     
 }
 

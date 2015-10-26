@@ -1,6 +1,6 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL,
-                  useGA = T, useExpSteps = F, maxIter = 500, baselineUpdates = 5){
-	if(missing(data)) stop('data argument required')
+                  useGA = T, maxIter = 500, baselineUpdates = 5){
+  useExpSteps = FALSE
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
     m <- match(c("formula", "data", "subset", "na.action", "offset"), names(mf), 0L)
@@ -59,8 +59,8 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
   other_info <- list(useGA = useGA, maxIter = maxIter, 
                      baselineUpdates = baselineUpdates, 
                      useFullHess = useFullHess, useExpSteps = useExpSteps)  
-    
-   	fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)#, useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates)
+
+   	fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)
 	dataEnv <- list()
 	dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
 	if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- as.character(formula[[3]])
@@ -75,8 +75,8 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	 		for(i in 1:bs_samples){
 	    		set.seed(i + seed)
 	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, callText = callText, other_info = other_info))
-				#useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates))
+				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, 
+				                                 callText = callText, other_info = other_info))
 	    	}
 	    }
 	    else{
@@ -84,8 +84,9 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	    					.combine = 'rbind') %dopar%{
 	    		set.seed(i)
 	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				getBS_coef(sampDataEnv, callText = callText, other_info = other_info)
-        #useGA = useGA, maxIter = maxIter, baselineUpdates=baselineUpdates)
+				getBS_coef(sampDataEnv, callText = callText,
+				           other_info = other_info)
+
 	    	}
 	    }
    	 }
@@ -118,7 +119,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
     fitInfo$call = cl
     fitInfo$formula = formula
     fitInfo$.dataEnv <- new.env()
-    fitInfo$.dataEnv$data = data
+    if(!missing(data)){ fitInfo$.dataEnv$data = data }
     fitInfo$par = 'semi-parametric'
     fitInfo$model = model
     fitInfo$reg_pars <- fitInfo$coefficients
@@ -641,7 +642,6 @@ diag_covar <- function(object, varName,
 
 
 ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL){
-	if(missing(data)) stop('data argument required')
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
 #    m <- match(c("formula", "data", "subset", "weights", "na.action", "offset"), names(mf), 0L)
@@ -694,9 +694,8 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
    	                   callText = callText)
 	fitInfo$call = cl
 	fitInfo$formula = formula
-#    class(fitInfo) <- c(callText, 'icenReg_fit', 'par_fit')
   fitInfo$.dataEnv = new.env()
-  fitInfo$.dataEnv$data = data
+  if(!missing(data)){ fitInfo$.dataEnv$data = data }
 	fitInfo$par = dist
 	fitInfo$model = model
   fitInfo$terms <- mt

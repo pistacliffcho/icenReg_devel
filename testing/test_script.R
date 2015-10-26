@@ -2,6 +2,7 @@ SAVE = FALSE
 CHECK = TRUE
 library(icenReg)
 data(essIncData_small)
+data(essIncData)
 setwd('/Users/cliff/Desktop/icenReg_devel/testing')
 
 makeTestObjects <- function(){
@@ -15,7 +16,7 @@ makeTestObjects <- function(){
   ans[5] <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, data = essIncData_small, model = 'po', dist = 'weibull')$final_llk
   ans[6] <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, data = essIncData_small, model = 'po', dist = 'loglogistic')$final_llk
   ans[7] <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, data = essIncData_small, model = 'po', dist = 'lnorm')$final_llk
-  simdata <- simIC_weib(n = 200)
+  simdata <- simIC_weib(n = 200, prob_cen = 1)
   fit <- ic_sp(cbind(l, u) ~ x1 + x2, data = simdata)
   ans[8] <- getFitEsts(fit)
   ans[9:10] <- getFitEsts(fit, p = c(.25, .75)) 

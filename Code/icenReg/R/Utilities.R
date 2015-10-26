@@ -495,7 +495,9 @@ getFormula <- function(object){
 }
 
 getData <- function(fit){
-	fit$.dataEnv$data
+	ans <- fit$.dataEnv$data
+	if(is.null(ans)) stop('Could not find data from fit. Original model must be built with data argument (rather than variables found in the Global Environment) supplied to be retreivable')
+	return(ans)
 }
 
 get_tbull_mid_q <- function(p, s_t, tbulls){

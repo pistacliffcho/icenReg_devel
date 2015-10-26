@@ -451,10 +451,10 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
                 optObj->gradientDescent_step();
             }
             if(useExpSteps){
-                optObj->vem();
-                optObj->last_p_update();
-                optObj->vem_sweep();
-//                optObj->vem_sweep2();
+       //         optObj->vem();
+       //         optObj->last_p_update();
+       //         optObj->vem_sweep();
+                optObj->vem_sweep2();
             }
 
         }
