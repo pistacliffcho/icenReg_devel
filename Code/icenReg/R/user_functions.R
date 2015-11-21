@@ -710,7 +710,7 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
   return(fitInfo)
 }
 
-getFitEsts2 <- function(fit, newdata, p, q){
+getFitEsts <- function(fit, newdata, p, q){
   if(missing(newdata)) newdata <- NULL
   etas <- get_etas(fit, newdata)
   
@@ -747,7 +747,7 @@ getFitEsts2 <- function(fit, newdata, p, q){
 
 
 
-getFitEsts <-function(fit, newdata, p, q){
+getFitEsts_OLD <-function(fit, newdata, p, q){
 	if(missing(newdata)) newdata <- NULL
 	etas <- get_etas(fit, newdata)
 

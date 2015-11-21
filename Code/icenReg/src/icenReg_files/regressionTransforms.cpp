@@ -146,13 +146,13 @@ double getNonParSurv(double t, SEXP SC){
     while(tb_ptr[ind + k] < t && ind < k){ ind++; }
     if(ind == k){ return(0.0); }
     if(ind == 0){ return(1.0); }
-    if(tb_ptr[ind] < t){ return(svals_ptr[ind]); }
+//    if(tb_ptr[ind] < t){ return(svals_ptr[ind]); }
     
     double intLength = tb_ptr[ind + k] - tb_ptr[ind];
     double t_diff = t - tb_ptr[ind];
     double pLength = svals_ptr[ind-1] - svals_ptr[ind];
     
-    double ans = svals_ptr[ind-1] + pLength * t_diff/intLength;
+    double ans = svals_ptr[ind-1] - pLength * t_diff/intLength;
     return(ans);
 }
 
