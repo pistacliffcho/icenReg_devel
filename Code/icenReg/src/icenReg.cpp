@@ -22,3 +22,4 @@ using namespace std;
 #include "icenReg_files/ic_sp_gradDescent.cpp"
 
 #include "icenReg_files/experimentalCode.cpp"
+#include "icenReg_files/regressionTransforms.cpp"

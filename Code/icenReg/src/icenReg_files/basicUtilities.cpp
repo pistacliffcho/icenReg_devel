@@ -117,6 +117,13 @@ double ic_ploglogistic(double x, double a, double b){
     return( 1/ (1 + pow(x/a, -b)));
 }
 
+double ic_qloglogistic(double p, double a, double b){
+    double expVal = -1.0/b;
+    double odds = (1.0 - p)/p;
+    double ans = a * pow(odds, expVal);
+    return(ans);
+}
+
 double ic_dlnorm(double x, double mu, double s){
     double denom = x * s * sqrt(2 * PI);
     double expPart = pow((log(x) - mu), 2) / (2 * s * s);

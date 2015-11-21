@@ -1,5 +1,5 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL,
-                  useGA = T, maxIter = 500, baselineUpdates = 5){
+                  useGA = T, maxIter = 500, baseUpdates = 5){
   useExpSteps = FALSE
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -57,7 +57,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	if(is.null(ncol(x)) ) recenterCovars = FALSE
 	
   other_info <- list(useGA = useGA, maxIter = maxIter, 
-                     baselineUpdates = baselineUpdates, 
+                     baselineUpdates = baseUpdates, 
                      useFullHess = useFullHess, useExpSteps = useExpSteps)  
 
    	fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)
@@ -434,6 +434,12 @@ simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph',
     l[!isCensored] <- trueTimes[!isCensored]
     u[!isCensored] <- trueTimes[!isCensored]
     
+    if(sum(l == Inf) > 0){
+      allTimes <- c(l,u)
+      allFiniteTimes <- allTimes[allTimes < Inf]
+      maxFiniteTime <- max(allFiniteTimes)
+      l[l == Inf] <- maxFiniteTime
+    }
     return(data.frame(l = l, u = u, x1 = x1, x2 = x2))
 }
 
@@ -704,6 +710,43 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
   return(fitInfo)
 }
 
+getFitEsts2 <- function(fit, newdata, p, q){
+  if(missing(newdata)) newdata <- NULL
+  etas <- get_etas(fit, newdata)
+  
+  if(missing(p))	p <- NULL
+  if(missing(q))  q <- NULL
+  if(!is.null(q)) {xs <- q; type = 'q'}
+  else{ 
+    type = 'p'
+    if(is.null(p)) xs <- 0.5
+    else		   xs <- p
+  }
+  
+  if(length(etas) == 1){etas <- rep(etas, length(xs))}
+  if(length(xs) == 1){xs <- rep(xs, length(etas))}
+  if(length(etas) != length(xs) ) stop('length of p or q must match nrow(newdata) OR be 1')
+
+  regMod <- fit$model
+  
+  if(inherits(fit, 'sp_fit'))	{
+    scurves <- getSCurves(fit, newdata)
+    baselineInfo <- list(tb_ints = scurves$Tbull_ints, s = scurves$S_curves$baseline)
+    baseMod = 'sp'
+  }
+  if(inherits(fit, 'par_fit')){	
+    baseMod <- fit$par
+    baselineInfo <- fit$baseline
+  }
+  if(type == 'q')
+    ans <- getSurvProbs(xs, etas, baselineInfo = baselineInfo, regMod = regMod, baseMod = baseMod)
+  else if(type == 'p')
+    ans <- getSurvTimes(xs, etas, baselineInfo = baselineInfo, regMod = regMod, baseMod = baseMod)
+  return(ans)
+}
+
+
+
 getFitEsts <-function(fit, newdata, p, q){
 	if(missing(newdata)) newdata <- NULL
 	etas <- get_etas(fit, newdata)
@@ -717,24 +760,32 @@ getFitEsts <-function(fit, newdata, p, q){
 		else		   xs <- p
 	}
 	
+	if(length(etas) == 1){etas <- rep(etas, length(xs))}
+	if(length(xs) == 1){xs <- rep(xs, length(etas))}
+	if(length(etas) != length(xs) ) stop('length of p or q must match nrow(newdata) OR be 1')
+	
 	if(inherits(fit, 'sp_fit'))	{
 		scurves <- getSCurves(fit, newdata)
-		ans <- matrix(nrow = length(xs), ncol = length(etas))
-		colnames(ans) <- names(scurves$S_curves)
+#		ans <- matrix(nrow = length(xs), ncol = length(etas))
+		ans <- numeric()
+#		colnames(ans) <- names(scurves$S_curves)
 				
 		for(i in 1:length(etas)){
-			if(type == 'p') ans[,i] <- get_tbull_mid_q(xs, scurves[[2]][[i]], scurves[[1]])
-			else ans[,i] 			<- get_tbull_mid_p(xs, scurves[[2]][[i]], scurves[[1]])
-	
+# 			if(type == 'p') ans[,i] <- get_tbull_mid_q(xs, scurves[[2]][[i]], scurves[[1]])
+# 			else ans[,i] 			<- get_tbull_mid_p(xs, scurves[[2]][[i]], scurves[[1]])
+		  if(type == 'p') ans[i] <- get_tbull_mid_q(xs[i], scurves[[2]][[i]], scurves[[1]])
+		  else ans[i] 			<- get_tbull_mid_p(xs[i], scurves[[2]][[i]], scurves[[1]])
+		  
 		}
 		return(ans)
 	}
 	if(inherits(fit, 'par_fit')){	
 		s_fun <- get_s_fun(fit)
 		link_fun <- get_link_fun(fit)
-		ans <- matrix(nrow = length(xs), ncol = length(etas))
-		colnames(ans) <- names(etas)
-		rownames(ans) <- xs
+#		ans <- matrix(nrow = length(xs), ncol = length(etas))
+		ans <- numeric()
+#		colnames(ans) <- names(etas)
+#		rownames(ans) <- xs
 		if(type == 'p'){
 			optimReadyFun <- function(x, p, baselinePars, eta, s_fun, link_fun){
 				s_o <- s_fun(x, baselinePars)
@@ -743,22 +794,52 @@ getFitEsts <-function(fit, newdata, p, q){
 				return( (f-p)^2 )
 			}	
 			
-			for(i in 1:length(xs)){
-				for(j in 1:length(etas)){
-					upperBound <- findUpperBound(xs[i], s_fun, link_fun, fit, etas[j])
-					ans[i,j] <- optimize(optimReadyFun, interval = c(0, upperBound), 
-									p = xs[i], baselinePars = fit$baseline,
-									etas[j], s_fun, link_fun, tol = 10^-6)$minimum
-				
-				}
+# 			for(i in 1:length(xs)){
+# 				for(j in 1:length(etas)){
+# 					upperBound <- findUpperBound(xs[i], s_fun, link_fun, fit, etas[j])
+# 					ans[i,j] <- optimize(optimReadyFun, interval = c(0, upperBound), 
+# 									p = xs[i], baselinePars = fit$baseline,
+# 									etas[j], s_fun, link_fun, tol = 10^-6)$minimum
+# 				
+# 				}
+# 			}
+			upperBound = 1
+			
+			applyFUN <- function(i, xs, link_fun, s_fun, baseline, etas){
+			  upperBound <- findUpperBound(upperBound,xs[i], s_fun, link_fun, fit, etas[i])
+			   optimize(optimReadyFun, interval = c(0, upperBound), 
+			                     p = xs[i], baselinePars = fit$baseline,
+			                     etas[i], s_fun, link_fun, tol = 10^-6)$minimum
 			}
-		return(ans)
+			ans <- sapply(1:length(xs), FUN = applyFUN, 
+			              xs = xs, etas = etas, 
+			              link_fun = link_fun, s_fun = s_fun,
+			              baseline = fit$baseline)
+			
+			
+# 			for(i in 1:length(xs)){
+# 			    upperBound <- findUpperBound(upperBound,xs[i], s_fun, link_fun, fit, etas[i])
+# 			    ans[i] <- optimize(optimReadyFun, interval = c(0, upperBound), 
+# 			                         p = xs[i], baselinePars = fit$baseline,
+# 			                         etas[i], s_fun, link_fun, tol = 10^-6)$minimum
+# 			    
+# 			}
+			return(ans)
 		}
 		
-		for(i in 1:length(xs)){
-			for(j in 1:length(etas))
-				ans[i,j] <- 1-link_fun(s_fun(xs[i], fit$baseline), etas[j])
-		}
+# 		for(i in 1:length(xs)){
+# 			for(j in 1:length(etas))
+# 				ans[i,j] <- 1-link_fun(s_fun(xs[i], fit$baseline), etas[j])
+# 		}
+  
+		applyFUN <- function(i, xs, link_fun, s_fun, baseline, etas){ 1 - link_fun(s_fun(xs[i], baseline), etas[i])}
+		ans <- sapply(1:length(xs), FUN = applyFUN, 
+		              xs = xs, etas = etas, 
+		              link_fun = link_fun, s_fun = s_fun,
+		              baseline = fit$baseline)
+# 		for(i in 1:length(xs)){
+# 		    ans[i] <- 1-link_fun(s_fun(xs[i], fit$baseline), etas[i])
+# 		}
 		return(ans)
 	}
 	stop('getFitEsts not currently supported for this object')

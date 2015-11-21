@@ -449,13 +449,12 @@ get_link_fun <- function(fit){
 }
 
 
-findUpperBound <- function(x, s_fun, link_fun, fit, eta){
-	val <- 1
+findUpperBound <- function(val = 1, x, s_fun, link_fun, fit, eta){
 	fval <- 1 - link_fun(s_fun(val, fit$baseline), eta)
 	tries = 0
 	while(tries < 100 & fval < x){
 		tries = tries + 1
-		val <- val * 2
+		val <- val * 10
 		fval <- 1 - link_fun(s_fun(val, fit$baseline), eta)
 	}
 	if(fval < x)	stop('finding upper bound for quantile failed!')
@@ -601,4 +600,38 @@ getNumCovars <- function(object){
   }
   if(length(dimAns) == 2) return(dimAns[2])
   stop('problem with getNumCovars')
+}
+
+
+
+regmod2int <- new.env()
+regmod2int[['ph']] <- as.integer(1)
+regmod2int[['po']] <- as.integer(2)
+
+basemod2int <- new.env()
+basemod2int[['sp']] <- as.integer(0)
+basemod2int[['gamma']] <- as.integer(1)
+basemod2int[['weibull']] <- as.integer(2)
+basemod2int[['weib']] <- as.integer(2)
+basemod2int[['lnorm']] <- as.integer(3)
+basemod2int[['exponential']] <- as.integer(4)
+basemod2int[['loglogistic']] <- as.integer(5)
+
+
+getSurvProbs <- function(times, etas, baselineInfo, regMod, baseMod){
+  regInt <- regmod2int[[regMod]]
+  if(is.null(regInt)) stop('regMod type not recognized')
+  baseInt <- basemod2int[[baseMod]]
+  if(is.null(baseInt)) stop('baseMod type not recognized')
+  ans <- .Call('s_regTrans', as.double(times), as.double(etas), baselineInfo, regInt, baseInt)
+  return(ans)
+}
+
+getSurvTimes <- function(p, etas, baselineInfo, regMod, baseMod){
+  regInt <- regmod2int[[regMod]]
+  if(is.null(regInt)) stop('regMod type not recognized')
+  baseInt <- basemod2int[[baseMod]]
+  if(is.null(baseInt)) stop('baseMod type not recognized')
+  ans <- .Call('q_regTrans', as.double(p), as.double(etas), baselineInfo, regInt, baseInt)
+  return(ans)
 }

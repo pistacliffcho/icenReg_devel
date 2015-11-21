@@ -2,7 +2,7 @@ Package: icenReg
 Type: Package
 Title: Regression Models for Interval Censored Data 
 Version: 1.2.8
-Date: 2015-09-25
+Date: 2015-10-26
 Author: Clifford Anderson-Bergman; the Eigen team for Eigen library included; uses Maarloes Maathius's HeightMap algorithm (MLEcens::reduc) 
 Depends: survival, MLEcens
 Imports: foreach, methods

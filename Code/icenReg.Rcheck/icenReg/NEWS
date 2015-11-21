@@ -6,7 +6,10 @@ Switched to reference classes for fits, rather than lists with reassigned classe
 Fixed bug with getFitEsts
 Added methods for calculating the NPMLE (univariate or bivariate)
 ic_par sped up, especially for models with lots of covariates
-included use of cbind for response, rather than Surv(l, u, type = ‘interval’), which is still supported
+included use of cbind for response (i.e. cbind(l, u) ~…), rather than Surv(l, u, type = ‘interval’) ~ …, which is still supported
+Added constrained gradient ascent step to ic_sp
+Switched to partially numeric derivatives for ic_par, greatly speeding up calculations for models with many covariates
+
 
 v1.2.7
 Added dependencies to “methods” package into NAMESPACE and DESCRIPTION

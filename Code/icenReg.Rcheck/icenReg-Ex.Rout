@@ -342,8 +342,8 @@ Call: ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData,
 
           Estimate Exp(Est) Std.Error z-value       p
 log_alpha   6.6310  758.500   0.08673  76.460 0.00000
-log_beta    0.9596    2.611   0.38670   2.482 0.01308
-grpge       0.8098    2.247   0.32280   2.509 0.01211
+log_beta    0.9596    2.611   0.38670   2.481 0.01309
+grpge       0.8098    2.247   0.32280   2.509 0.01212
 
 final llk =  -80.23726 
 Iterations =  19 
@@ -356,7 +356,7 @@ Call: ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData,
 
           Estimate Exp(Est) Std.Error z-value        p
 log_alpha    6.603 737.2000   0.07747  85.230 0.000000
-log_beta     1.001   2.7200   0.38290   2.614 0.008951
+log_beta     1.001   2.7200   0.38280   2.614 0.008945
 grpge       -1.172   0.3097   0.47130  -2.487 0.012880
 
 final llk =  -80.30575 
@@ -424,7 +424,7 @@ x1  -0.7084   0.4924
 x2   0.7522   2.1220
 
 final llk =  -1576.202 
-Iterations =  48 
+Iterations =  54 
 Bootstrap Samples =  0 
 WARNING: only  0  bootstrap samples used for standard errors. Suggest using more bootstrap samples for inference
 > 	
@@ -578,7 +578,7 @@ Number of maximal intersections w/ positive mass =  90
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  11.396 0.221 11.62 0 0 
+Time elapsed:  7.257 0.095 7.362 0 0 
 > grDevices::dev.off()
 null device 
           1 
