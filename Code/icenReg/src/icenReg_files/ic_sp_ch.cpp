@@ -446,17 +446,18 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
         if(optObj->hasCovars)       optObj->covar_nr_step();
 
         for(int i = 0; i < baselineUpdates; i++)  {
-            optObj->icm_step();
-            if(useGD){
-                optObj->gradientDescent_step();
+            if(i < optObj->iter){
+                optObj->icm_step();
+                if(useGD){
+                    optObj->gradientDescent_step();
+                }
+                if(useExpSteps){
+        //         optObj->vem();
+        //         optObj->last_p_update();
+        //         optObj->vem_sweep();
+                   optObj->vem_sweep2();
+                }
             }
-            if(useExpSteps){
-       //         optObj->vem();
-       //         optObj->last_p_update();
-       //         optObj->vem_sweep();
-                optObj->vem_sweep2();
-            }
-
         }
         llk_new = optObj->sum_llk();
         

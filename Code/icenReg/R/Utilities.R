@@ -93,8 +93,22 @@ expandX <- function(formula, data, fit){
 	 return(ans)
 }
 
+expandY <- function(formula, data, fit){
+  if(is.null(data)) data <- fit$.dataEnv$data
+  newFormula <- formula
+  newFormula[[3]] <- newFormula[[2]]
+  newFormula[[2]] <- NULL
+  ans <- model.matrix(newFormula, data)
+  ans <- ans[,-1] #Dropping Intercept
+  return(ans)
+}
 
-
+getResponse <- function(fit, newdata = NULL){
+  if(is.null(newdata))
+    newdata = fit$.dataEnv$data
+  ans <- expandY(fit$formula, newdata, fit)
+  return(ans)
+}
 ###		PARAMETRIC FIT UTILITIES
 
 fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', 
@@ -628,10 +642,26 @@ getSurvProbs <- function(times, etas, baselineInfo, regMod, baseMod){
 }
 
 getSurvTimes <- function(p, etas, baselineInfo, regMod, baseMod){
+  if(any(p < 0))
+    stop('probabilities provided to getSurvTimes are less than 0')
+  if(any(p > 1))
+    stop('probabilities provided to getSurvTimes are greater than 1')
   regInt <- regmod2int[[regMod]]
   if(is.null(regInt)) stop('regMod type not recognized')
   baseInt <- basemod2int[[baseMod]]
   if(is.null(baseInt)) stop('baseMod type not recognized')
   ans <- .Call('q_regTrans', as.double(p), as.double(etas), baselineInfo, regInt, baseInt)
+  return(ans)
+}
+
+
+getSamplablePars <- function(fit){
+  if(is(fit, 'sp_fit')) return(fit$coefficients)
+  else if(is(fit, 'par_fit')) return(fit$coefficients)
+}
+
+getSamplableVar <- function(fit){
+  ans <- fit$var
+  if(is.null(ans))  stop('coefficient variance not found for fit. If ic_ph model was fit, make sure to set bs_samples > 100 to get bootstrap sample of variance')
   return(ans)
 }

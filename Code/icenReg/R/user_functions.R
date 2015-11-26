@@ -730,7 +730,7 @@ getFitEsts <- function(fit, newdata, p, q){
   regMod <- fit$model
   
   if(inherits(fit, 'sp_fit'))	{
-    scurves <- getSCurves(fit, newdata)
+    scurves <- getSCurves(fit, newdata = NULL)
     baselineInfo <- list(tb_ints = scurves$Tbull_ints, s = scurves$S_curves$baseline)
     baseMod = 'sp'
   }
@@ -871,4 +871,33 @@ diag_baseline <- function(object, data, model = 'ph', weights = NULL,
 		lines(grid, 1 - y, col = cols[i])
 	}
 	legend(lgdLocation, legend = c('Semi-parametric', dists), col = c('black', cols), lwd = 1)
+}
+
+predict.icenReg_fit <- function(object, type = 'response',
+                                newdata = NULL, imputeOptions = 'sample_pars',...)
+      #imputeOptions = fullSample, fixedParSample, median
+  {
+  if(is.null(newdata)) newdata <- object$.dataEnv$data
+  if(type == 'lp')
+    return( log(get_etas(object, newdata = newdata)))
+  if(type == 'response')
+    return(getFitEsts(fit = object, newdata = newdata))
+  if(type == 'impute'){
+    browser()
+    yMat <- expandY(object$formula, newdata, object)
+    p1 <- getFitEsts(object, newdata, q = as.numeric(yMat[,1]) ) 
+    p2 <- getFitEsts(object, newdata, q = as.numeric(yMat[,2]) ) 
+    if(imputeOptions == 'median'){
+      p_med <- (p1 + p2)/2
+      return(getFitEsts(object, newdata, p = p_med))
+    }
+    if(imputeOptions == 'fixedParSample'){
+      p_samp <- runif(length(p1), p1, p2)
+      return(getFitEsts(object, newdata, p = p_samp))
+    }
+    if(imputeOptions == 'fullSample'){
+      
+    }
+  }
+  stop('"type" not recognized: options are "lp", "response" and "impute"')
 }

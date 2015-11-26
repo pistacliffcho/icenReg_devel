@@ -53,91 +53,6 @@ double icm_Abst::llk_from_p(){
     return(ans);
 }
 
-/*          NO LONGER USED!
-double icm_Abst::dervConS_fromBaseS(double s, double eta){
-    if(s == 0 || s == 1){return(0.0);}
-    bool adjust_h = false;
-    double org_h = h;
-    if(h > (s*2) || h > ((1-s)*2) ){
-        h = s/2.0;
-        if(s > 0.5){
-            h = (1.0-s)/2.0;
-        }
-        adjust_h = true;
-    }
-    double f_h, f_l,  ans;
-    s += h;
-    f_h = baseS2CondS(s, eta);
-    s -= 2*h;
-    f_l = baseS2CondS(s, eta);
-    ans = (f_h - f_l) / (2 * h);
-    if(adjust_h){
-        h = org_h;
-    }
-    if(ISNAN(ans) || ans == R_NegInf || ans == R_PosInf){
-        ans = 0;
-    }
-    if(ans < 0){ Rprintf("warning: negative derivative in dervConS_fromBaseS. Should not happen!\n"); }
-    return(ans);
-}
-
-void icm_Abst::calc_cond_S_derv(){
-    double this_eta, this_p_obs, this_mult;
-    double s_l, s_r;
-    int n = expEtas.size();
-    int l_ind, r_ind;
-    d_cond_S_left.resize(n);
-    d_cond_S_right.resize(n);
-    for(int i = 0; i < n; i++){
-        d_cond_S_left[i] = 0;
-        d_cond_S_right[i] = 0;
-    }
-    for(int i = 0; i < n; i++){
-        l_ind = obs_inf[i].l;
-        r_ind = obs_inf[i].r;
-        this_eta = etas[i];
-        this_p_obs = obs_inf[i].pob;
-        this_mult = w[i] * this_p_obs;
-        s_l = exp( - exp( baseCH[l_ind]) );
-        d_cond_S_left[i] -= dervConS_fromBaseS( s_l , this_eta) * this_mult;
-        s_r = exp( - exp( baseCH[r_ind + 1]) );
-        d_cond_S_right[i] += dervConS_fromBaseS( s_r , this_eta) * this_mult;
-    }
-}
-
-double icm_Abst::numeric_p_der(int i){
-    double llk_l, llk_h;
-    double this_h = h/100;
-    baseP[i] += this_h;
-    llk_h = llk_from_p();
-    baseP[i] -= 2.0 * this_h;
-    llk_l = llk_from_p();
-    baseP[i] += this_h;
-    baseP_2_baseS();
-    baseS_2_baseCH();
-    
-    return( (llk_h - llk_l)/(2*this_h) );
-}
-
-void icm_Abst::calc_base_p_derv(){
-    calc_cond_S_derv();
-    int k = baseCH.size() - 1;
-    base_p_derv.resize(k);
-    int n = etas.size();
-    for(int j = 0; j < k; j++){
-        base_p_derv[j] = 0;
-        for(int i = 0; i < n; i++){
-            if(obs_inf[i].l > j){
-                base_p_derv[j] += d_cond_S_left[i];
-            }
-            if( (obs_inf[i].r + 1) > j){
-                base_p_derv[j] += d_cond_S_right[i];
-            }
-        }
-    }
-}
-*/
- 
  
  
 double icm_Abst::getMaxScaleSize(vector<double> &p, vector<double> &prop_p){
@@ -206,13 +121,9 @@ void icm_Abst::gradientDescent_step(){
     double scale_max = getMaxScaleSize(baseP, prop_p);
 
     
-    for(int i = 0; i < k; i++){
-        prop_p[i] *= -1.0;
-    }
+    for(int i = 0; i < k; i++){ prop_p[i] *= -1.0; }
     scale_max = min(scale_max, getMaxScaleSize(baseP, prop_p));
-    for(int i = 0; i < k; i++){
-        prop_p[i] *= -1.0;
-    }
+    for(int i = 0; i < k; i++){ prop_p[i] *= -1.0; }
     
     double delta_val = scale_max/2.0;
     
@@ -239,14 +150,9 @@ void icm_Abst::gradientDescent_step(){
     double d1 = ( llk_h - llk_l ) / ( 2 * delta_val );
     double d2 = (llk_h + llk_l - 2.0 * llk_0 ) / (delta_val * delta_val);
     
-    if(iter % 2 ==0){
-        d1 = analytic_dd;
-   //     Rprintf("note: using analytic dd, rather than numeric\n");
-    }
-    
+    if(iter % 2 ==0){ d1 = analytic_dd; }
     
     delta_val = -d1/d2;
-
 
     if(!(delta_val > 0)){
         failedGA_counts++;
@@ -275,7 +181,7 @@ void icm_Abst::gradientDescent_step(){
     
     double this_delta = delta_val;
     
-    while(tries < 10 && new_llk  < llk_0){
+    while(tries < 5 && new_llk  < llk_0){
         tries++;
         this_delta = this_delta/2;
         add_vec(this_delta, prop_p, baseP);
@@ -301,7 +207,7 @@ double icm_Abst::cal_log_obs(double s1, double s2, double eta){
 
 
 void icm_Abst::numeric_dobs_dp(){
-    baseCH_2_baseS();
+//    baseCH_2_baseS();
     
     int p_k = baseS.size();
     int n = etas.size();

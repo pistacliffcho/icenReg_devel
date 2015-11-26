@@ -135,7 +135,7 @@ double getNonParSurv(double t, SEXP SC){
     
     int k = LENGTH(svals);
     if(k != LENGTH(tb_ints)/2){
-        Rprintf("t and SC do not agree on length\n");
+        Rprintf("LENGTH(tb_ints) = %d, LENGTH(svals) = %d\n", LENGTH(tb_ints), k);
         return(0.0);
     }
     
@@ -152,7 +152,10 @@ double getNonParSurv(double t, SEXP SC){
     double t_diff = t - tb_ptr[ind];
     double pLength = svals_ptr[ind-1] - svals_ptr[ind];
     
-    double ans = svals_ptr[ind-1] - pLength * t_diff/intLength;
+    
+    double ans = svals_ptr[ind-1];
+    if(intLength > 0){ ans -= pLength * t_diff/intLength; }
+    else ans -= pLength;
     return(ans);
 }
 
@@ -166,7 +169,7 @@ double getNonParQ(double p, SEXP SC){
     
     int k = LENGTH(svals);
     if(k != LENGTH(tb_ints)/2){
-        Rprintf("t and SC do not agree on length\n");
+        Rprintf("LENGTH(tb_ints) = %d, LENGTH(svals) = %d\n", LENGTH(tb_ints), k);
         return(0.0);
     }
     double* tb_ptr = REAL(tb_ints);
