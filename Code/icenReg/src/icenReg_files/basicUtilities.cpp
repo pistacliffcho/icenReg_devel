@@ -198,6 +198,41 @@ extern "C"{
 
 
 
+extern "C"{
+    SEXP fastNumericInsert(SEXP newVals, SEXP target, SEXP indices){
+        int k1 = LENGTH(newVals);
+        int k2 = LENGTH(indices);
+        int t_k = LENGTH(target);
+        
+        int* c_inds = INTEGER(indices);
+        double* c_targ = REAL(target);
+        double* nv = REAL(newVals);
+        
+        for(int i = 0; i < k2; i++){
+            if(c_inds[i] > t_k){
+                Rprintf("error: index too large for target in fastNumericInsert\n");
+                return(target);
+            }
+            if(c_inds[i] < 1){
+                Rprintf("error: index less than 1 for target in fastNumericInsert\n");
+                return(target);
+            }
+        }
+        
+        if(k1 == 1){
+            double onlyVal = nv[0];
+            for(int i = 0; i < k2; i++){
+                c_targ[c_inds[i] - 1] = onlyVal;
+            }
+        }
+        else{
+            for(int i = 0; i < k2; i++){
+                c_targ[c_inds[i] - 1] = nv[i];
+                }
+            }
+    return(target);
+    }
+}
 
 
 //Added for bivariate NPMLE

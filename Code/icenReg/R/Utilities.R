@@ -687,3 +687,22 @@ setSamplablePars <- function(fit, coefs){
   fit$coefficients <- coefs
 }
 
+
+fastNumericInsert <- function(newVals, target, indices){
+  if(storage.mode(newVals) != 'double') storage.mode(newVals) <- 'double'
+  if(storage.mode(target) != 'double') stop('target of fastNumericInsert MUST have storage.mode = "double"')
+  if(storage.mode(indices) != 'integer') storage.mode(indices) <- 'integer'
+  
+  ans <- .Call('fastNumericInsert', newVals, target, indices)
+  return(ans)
+}
+
+fastMatrixInsert <- function(newVals, targMat, rowNum = NULL, colNum = NULL){
+  if(is.null(colNum)){
+    if(is.null(rowNum)) stop('need either rowNum or colNum')
+    newIndices <- (1:length(newVals)-1) * nrow(targMat) + rowNum 
+    return(fastNumericInsert(newVals, targMat, newIndices))
+  }
+  newIndices <- 1:length(newVals) + (colNum - 1) * nrow(targMat)
+  return(fastNumericInsert(newVals, targMat, newIndices))
+}

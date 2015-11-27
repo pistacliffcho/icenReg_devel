@@ -892,6 +892,7 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
   p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
   p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
   ans <- matrix(nrow = length(p1), ncol = numImputes)
+  storage.mode(ans) <- 'double'
   if(imputeType == 'median'){
     p_med <- (p1 + p2)/2
     return(getFitEsts(fit, newdata, p = p_med))
@@ -899,7 +900,8 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
   if(imputeType == 'fixedParSample'){
     for(i in 1:numImputes){
       p_samp <- runif(length(p1), p2, p1)
-      ans[,i] <- getFitEsts(fit, newdata, p = p_samp)
+      theseImputes <- getFitEsts(fit, newdata, p = p_samp)
+      ans <- fastMatrixInsert(theseImputes, ans, colNum = i)
     }
     return(ans)
   }
@@ -912,7 +914,8 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
       p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
       p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
       p_samp <- runif(length(p1), p1, p2)
-      ans[,i] <- getFitEsts(fit, newdata, p = p_samp)
+      theseImputes <- getFitEsts(fit, newdata, p = p_samp)
+      ans <- fastMatrixInsert(theseImputes, ans, colNum = i)
       setSamplablePars(fit, orgCoefs)
     }
     return(ans)
