@@ -9,11 +9,12 @@ export(simIC_weib)
 S3method(summary, icenReg_fit)
 S3method(vcov, icenReg_fit)
 S3method(plot, icenReg_fit)
+S3method(predict, icenReg_fit)
 export(getFitEsts)
 export(getSCurves)
 export(diag_covar)
 export(diag_baseline)
-
+export(imputeCens)
 export(ic_par)
 
 

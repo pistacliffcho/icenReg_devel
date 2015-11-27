@@ -874,7 +874,7 @@ diag_baseline <- function(object, data, model = 'ph', weights = NULL,
 }
 
 predict.icenReg_fit <- function(object, type = 'response',
-                                newdata = NULL, imputeOptions = 'sample_pars',...)
+                                newdata = NULL, ...)
       #imputeOptions = fullSample, fixedParSample, median
   {
   if(is.null(newdata)) newdata <- object$.dataEnv$data
@@ -882,22 +882,40 @@ predict.icenReg_fit <- function(object, type = 'response',
     return( log(get_etas(object, newdata = newdata)))
   if(type == 'response')
     return(getFitEsts(fit = object, newdata = newdata))
-  if(type == 'impute'){
-    browser()
-    yMat <- expandY(object$formula, newdata, object)
-    p1 <- getFitEsts(object, newdata, q = as.numeric(yMat[,1]) ) 
-    p2 <- getFitEsts(object, newdata, q = as.numeric(yMat[,2]) ) 
-    if(imputeOptions == 'median'){
-      p_med <- (p1 + p2)/2
-      return(getFitEsts(object, newdata, p = p_med))
-    }
-    if(imputeOptions == 'fixedParSample'){
-      p_samp <- runif(length(p1), p1, p2)
-      return(getFitEsts(object, newdata, p = p_samp))
-    }
-    if(imputeOptions == 'fullSample'){
-      
-    }
-  }
   stop('"type" not recognized: options are "lp", "response" and "impute"')
+}
+
+
+imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes = 5){
+  if(is.null(newdata)) newdata <- fit$.dataEnv$data
+  yMat <- expandY(fit$formula, newdata, fit)
+  p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
+  p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
+  ans <- matrix(nrow = length(p1), ncol = numImputes)
+  if(imputeType == 'median'){
+    p_med <- (p1 + p2)/2
+    return(getFitEsts(fit, newdata, p = p_med))
+  }
+  if(imputeType == 'fixedParSample'){
+    for(i in 1:numImputes){
+      p_samp <- runif(length(p1), p2, p1)
+      ans[,i] <- getFitEsts(fit, newdata, p = p_samp)
+    }
+    return(ans)
+  }
+  if(imputeType == 'fullSample'){
+    for(i in 1:numImputes){
+      orgCoefs <- getSamplablePars(fit)
+      coefVar <- getSamplableVar(fit)
+      sampledCoefs <- sampPars(orgCoefs, coefVar)
+      setSamplablePars(fit, sampledCoefs)
+      p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
+      p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
+      p_samp <- runif(length(p1), p1, p2)
+      ans[,i] <- getFitEsts(fit, newdata, p = p_samp)
+      setSamplablePars(fit, orgCoefs)
+    }
+    return(ans)
+  }
+  stop('imputeType type not recognized.')
 }

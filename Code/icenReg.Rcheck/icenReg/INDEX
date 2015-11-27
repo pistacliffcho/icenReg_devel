@@ -15,9 +15,12 @@ ic_par                  Parametric Regression Models for Interval
                         Censored Data
 ic_sp                   Semi-Parametric models for Interval Censored
                         Data
+imputeCens              Impute Interval Censored Data from icenReg
+                        Regression Model
 miceData                Lung Tumor Interval Censored Data from Hoel and
                         Walburg 1972
 optCliq                 Computes the MLE for a Binary Mixture Model.
+predict.icenReg_fit     Predictions from icenReg Regression Model
 simBVCen                Simulates Bivariate Interval Censored Data
 simIC_weib              Simulates interval censored data from
                         regression model with a Weibull baseline

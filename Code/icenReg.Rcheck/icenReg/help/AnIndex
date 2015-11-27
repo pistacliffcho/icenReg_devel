@@ -9,9 +9,12 @@ ICNPMLE	ICNPMLE
 IC_NPMLE	ICNPMLE
 ic_par	ic_par
 ic_sp	ic_sp
+imputeCens	imputeCens
 miceData	miceData
 optCliq	optCliq
 plot.icenReg_fit	ic_sp
+predict	predict.icenReg_fit
+predict.icenReg_fit	predict.icenReg_fit
 simBVCen	simBVCen
 simIC_weib	simIC_weib
 summary.icenReg_fit	ic_sp

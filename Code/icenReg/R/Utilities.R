@@ -93,11 +93,21 @@ expandX <- function(formula, data, fit){
 	 return(ans)
 }
 
+removeSurvFromFormula <- function(formula, ind = 2){ 
+  if(formula[[ind]][[1]] == 'Surv'){
+    if(formula[[ind]][[4]] != 'interval2') stop('Surv type not "interval2" in formula')
+    formula[[ind]][[1]] <- as.name('cbind')
+    formula[[ind]][[4]] <- NULL
+  }
+  return(formula)
+}
+
 expandY <- function(formula, data, fit){
   if(is.null(data)) data <- fit$.dataEnv$data
   newFormula <- formula
   newFormula[[3]] <- newFormula[[2]]
   newFormula[[2]] <- NULL
+  newFormula <- removeSurvFromFormula(newFormula, 2)
   ans <- model.matrix(newFormula, data)
   ans <- ans[,-1] #Dropping Intercept
   return(ans)
@@ -665,3 +675,15 @@ getSamplableVar <- function(fit){
   if(is.null(ans))  stop('coefficient variance not found for fit. If ic_ph model was fit, make sure to set bs_samples > 100 to get bootstrap sample of variance')
   return(ans)
 }
+
+sampPars <- function(mean, var){
+  chol_var <- chol(var)
+  k <- length(mean)
+  ans <- rnorm(k) %*% chol_var + mean
+  return(ans)
+}
+
+setSamplablePars <- function(fit, coefs){
+  fit$coefficients <- coefs
+}
+
