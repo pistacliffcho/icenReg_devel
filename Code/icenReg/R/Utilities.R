@@ -103,7 +103,7 @@ removeSurvFromFormula <- function(formula, ind = 2){
 }
 
 expandY <- function(formula, data, fit){
-  if(is.null(data)) data <- fit$.dataEnv$data
+  if(is.null(data)) data <- fit$getRawData()
   newFormula <- formula
   newFormula[[3]] <- newFormula[[2]]
   newFormula[[2]] <- NULL
@@ -115,7 +115,7 @@ expandY <- function(formula, data, fit){
 
 getResponse <- function(fit, newdata = NULL){
   if(is.null(newdata))
-    newdata = fit$.dataEnv$data
+    newdata = fit$getRawData()
   ans <- expandY(fit$formula, newdata, fit)
   return(ans)
 }
@@ -519,7 +519,7 @@ getFormula <- function(object){
 }
 
 getData <- function(fit){
-	ans <- fit$.dataEnv$data
+	ans <- fit$getRawData()
 	if(is.null(ans)) stop('Could not find data from fit. Original model must be built with data argument (rather than variables found in the Global Environment) supplied to be retreivable')
 	return(ans)
 }

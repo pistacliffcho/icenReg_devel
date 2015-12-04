@@ -19,6 +19,9 @@ icenReg_fit <- setRefClass(Class = 'icenReg_fit',
                        methods = list(
                          show = function(){
                            print(summary(.self) ) 
+                         },
+                         getRawData = function(){
+                           return(.self$.dataEnv$data)
                          }
                        )
                        )
