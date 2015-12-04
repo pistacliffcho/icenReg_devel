@@ -137,6 +137,12 @@ public:
     virtual ~loglogisticInfo(){};
 };
 
+class genGammaInfo : public parBLInfo{
+public:
+    double base_d(double x, Eigen::VectorXd &par){return(ic_dgeneralgamma(x, par[0], exp(par[1]), par[2] ));}
+    double base_s(double x, Eigen::VectorXd &par){return(1.0 -ic_pgeneralgamma(x, par[0], exp(par[1]), par[2]));}
+    virtual ~genGammaInfo(){};
+};
 
 
 struct dinf{
@@ -270,6 +276,10 @@ extern "C" {
                 SEXP outHessian, // hessian matrix at MLE. Easier to pass this than to create it in C++
                 SEXP R_w         //
                 );
+
+    SEXP dGeneralGamma(SEXP R_x, SEXP R_mu, SEXP R_s, SEXP R_Q);
+    SEXP pGeneralGamma(SEXP R_x, SEXP R_mu, SEXP R_s, SEXP R_Q);
+    SEXP qGeneralGamma(SEXP R_x, SEXP R_mu, SEXP R_s, SEXP R_Q);
 }
 
 #endif /* defined(____ic_par__) */

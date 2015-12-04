@@ -64,6 +64,9 @@ double getGammaSurv(double q, SEXP bli){
 double getLgLgsticSurv(double q, SEXP bli){
     return( 1.0 - ic_ploglogistic(q, exp(REAL(bli)[0]), exp(REAL(bli)[1])));
 }
+double getGenGammaSurv(double q, SEXP bli){
+    return(1.0 - ic_pgeneralgamma(q, REAL(bli)[0], exp(REAL(bli)[1]), REAL(bli)[2]));
+}
 double getNonParSurv(double q, SEXP bli);
 
 
@@ -85,6 +88,10 @@ double getGammaQ(double p, SEXP bli){
 double getLgLgsticQ(double p, SEXP bli){
     return(ic_qloglogistic(p, exp(REAL(bli)[0]), exp(REAL(bli)[1]) ) );
 }
+double getGenGammaQ(double p, SEXP bli){
+    return(ic_qgeneralgamma(p, REAL(bli)[0], exp(REAL(bli)[1]), REAL(bli)[2] ) );
+}
+
 double getNonParQ(double q, SEXP bli);
 
 

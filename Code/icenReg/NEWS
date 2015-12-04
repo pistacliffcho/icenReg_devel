@@ -4,6 +4,7 @@ v1.2.9
 getFitEsts is much faster
 added predict function
 added imputeCens function
+added generalized gamma distribution to choice of parametric families
 
 v1.2.8
 Resolved issue of licenses and gave proper credit to the Eigen team for 

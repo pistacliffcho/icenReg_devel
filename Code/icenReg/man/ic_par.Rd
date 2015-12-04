@@ -17,7 +17,7 @@
  }
  
 \details{
-	Currently supported distributions choices are "exponential", "weibull", "gamma", "lnorm" and "loglogistic". 
+	Currently supported distributions choices are "exponential", "weibull", "gamma", "lnorm", "loglogistic" and "generalgamma" (i.e. generalized gamma distribution). 
 	
 	Response variable should either be of the form \code{cbind(l, u)} or \code{Surv(l, u, type = 'interval2')}, where \code{l} and \code{u} are the lower and upper ends of the interval known to contain the event of interest. Uncensored data can be included by setting \code{l == u}, right censored data can be included by setting \code{u == Inf} or \code{u == NA} and left censored data can be included by setting \code{l == 0}.
 	

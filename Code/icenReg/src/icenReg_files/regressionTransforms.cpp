@@ -113,6 +113,13 @@ condProbCal::condProbCal(SEXP regType, SEXP baseType, SEXP bli){
             isOK = true;
         }
     }
+    else if(cBaseType == 6){
+        getBaseSurv = &getGenGammaSurv;
+        getBaseQ    = &getGenGammaQ;
+        if(LENGTH(bli) == 3){
+            isOK = true;
+        }
+    }
     else if(cBaseType == 0){
         getBaseSurv = &getNonParSurv;
         getBaseQ    = &getNonParQ;

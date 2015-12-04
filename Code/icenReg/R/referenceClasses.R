@@ -44,7 +44,7 @@ par_fit <- setRefClass(Class = 'par_fit',
                                   ))
 
 surv_trans_models <- c('po', 'ph')
-parametricFamilies <- c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic')
+parametricFamilies <- c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic', 'generalgamma')
 
 for(mod in surv_trans_models){
   for(fam in parametricFamilies)

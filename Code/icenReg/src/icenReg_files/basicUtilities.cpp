@@ -7,6 +7,7 @@
 //
 
 #include "myPAVAalgorithm.cpp"
+#define SMALLNUMBER 0.00000000001;
 
 double max(double a, double b){
     if(a > b) return(a);
@@ -105,7 +106,6 @@ void Rvec2eigen(SEXP r_vec, Eigen::VectorXd &e_vec){
 }
 
 
-
 double ic_dloglogistic(double x, double a, double b){
     double x_a = x/a;
     double x_a_b = pow(x_a, b);
@@ -134,6 +134,42 @@ double ic_dlnorm(double x, double mu, double s){
 double ic_plnorm(double x, double mu, double s){
     return(pnorm(log(x), mu, s, 0, 0));
 }
+
+
+
+
+double ic_dgeneralgamma(double x, double mu, double s, double Q){
+    if(Q == 0){
+        return(ic_dlnorm(x, mu, s));
+    }
+    double y = log(x);
+    double w = ((y - mu)/s);
+    double Q_inv = 1/(Q * Q);
+    double logAns = -log(s*x) + log(abs(Q)) + Q_inv * log(Q_inv) + Q_inv * (Q*w - exp(Q*w)) - Rf_lgammafn(Q_inv);
+    return(exp(logAns));
+}
+
+double ic_pgeneralgamma(double q, double mu, double s, double Q){
+    if(Q == 0){ return(ic_plnorm(q, mu, s));}
+    double y = log(q);
+    double w = ((y-mu)/s);
+    double Q_inv = 1 / (Q*Q);
+    double expnu = exp(Q*w) * Q_inv;
+    double ans;
+    if(Q > 0){ ans = 1 - pgamma(expnu, Q_inv, 1.0,  0, 0);}
+    else{ ans = pgamma(expnu, Q_inv, 1.0, 0, 0);}
+    return(ans);
+}
+
+double ic_qgeneralgamma(double p, double mu, double s, double Q){
+    if(Q == 0){ return(qlnorm(p, mu, s, 1, 0)); }
+    double Q2 = (Q*Q);
+    double Q_inv = 1/Q2;
+    double part2 = s * (log(Q2 * qgamma(p, Q_inv, 1.0, 0, 0)) / Q);
+    double ans = exp(mu + part2);
+    return(ans);
+}
+
 
 
 void pavaForOptim(vector<double> &d1, vector<double> &d2, vector<double> &x, vector<double> &prop_delta){
@@ -230,7 +266,8 @@ extern "C"{
                 c_targ[c_inds[i] - 1] = nv[i];
                 }
             }
-    return(target);
+    return(target
+           );
     }
 }
 

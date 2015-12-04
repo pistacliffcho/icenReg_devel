@@ -182,6 +182,7 @@ fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po',
 	else if(parFam == 'lnorm') {parInd = as.integer(3); k_base = 2; bnames = c('mu', 'log_s')}
 	else if(parFam == 'exponential') {parInd = as.integer(4); k_base = 1; bnames = 'log_scale'}
 	else if(parFam == 'loglogistic') {parInd = as.integer(5); k_base = 2; bnames = c('log_alpha', 'log_beta')}
+  else if(parFam == 'generalgamma') {parInd = as.integer(6); k_base = 3; bnames = c('mu', 'log_s', 'Q')}
 	else stop('parametric family not supported')
 
 	hessnames = c(bnames, regnames)
@@ -640,7 +641,7 @@ basemod2int[['weib']] <- as.integer(2)
 basemod2int[['lnorm']] <- as.integer(3)
 basemod2int[['exponential']] <- as.integer(4)
 basemod2int[['loglogistic']] <- as.integer(5)
-
+basemod2int[['generalgamma']] <- as.integer(6)
 
 getSurvProbs <- function(times, etas, baselineInfo, regMod, baseMod){
   regInt <- regmod2int[[regMod]]
@@ -693,8 +694,7 @@ fastNumericInsert <- function(newVals, target, indices){
   if(storage.mode(target) != 'double') stop('target of fastNumericInsert MUST have storage.mode = "double"')
   if(storage.mode(indices) != 'integer') storage.mode(indices) <- 'integer'
   
-  ans <- .Call('fastNumericInsert', newVals, target, indices)
-  return(ans)
+  invisible(.Call('fastNumericInsert', newVals, target, indices) )
 }
 
 fastMatrixInsert <- function(newVals, targMat, rowNum = NULL, colNum = NULL){
@@ -704,5 +704,21 @@ fastMatrixInsert <- function(newVals, targMat, rowNum = NULL, colNum = NULL){
     return(fastNumericInsert(newVals, targMat, newIndices))
   }
   newIndices <- 1:length(newVals) + (colNum - 1) * nrow(targMat)
-  return(fastNumericInsert(newVals, targMat, newIndices))
+  fastNumericInsert(newVals, targMat, newIndices)
+}
+
+updateDistPars <- function(vals, max_n){
+  vals <- as.numeric(vals)
+  n_v <- length(vals)
+  if(n_v == 1){
+    return(rep(vals, max_n))
+  }
+  if(n_v != max_n) stop('parameters are not of equal length (or 1)')
+  return(vals)
+}
+
+getMaxLength <- function(thisList){
+  n <- 0
+  for(i in seq_along(thisList)) n <- max(c(n, length(thisList[[i]] ) ) )
+  return(n)
 }

@@ -500,6 +500,13 @@ IC_parOpt::IC_parOpt(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
         b_pars[0] = 0;
         b_pars[1] = 0;
     }
+    else if(INTEGER(R_parType)[0] == 6){
+        blInf = new genGammaInfo();
+        b_pars.resize(3);
+        b_pars[0] = 0;
+        b_pars[1] = 0;
+        b_pars[2] = 0;
+    }
     else{Rprintf("warning: parameter type not supported!\n");}
     
     lnkFn = NULL;
@@ -677,6 +684,10 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
         loglogisticInfo* deleteObj = static_cast<loglogisticInfo*>(optObj.blInf);
         delete deleteObj;
     }
+    if(INTEGER(parType)[0] == 6){
+        genGammaInfo* deleteObj = static_cast<genGammaInfo*>(optObj.blInf);
+        delete deleteObj;
+    }
     if(INTEGER(linkType)[0] == 1){
         propOdd* deleteObj = static_cast<propOdd*>(optObj.lnkFn);
         delete deleteObj;
@@ -685,5 +696,63 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
         propHaz* deleteObj = static_cast<propHaz*>(optObj.lnkFn);
         delete deleteObj;
     }
+    return(ans);
+}
+
+
+
+
+
+
+
+SEXP dGeneralGamma(SEXP R_x, SEXP R_mu, SEXP R_s, SEXP R_Q){
+    int size = LENGTH(R_x);
+    
+    double* x = REAL(R_x);
+    double* mu = REAL(R_mu);
+    double* s = REAL(R_s);
+    double* Q = REAL(R_Q);
+    
+    SEXP ans = PROTECT(allocVector(REALSXP, size));
+    double* cans = REAL(ans);
+    for(int i = 0; i < size; i++){
+        cans[i] = ic_dgeneralgamma(x[i], mu[i], s[i], Q[i]);
+    }
+    UNPROTECT(1);
+    return(ans);
+}
+
+
+SEXP pGeneralGamma(SEXP R_x, SEXP R_mu, SEXP R_s, SEXP R_Q){
+    int size = LENGTH(R_x);
+    
+    double* x = REAL(R_x);
+    double* mu = REAL(R_mu);
+    double* s = REAL(R_s);
+    double* Q = REAL(R_Q);
+    
+    SEXP ans = PROTECT(allocVector(REALSXP, size));
+    double* cans = REAL(ans);
+    for(int i = 0; i < size; i++){
+        cans[i] = ic_pgeneralgamma(x[i], mu[i], s[i], Q[i]);
+    }
+    UNPROTECT(1);
+    return(ans);
+    
+}
+SEXP qGeneralGamma(SEXP R_x, SEXP R_mu, SEXP R_s, SEXP R_Q){
+    int size = LENGTH(R_x);
+    
+    double* x = REAL(R_x);
+    double* mu = REAL(R_mu);
+    double* s = REAL(R_s);
+    double* Q = REAL(R_Q);
+    
+    SEXP ans = PROTECT(allocVector(REALSXP, size));
+    double* cans = REAL(ans);
+    for(int i = 0; i < size; i++){
+        cans[i] = ic_qgeneralgamma(x[i], mu[i], s[i], Q[i]);
+    }
+    UNPROTECT(1);
     return(ans);
 }

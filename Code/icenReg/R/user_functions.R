@@ -156,19 +156,19 @@ getSCurves <- function(fit, newdata = NULL){
 		return(ans)
 	}
 	else{
-		if(missing(q))	stop('argument "q" required for getSCurves for parametric fits')
-		x <- q
-		s_fun <- get_s_fun(fit)
-		ans <- list(x = x, S_curves = list())
-		s <- numeric()
-		for(j in seq_along(x)){
-			s[j] <- s_fun(x[j], fit$baseline)
-		}
-		for(i in length(etas)){
-			ans[['S_curves']][[grpNames[i] ]] <- transFxn(s, etas[i])
-		}	
-		class(ans) <- 'par_curves'
-		return(ans)
+	  	stop('getSCurves only for semi-parametric model. Try getFitEsts')
+# 		x <- q
+# 		s_fun <- get_s_fun(fit)
+# 		ans <- list(x = x, S_curves = list())
+# 		s <- numeric()
+# 		for(j in seq_along(x)){
+# 			s[j] <- s_fun(x[j], fit$baseline)
+# 		}
+# 		for(i in length(etas)){
+# 			ans[['S_curves']][[grpNames[i] ]] <- transFxn(s, etas[i])
+# 		}	
+# 		class(ans) <- 'par_curves'
+# 		return(ans)
 	}
 }
 
@@ -846,7 +846,7 @@ getFitEsts_OLD <-function(fit, newdata, p, q){
 }
 
 diag_baseline <- function(object, data, model = 'ph', weights = NULL,
-						  dists = c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic'),
+						  dists = c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic', 'generalgamma'),
 						  cols = NULL, lgdLocation = 'bottomleft',
 						  useMidCovars = T){
 	newdata = NULL
@@ -915,10 +915,53 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
       p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
       p_samp <- runif(length(p1), p1, p2)
       theseImputes <- getFitEsts(fit, newdata, p = p_samp)
-      ans <- fastMatrixInsert(theseImputes, ans, colNum = i)
+      fastMatrixInsert(theseImputes, ans, colNum = i)
       setSamplablePars(fit, orgCoefs)
     }
     return(ans)
   }
   stop('imputeType type not recognized.')
+}
+
+
+lines.sp_curves <- function(x, sname = 'baseline',...){
+  lines(x[[1]][,1], x[[2]][[sname]], ...)
+  lines(x[[1]][,2], x[[2]][[sname]], ...)
+}
+
+dGeneralGamma <- function(x, mu, s, Q){
+  max_n <- getMaxLength(list(x, mu, s, Q) )
+  x <- updateDistPars(x, max_n)
+  mu <- updateDistPars(mu, max_n)
+  s <- updateDistPars(s, max_n)
+  Q <- updateDistPars(Q, max_n)
+  
+  ans <- .Call('dGeneralGamma', x, mu, s, Q)
+  return(ans)
+}
+
+qGeneralGamma <- function(p, mu, s, Q){
+  x <- p
+  max_n <- getMaxLength(list(x, mu, s, Q) )
+  x <- updateDistPars(x, max_n)
+  mu <- updateDistPars(mu, max_n)
+  s <- updateDistPars(s, max_n)
+  Q <- updateDistPars(Q, max_n)
+  
+  ans <- .Call('qGeneralGamma', x, mu, s, Q)
+  return(ans)
+  
+}
+
+pGeneralGamma <- function(q, mu, s, Q){
+  x <- q
+  max_n <- getMaxLength(list(x, mu, s, Q) )
+  x <- updateDistPars(x, max_n)
+  mu <- updateDistPars(mu, max_n)
+  s <- updateDistPars(s, max_n)
+  Q <- updateDistPars(Q, max_n)
+  
+  ans <- .Call('qGeneralGamma', x, mu, s, Q)
+  return(ans)
+  
 }
