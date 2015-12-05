@@ -36,10 +36,11 @@ icenReg_cv <- function(fit, loss_fun = cv_fun, folds = 10, numImputes = 100, use
   modCall <- fit$call
   modCall$data <- as.name("TRAIN_DATA_ICENREG")
   rawData <- fit$getRawData()
-   cvSummary <-
-     foreach(i = 1:folds, cv_inds = cv_inds, rawData = rawData, loss_fun = loss_fun, 
-           numImputes = numImputes, modCall = modCall,
-           .combine = rbind) %dopar% {
+  cvItems <- list(data = rawData, cv_inds = cv_inds, 
+                  loss_fun = loss_fun, numImputes = numImputes,
+                  call = modCall)
+   cvSummary <- foreach(i = 1:folds, .combine = rbind ) %myDo%
+              {
               TRAIN_DATA_ICENREG <- rawData[-cv_inds[[i]], ]
               VALID_DATA_ICENREG <- rawData[cv_inds[[i]], ]
               cv_fit <- eval(modCall)
@@ -56,4 +57,6 @@ icenReg_cv <- function(fit, loss_fun = cv_fun, folds = 10, numImputes = 100, use
   names(ans) <- c('mean_cv_error', 'full_cv_se', 'imputed_cv_se')
   return(ans)
 }
+
+
 
