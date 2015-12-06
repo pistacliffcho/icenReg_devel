@@ -159,6 +159,8 @@
   provided in {\bf icenReg}. This dataset contains three variables: \texttt{l, u} and
   \texttt{grp}. \texttt{l} and \texttt{u} represent the left and right side of the interval
   containing the event time (note: data is current status) and \texttt{grp} is a group
-  indicator with two categories. 
+  indicator with two categories.
+  
+  If we separate the 
   
 \end{document}
