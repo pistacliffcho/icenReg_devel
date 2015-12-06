@@ -7,7 +7,7 @@
 \usage{
   ic_sp(formula, data, model = 'ph', weights = NULL,
         bs_samples = 0, useMCores = F, seed = NULL,
-        useGA = T, maxIter = 500, baseUpdates = 5) 
+        useGA = T, maxIter = 1000, baseUpdates = 5) 
 }
 \arguments{
   \item{formula}{regression formula. Response must be a \code{Surv} object of type \code{'interval2'}or \code{cbind}. See details.}

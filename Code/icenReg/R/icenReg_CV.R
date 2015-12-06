@@ -1,8 +1,8 @@
-cv_fun <- function(pred, t_val){
+abs_inv <- function(pred, t_val){
  mean(abs(1/(pred+1) - 1/(t_val+1 ) ) ) 
 }
 
-evalCV <- function(imputes, preds, cv_fn){
+evalCV <- function(imputes, preds, cv_fun){
   ans <- numeric(2)
   names(ans) <- c('mean loss', 'imputation SE')
   nImputes <- ncol(imputes)
@@ -16,7 +16,7 @@ evalCV <- function(imputes, preds, cv_fn){
   return(ans)
 }
 
-icenReg_cv <- function(fit, loss_fun = cv_fun, folds = 10, numImputes = 100, useMCore = F){
+icenReg_cv <- function(fit, loss_fun = abs_inv, folds = 10, numImputes = 100, useMCore = F){
   if(folds == 1) stop('folds must be greater than 1')
   
   if(useMCore) `%myDo%` <- `%dopar%`
@@ -51,10 +51,9 @@ icenReg_cv <- function(fit, loss_fun = cv_fun, folds = 10, numImputes = 100, use
     return(ans)
     }
   mean_cv_error <- mean(cvSummary[,1])
-  full_cv_se    <- sd(cvSummary[,1])
   imputed_cv_se <- mean(cvSummary[,2]) / sqrt(nrow(cvSummary)) 
-  ans <- c(mean_cv_error, full_cv_se, imputed_cv_se)
-  names(ans) <- c('mean_cv_error', 'full_cv_se', 'imputed_cv_se')
+  ans <- c(mean_cv_error, imputed_cv_se)
+  names(ans) <- c('mean_cv_error', 'imputed_cv_se')
   return(ans)
 }
 

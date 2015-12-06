@@ -4,7 +4,7 @@
 \usage{
 diag_baseline(object, data, model = "ph", weights = NULL,
               dists = c("exponential", "weibull", "gamma", 
-                        "lnorm", "loglogistic"),
+                        "lnorm", "loglogistic", "generalgamma"),
               cols = NULL, 
               lgdLocation = "bottomleft", useMidCovars = T)}
 \arguments{

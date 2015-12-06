@@ -1,5 +1,5 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL,
-                  useGA = T, maxIter = 500, baseUpdates = 5){
+                  useGA = T, maxIter = 1000, baseUpdates = 5){
   useExpSteps = FALSE
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -126,6 +126,14 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
     fitInfo$terms <- mt
     fitInfo$xlevels <- .getXlevels(mt, mf)
 #    class(fitInfo) <- c(callText, 'icenReg_fit', 'sp_fit')
+    if(fitInfo$iterations == maxIter){
+      warning(paste0('Maximum iterations reached in ic_sp.', 
+              '\n\nCommon cause of problem is when many observations are uncensored in Cox-PH model',
+              '\nas this causes heavy numeric instability in gradient ascent step.', 
+              '\n(note:proportional odds model is more numerically stable).',
+              '\nICM step is still stable, so try increasing maxIter two fold and observe if', 
+              '\ndifference in final llk is less than 0.1. If not, increase maxIter until this occurs.'))
+    }
    return(fitInfo)
 }
 
@@ -906,10 +914,16 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
     return(ans)
   }
   if(imputeType == 'fullSample'){
+    isSP <- is(fit, 'sp_fit')
     for(i in 1:numImputes){
       orgCoefs <- getSamplablePars(fit)
-      coefVar <- getSamplableVar(fit)
-      sampledCoefs <- sampPars(orgCoefs, coefVar)
+      if(!isSP){
+        coefVar <- getSamplableVar(fit)
+        sampledCoefs <- sampPars(orgCoefs, coefVar)
+      }
+      else{
+        sampledCoefs <- getBSParSample(fit)
+      }
       setSamplablePars(fit, sampledCoefs)
       p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
       p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 

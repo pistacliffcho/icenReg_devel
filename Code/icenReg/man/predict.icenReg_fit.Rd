@@ -1,6 +1,5 @@
 \name{predict.icenReg_fit}
 \alias{predict.icenReg_fit}
-\alias{predict}
 \title{Predictions from icenReg Regression Model}
 \usage{
 \method{predict}{icenReg_fit}(object, type = "response", 

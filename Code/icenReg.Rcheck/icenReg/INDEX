@@ -1,5 +1,7 @@
 ICNPMLE                 Computes the NPMLE for Univariate or Bivariate
                         Interval Censored Data
+abs_inv                 Loss Function for interval censored cross
+                        validation
 diag_baseline           Compare parametric baseline distributions with
                         semi-parametric baseline
 diag_covar              Evaluate covariate effect for regression model
@@ -15,6 +17,8 @@ ic_par                  Parametric Regression Models for Interval
                         Censored Data
 ic_sp                   Semi-Parametric models for Interval Censored
                         Data
+icenReg_cv              Get Cross-Validation Statistics from icenReg
+                        Regression model
 imputeCens              Impute Interval Censored Data from icenReg
                         Regression Model
 miceData                Lung Tumor Interval Censored Data from Hoel and

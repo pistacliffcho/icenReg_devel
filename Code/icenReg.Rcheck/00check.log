@@ -21,6 +21,7 @@ Found the following hidden files and directories:
   man/.Rapp.history
   man/.Rhistory
   src/.DS_Store
+  vignettes/.DS_Store
 These were most likely included in error. See section ‘Package
 structure’ in the ‘Writing R Extensions’ manual.
 * checking for portable file names ... OK
@@ -58,7 +59,15 @@ structure’ in the ‘Writing R Extensions’ manual.
 * checking data for ASCII and uncompressed saves ... OK
 * checking line endings in C/C++/Fortran sources/headers ... OK
 * checking compiled code ... OK
+* checking files in ‘vignettes’ ... OK
 * checking examples ... OK
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes in ‘inst/doc’ ... WARNING
+Package vignette without corresponding PDF/HTML:
+   ‘icenReg.Rnw’
+
+* checking running R code from vignettes ... OK
+* checking re-building of vignette outputs ... OK
 * checking PDF version of manual ... OK
 * DONE
-Status: 1 WARNING, 1 NOTE
+Status: 2 WARNINGs, 1 NOTE

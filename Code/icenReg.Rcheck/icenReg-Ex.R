@@ -276,6 +276,47 @@ flush(stderr()); flush(stdout())
 
 
 cleanEx()
+nameEx("icenReg_cv")
+### * icenReg_cv
+
+flush(stderr()); flush(stdout())
+
+### Name: icenReg_cv
+### Title: Get Cross-Validation Statistics from icenReg Regression model
+### Aliases: icenReg_cv
+
+### ** Examples
+
+  ##Not run: somewhat computationally intense
+  # should not take more than a few minutes in worst case scenario
+  
+  #library(splines)
+  #library(doParallel)
+  #simData <- simIC_weib(n = 1000)
+  
+  # fit1 <- ic_par(cbind(l,u) ~ x1 + x2, data = simData)  
+       # True model
+  
+  # fit2 <- ic_par(cbind(l,u) ~ x1 + x2, model = 'po', data = simData) 
+       # Model with wrong link function
+  
+  # fit3 <- ic_par(cbind(l,u) ~ bs(x1, df = 6) + x2, data = simData)  
+       # Overfit model
+  
+  # myCluster <- makeCluster(5, 'FORK')
+  # registerDoParellel(myCluster)
+        #Setting up to use multiple cores
+  
+  # icenReg_cv(fit1, useMCore = T)
+  # icenReg_cv(fit2, useMCore = T)
+  # icenReg_cv(fit3, useMCore = T)
+  
+  # stopCluster(myCluster)
+
+
+
+graphics::par(get("par.postscript", pos = 'CheckExEnv'))
+cleanEx()
 nameEx("imputeCens")
 ### * imputeCens
 
@@ -357,7 +398,7 @@ flush(stderr()); flush(stdout())
 
 ### Name: predict.icenReg_fit
 ### Title: Predictions from icenReg Regression Model
-### Aliases: predict.icenReg_fit predict
+### Aliases: predict.icenReg_fit
 
 ### ** Examples
 

@@ -1,3 +1,4 @@
+abs_inv	abs_inv
 cliqOptInfo	optCliq
 diag_baseline	diag_baseline
 diag_covar	diag_covar
@@ -5,6 +6,7 @@ essIncData	essIncData
 essIncData_small	essIncData_small
 getFitEsts	getFitEsts
 getSCurves	getSCurves
+icenReg_cv	icenReg_cv
 ICNPMLE	ICNPMLE
 IC_NPMLE	ICNPMLE
 ic_par	ic_par
@@ -13,7 +15,6 @@ imputeCens	imputeCens
 miceData	miceData
 optCliq	optCliq
 plot.icenReg_fit	ic_sp
-predict	predict.icenReg_fit
 predict.icenReg_fit	predict.icenReg_fit
 simBVCen	simBVCen
 simIC_weib	simIC_weib

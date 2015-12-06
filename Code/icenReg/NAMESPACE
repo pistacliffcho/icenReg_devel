@@ -17,7 +17,8 @@ export(diag_covar)
 export(diag_baseline)
 export(imputeCens)
 export(ic_par)
-
+export(icenReg_cv)
+export(abs_inv)
 
 importFrom("graphics", "legend", "lines", "par", "plot")
 importFrom("methods", "is", "new")

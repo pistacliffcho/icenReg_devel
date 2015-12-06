@@ -684,6 +684,15 @@ sampPars <- function(mean, var){
   return(ans)
 }
 
+getBSParSample <- function(fit){
+  nBS_samps <- nrow(fit$bsMat)
+  if(is.null(nBS_samps) ){
+    stop('no bootstrap samples generated so cannot sample parameter values')
+  }
+  thisInd <- sample(1:nBS_samps, 1)
+  return(fit$bsMat[thisInd, ] )
+}
+
 setSamplablePars <- function(fit, coefs){
   fit$coefficients <- coefs
 }

@@ -347,6 +347,14 @@ Iterations =  13
 > 
 > 	sim_data <- simIC_weib(n = 500, inspections = 5, inspectLength = 1)
 > 	ph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data)	
+Warning in ic_sp(Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data) :
+  Maximum iterations reached in ic_sp.
+
+Common cause of problem is when many observations are uncensored in Cox-PH model
+as this causes heavy numeric instability in gradient ascent step.
+(note:proportional odds model is more numerically stable).
+ICM step is still stable, so try increasing maxIter two fold and observe if
+difference in final llk is less than 0.1. If not, increase maxIter until this occurs.
 > 	# Default fits a Cox-PH model
 > 	
 > 	summary(ph_fit)		
@@ -356,11 +364,11 @@ Baseline:  semi-parametric
 Call: ic_sp(formula = Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data)
 
    Estimate Exp(Est)
-x1   0.5368   1.7110
-x2  -0.5127   0.5989
+x1   0.5418   1.7190
+x2  -0.5178   0.5958
 
-final llk =  -1557.108 
-Iterations =  500 
+final llk =  -1556.985 
+Iterations =  1000 
 Bootstrap Samples =  0 
 WARNING: only  0  bootstrap samples used for standard errors. Suggest using more bootstrap samples for inference
 > 	# Regression estimates close to true 0.5 and -0.5 values
@@ -402,6 +410,47 @@ WARNING: only  0  bootstrap samples used for standard errors. Suggest using more
 > 
 > 
 > 
+> cleanEx()
+> nameEx("icenReg_cv")
+> ### * icenReg_cv
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: icenReg_cv
+> ### Title: Get Cross-Validation Statistics from icenReg Regression model
+> ### Aliases: icenReg_cv
+> 
+> ### ** Examples
+> 
+>   ##Not run: somewhat computationally intense
+>   # should not take more than a few minutes in worst case scenario
+>   
+>   #library(splines)
+>   #library(doParallel)
+>   #simData <- simIC_weib(n = 1000)
+>   
+>   # fit1 <- ic_par(cbind(l,u) ~ x1 + x2, data = simData)  
+>        # True model
+>   
+>   # fit2 <- ic_par(cbind(l,u) ~ x1 + x2, model = 'po', data = simData) 
+>        # Model with wrong link function
+>   
+>   # fit3 <- ic_par(cbind(l,u) ~ bs(x1, df = 6) + x2, data = simData)  
+>        # Overfit model
+>   
+>   # myCluster <- makeCluster(5, 'FORK')
+>   # registerDoParellel(myCluster)
+>         #Setting up to use multiple cores
+>   
+>   # icenReg_cv(fit1, useMCore = T)
+>   # icenReg_cv(fit2, useMCore = T)
+>   # icenReg_cv(fit3, useMCore = T)
+>   
+>   # stopCluster(myCluster)
+> 
+> 
+> 
+> graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("imputeCens")
 > ### * imputeCens
@@ -502,7 +551,7 @@ Outer iterations =  5
 > 
 > ### Name: predict.icenReg_fit
 > ### Title: Predictions from icenReg Regression Model
-> ### Aliases: predict.icenReg_fit predict
+> ### Aliases: predict.icenReg_fit
 > 
 > ### ** Examples
 > 
@@ -575,7 +624,7 @@ Number of maximal intersections w/ positive mass =  90
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  10.324 0.174 10.512 0 0 
+Time elapsed:  10.31 0.146 10.476 0 0 
 > grDevices::dev.off()
 null device 
           1 

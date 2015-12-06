@@ -69,48 +69,46 @@ No file Rd2.aux.
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1phv.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [1{/usr/local/texl
+ive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-Underfull \hbox (badness 1546) in paragraph at lines 29--29
+Underfull \hbox (badness 1546) in paragraph at lines 59--59
 []\T1/ptm/m/it/10 Compare para-met-ric base-line dis-tri-bu-tions with semi-par
 ametric
-[1{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [2] [3]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [2]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [3]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [4]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [5]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [6] [7]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [8]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 437--438
-[]\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
-ial", "weibull", "gamma", "lnorm" and "loglo-
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [6]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [7] [8]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [9]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [10]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [11]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 561--562
+[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
+0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
+0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [12]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 627--628
+[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
+0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
+0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
 
-Overfull \hbox (3.76918pt too wide) in paragraph at lines 439--440
-[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
-0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
-0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
-[9] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (3.76918pt too wide) in paragraph at lines 505--506
-[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
-0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
-0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
-[10]
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 509--510
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 631--632
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[11] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (65.8474pt too wide) in paragraph at lines 586--599
-\T1/ptm/m/n/10 on the re-sponse in-ter-val, co-vari-ates and es-ti-mated pa-ram
--e-ters at the MLE. Fi-nally, \T1/zi4/m/n/10 imputeOptions = \TS1/zi4/m/n/10 '\
-T1/zi4/m/n/10 fullSample\TS1/zi4/m/n/10 '
-[12] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [13]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [14]
+[13] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [14]
+Overfull \hbox (88.15749pt too wide) in paragraph at lines 708--717
+\T1/ptm/m/n/10 con-di-tional on the re-sponse in-ter-val, co-vari-ates and re-g
+res-sion pa-ram-e-ters at the MLE. \T1/zi4/m/n/10 imputeType = \TS1/zi4/m/n/10 
+'\T1/zi4/m/n/10 fixedParSample\TS1/zi4/m/n/10 '
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [15]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [16]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [17]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [18]
 No file Rd2.ind.
-[17] (./Rd2.aux)
+[19] (./Rd2.aux)
 
 Package rerunfilecheck Warning: File `Rd2.out' has changed.
 (rerunfilecheck)                Rerun to get outlines right
@@ -131,12 +129,12 @@ rw/helvetic/uhvr8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/time
 s/utmb8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.p
 fb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
 ocal/texlive/2015/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (17 pages, 153068 bytes).
+Output written on Rd2.pdf (19 pages, 158051 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.15 [TeX Live 2015] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (21 entries accepted, 0 rejected).
-Sorting entries....done (91 comparisons).
-Generating output file Rd2.ind....done (58 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (22 entries accepted, 0 rejected).
+Sorting entries....done (98 comparisons).
+Generating output file Rd2.ind....done (61 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex)
@@ -208,52 +206,50 @@ Writing index file Rd2.idx
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [1{/usr/local/texl
+ive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-Underfull \hbox (badness 1546) in paragraph at lines 29--29
+Underfull \hbox (badness 1546) in paragraph at lines 59--59
 []\T1/ptm/m/it/10 Compare para-met-ric base-line dis-tri-bu-tions with semi-par
 ametric
-[1{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [2]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [3]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [4]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [3] [4]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [6]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [7]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [8]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [7] [8]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [9]
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 437--438
-[]\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
-ial", "weibull", "gamma", "lnorm" and "loglo-
-
-Overfull \hbox (3.76918pt too wide) in paragraph at lines 439--440
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [10]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [11]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 561--562
 []\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
 0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
 0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
-[10] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (3.76918pt too wide) in paragraph at lines 505--506
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [12]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 627--628
 []\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
 0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
 0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
 
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 509--510
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 631--632
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[11] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [12]
-Overfull \hbox (65.8474pt too wide) in paragraph at lines 586--599
-\T1/ptm/m/n/10 on the re-sponse in-ter-val, co-vari-ates and es-ti-mated pa-ram
--e-ters at the MLE. Fi-nally, \T1/zi4/m/n/10 imputeOptions = \TS1/zi4/m/n/10 '\
-T1/zi4/m/n/10 fullSample\TS1/zi4/m/n/10 '
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [13]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [14]
+[13] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [14]
+Overfull \hbox (88.15749pt too wide) in paragraph at lines 708--717
+\T1/ptm/m/n/10 con-di-tional on the re-sponse in-ter-val, co-vari-ates and re-g
+res-sion pa-ram-e-ters at the MLE. \T1/zi4/m/n/10 imputeType = \TS1/zi4/m/n/10 
+'\T1/zi4/m/n/10 fixedParSample\TS1/zi4/m/n/10 '
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [15]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [16]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [17]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [16] [17]
-(./Rd2.ind [18]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [18] (./Rd2.ind
+[19]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 3.
+(Font)              using `T1/zi4/m/n' instead on input line 7.
 
-[19]) (./Rd2.aux)
+[20]) (./Rd2.aux)
 
 Package rerunfilecheck Warning: File `Rd2.out' has changed.
 (rerunfilecheck)                Rerun to get outlines right
@@ -277,12 +273,12 @@ rw/helvetic/uhvr8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/time
 s/utmb8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.p
 fb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
 ocal/texlive/2015/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (19 pages, 157092 bytes).
+Output written on Rd2.pdf (20 pages, 161609 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.15 [TeX Live 2015] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (21 entries accepted, 0 rejected).
-Sorting entries....done (91 comparisons).
-Generating output file Rd2.ind....done (58 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (22 entries accepted, 0 rejected).
+Sorting entries....done (98 comparisons).
+Generating output file Rd2.ind....done (61 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex)
@@ -354,52 +350,50 @@ Writing index file Rd2.idx
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [1{/usr/local/texl
+ive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-Underfull \hbox (badness 1546) in paragraph at lines 29--29
+Underfull \hbox (badness 1546) in paragraph at lines 59--59
 []\T1/ptm/m/it/10 Compare para-met-ric base-line dis-tri-bu-tions with semi-par
 ametric
-[1{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [2]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [3]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [4]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [3] [4]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [5]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [6]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [7]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [8]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [7] [8]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [9]
-Overfull \hbox (6.05704pt too wide) in paragraph at lines 437--438
-[]\T1/ptm/m/n/10 Currently sup-ported dis-tri-bu-tions choices are "ex-po-nen-t
-ial", "weibull", "gamma", "lnorm" and "loglo-
-
-Overfull \hbox (3.76918pt too wide) in paragraph at lines 439--440
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [10]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [11]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 561--562
 []\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
 0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
 0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
-[10] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (3.76918pt too wide) in paragraph at lines 505--506
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [12]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 627--628
 []\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
 0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
 0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
 
-Overfull \hbox (10.61737pt too wide) in paragraph at lines 509--510
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 631--632
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
 * set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-[11] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [12]
-Overfull \hbox (65.8474pt too wide) in paragraph at lines 586--599
-\T1/ptm/m/n/10 on the re-sponse in-ter-val, co-vari-ates and es-ti-mated pa-ram
--e-ters at the MLE. Fi-nally, \T1/zi4/m/n/10 imputeOptions = \TS1/zi4/m/n/10 '\
-T1/zi4/m/n/10 fullSample\TS1/zi4/m/n/10 '
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [13]
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [14]
+[13] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [14]
+Overfull \hbox (88.15749pt too wide) in paragraph at lines 708--717
+\T1/ptm/m/n/10 con-di-tional on the re-sponse in-ter-val, co-vari-ates and re-g
+res-sion pa-ram-e-ters at the MLE. \T1/zi4/m/n/10 imputeType = \TS1/zi4/m/n/10 
+'\T1/zi4/m/n/10 fixedParSample\TS1/zi4/m/n/10 '
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [15]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [16]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [17]
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [16] [17]
-(./Rd2.ind [18]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [18] (./Rd2.ind
+[19]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 3.
+(Font)              using `T1/zi4/m/n' instead on input line 7.
 
-[19]) (./Rd2.aux)
+[20]) (./Rd2.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -418,8 +412,8 @@ rw/helvetic/uhvr8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/time
 s/utmb8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.p
 fb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
 ocal/texlive/2015/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (19 pages, 157449 bytes).
+Output written on Rd2.pdf (20 pages, 161977 bytes).
 Transcript written on Rd2.log.
 Saving output to 'icenReg-manual.pdf' ...
 Done
-You may want to clean up by 'rm -rf /var/folders/1h/zn3gmnv55ws0qnj4br9cv0lm0000gn/T//Rtmp5UJIlV/Rd2pdf45317c674dd7'
+You may want to clean up by 'rm -rf /var/folders/1h/zn3gmnv55ws0qnj4br9cv0lm0000gn/T//RtmpP2WDFa/Rd2pdf28b5272e34dd'
