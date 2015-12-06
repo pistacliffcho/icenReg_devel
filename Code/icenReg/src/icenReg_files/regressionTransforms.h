@@ -25,11 +25,13 @@ public:
 
 // SURVIVAL TRANSFORMS
 double propHazTrans(double s, double nu){
+	if(s == 0 || s == 1) return(s);
     double ans = pow(s, nu);
     return( ans );
 }
 
 double propOddsTrans(double s, double nu){
+	if(s == 0 || s == 1) return(s);
     double ans;
     double prod = s * nu;
     ans = prod/(prod - s + 1);
@@ -37,11 +39,13 @@ double propOddsTrans(double s, double nu){
 }
 
 double transform_p_ph(double p, double nu){
+	if(p == 0 || p == 1) return(p);
     double log_s = log(1.0 - p);
     double log_trans = log_s / nu;
     return(1.0 - exp(log_trans));
 }
 double transform_p_po(double p, double nu){
+	if(p == 1 || p == 0) return(p);
     double s = 1.0 - p;
     return(1.0 - s * (1/nu) / (s * 1/nu - s +1));
 }

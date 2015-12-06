@@ -887,7 +887,7 @@ predict.icenReg_fit <- function(object, type = 'response',
 
 
 imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes = 5){
-  if(is.null(newdata)) newdata <- fit$getRawData
+  if(is.null(newdata)) newdata <- fit$getRawData()
   yMat <- expandY(fit$formula, newdata, fit)
   p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
   p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 

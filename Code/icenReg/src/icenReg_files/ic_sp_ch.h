@@ -158,8 +158,8 @@ public:
         return(exp(-exp(ch + eta) )) ;}
     
     double baseS2CondS(double s, double eta){
-        if(s == 1.0) return(1.0);
-        if(s == 0.0) return(0.0);
+        if(s >= 1.0) return(1.0);
+        if(s <= 0.0) return(0.0);
 /*        double expEta = exp(eta);
         double ans = pow(s, expEta);    */
         double logCH = log( -log(s) );

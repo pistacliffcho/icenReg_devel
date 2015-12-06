@@ -591,7 +591,7 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
     double lk_old = R_NegInf;
     int iter = 0;
     int maxIter = 1000;
-    double tol = pow(10, -13);
+    double tol = pow(10.0, -13.0);
     double lk_new = optObj.calcLike_all();
 
     if(lk_new == R_NegInf){

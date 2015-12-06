@@ -80,11 +80,14 @@ double icm_Abst::getMaxScaleSize(vector<double> &p, vector<double> &prop_p){
 
 void icm_Abst::gradientDescent_step(){
     
+	if(failedGA_counts > 200){return;}
+	
+	double org_llk = sum_llk();
+	
     backupCH = baseCH;
-    
     baseCH_2_baseS();
     baseS_2_baseP();
-    
+    	
     numeric_dobs_dp();
     int k = base_p_derv.size();
     prop_p.resize(k);
@@ -147,6 +150,7 @@ void icm_Abst::gradientDescent_step(){
     add_vec(delta_val, prop_p, baseP);
     double llk_0 = llk_from_p();
     
+	
     double d1 = ( llk_h - llk_l ) / ( 2 * delta_val );
     double d2 = (llk_h + llk_l - 2.0 * llk_0 ) / (delta_val * delta_val);
     
@@ -190,9 +194,15 @@ void icm_Abst::gradientDescent_step(){
     if(new_llk < llk_0){
         failedGA_counts++;
         baseCH = backupCH;
-        new_llk = sum_llk();
+        new_llk = sum_llk(); //Should NOT be llk_from_p(), since we are resetting the CH
+		return;
     }
-    
+	
+	if(org_llk > new_llk){
+		failedGA_counts++;
+		baseCH = backupCH;
+		new_llk = sum_llk();
+	}
 }
 
 

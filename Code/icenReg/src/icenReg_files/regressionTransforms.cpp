@@ -133,7 +133,7 @@ condProbCal::condProbCal(SEXP regType, SEXP baseType, SEXP bli){
 
 
 
-double getNonParSurv(double t, SEXP SC){
+double getNonParSurv(double t, SEXP SC){	
     SEXP tb_ints = VECTOR_ELT(SC, 0);
     SEXP svals = VECTOR_ELT(SC, 1);
     PROTECT(tb_ints);
@@ -150,19 +150,41 @@ double getNonParSurv(double t, SEXP SC){
     double* svals_ptr = REAL(svals);
     
     int ind = 0;
-    while(tb_ptr[ind + k] < t && ind < k){ ind++; }
+    while(t > tb_ptr[ind + k]  && ind < k){ ind++; }
     if(ind == k){ return(0.0); }
     if(ind == 0){ return(1.0); }
-//    if(tb_ptr[ind] < t){ return(svals_ptr[ind]); }
-    
+    if(t < tb_ptr[ind]){ return(svals_ptr[ind - 1]); }
     double intLength = tb_ptr[ind + k] - tb_ptr[ind];
-    double t_diff = t - tb_ptr[ind];
-    double pLength = svals_ptr[ind-1] - svals_ptr[ind];
-    
-    
     double ans = svals_ptr[ind-1];
-    if(intLength > 0){ ans -= pLength * t_diff/intLength; }
-    else ans -= pLength;
+	
+	if(intLength == 0){
+		ans = svals_ptr[ind];
+		if(ans < 0){
+			Rprintf("warning: ans < 0. intLength == 0\n");
+			return(ans);
+		}
+		return(svals_ptr[ind]);
+	}
+	if(intLength < 0){
+		Rprintf("Warning: intLength < 0 when getting survival probabilities\n");
+		return(-1.0);
+	}		   
+    double t_diff = t - tb_ptr[ind];
+	if(t_diff < 0){
+		Rprintf("warning: t_diff < 0. t = %f, tb_ptr[ind] = %f\n", t, tb_ptr[ind]);
+	}
+	
+	if(t_diff > (tb_ptr[ind + k] - tb_ptr[ind])){ t_diff = intLength;} 
+	//t may be outside this turnbull interval but not into the next turnbull interval
+    double pStep = svals_ptr[ind-1] - svals_ptr[ind];
+	ans -= pStep * t_diff/intLength; 
+	
+	if(ans < 0 || ans > 1){
+		Rprintf("ans < 0 || ans > 1. t_diff = %f, pStep = %f, intLen = %f, ind = %d, k = %d \n",
+				t_diff, pStep, intLength, ind, k);
+		return(ans);
+	}
+	
     return(ans);
 }
 

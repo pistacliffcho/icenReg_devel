@@ -420,6 +420,12 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
     icm_Abst* optObj;
     bool useGD = LOGICAL(R_use_GD)[0] == TRUE;
     bool useExpSteps = LOGICAL(R_useExpSteps)[0] == TRUE;
+	
+	bool printDeltaLLK = false;
+	
+	double llk2, llk1;
+	llk2 = R_NegInf;
+	
     if(INTEGER(fitType)[0] == 1){
         optObj = new icm_ph;
     }
@@ -437,28 +443,60 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
     
     
     bool metOnce = false;
-    double tol = pow(10, -10);
+    double tol = pow(10.0, -10.0);
     int maxIter = INTEGER(R_maxiter)[0];
     int baselineUpdates = INTEGER(R_baselineUpdates)[0];
     while(optObj->iter < maxIter && (llk_new - llk_old) > tol){
         optObj->iter++;
         llk_old = llk_new;
-        if(optObj->hasCovars)       optObj->covar_nr_step();
+		
+		if(printDeltaLLK){
+			llk2 = llk_new;
+		}
+		
+        if(optObj->hasCovars){ 
+			optObj->covar_nr_step();
+			if(printDeltaLLK){
+				llk1 = llk2;
+				llk2 = optObj->sum_llk();
+				Rprintf("covar update = %f  ", llk2 - llk1);
+			}
+		}
 
         for(int i = 0; i < baselineUpdates; i++)  {
             if(i < optObj->iter){
                 optObj->icm_step();
+				if(printDeltaLLK){
+					llk1 = llk2;
+					llk2 = optObj->sum_llk();
+					Rprintf("icm update = %f  ", llk2 - llk1);
+				}	
                 if(useGD){
                     optObj->gradientDescent_step();
+					if(printDeltaLLK){
+						llk1 = llk2;
+						llk2 = optObj->sum_llk();
+						Rprintf("GD update = %f  ", llk2 - llk1);
+					}	
+					
                 }
                 if(useExpSteps){
         //         optObj->vem();
         //         optObj->last_p_update();
         //         optObj->vem_sweep();
                    optObj->vem_sweep2();
+					if(printDeltaLLK){
+						llk1 = llk2;
+						llk2 = optObj->sum_llk();
+						Rprintf("Experimental update = %f  ", llk2 - llk1);
+					}	
+					
                 }
+				
             }
+			
         }
+		if(printDeltaLLK){Rprintf("\n");}	
         llk_new = optObj->sum_llk();
         
         if(llk_new - llk_old > tol){metOnce = false;}
