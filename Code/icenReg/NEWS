@@ -7,6 +7,7 @@ added imputeCens function
 added generalized gamma distribution to choice of parametric families
 added imputed cross validation
 added plot method for sp_curves
+numerically stabilized ic_sp(model = 'ph')
 
 
 v1.2.8
