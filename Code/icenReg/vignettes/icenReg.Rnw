@@ -65,8 +65,30 @@
   number of parameters can be up to $n^2$. 
   
   Semi-parametric models exist in the literature as well; two classic regression models
-  are the Cox-PH model and the proportional odds model. Unlike the special example
-  of right-censored data, the baseline parameters \emph{must} be estimate concurrently
+  fit by {\bf icenReg} are the Cox-PH model and the proportional odds model. 
+  The well known Cox-PH, or proportional hazards regression model, has the property that
+  
+  \[ h(t | X, \beta) = h_o(t) e^{X^T \beta} \]
+  
+  where $h(t | X, \beta)$ is the hazard rate conditional on covariates $X$ and regression parameters $\beta$,
+  with $h_o$ as the baseline hazard function. This relation is equivalent to 
+
+  \[S(t | X, \beta) = S_o(t)^{e^{X^T \beta} } \]
+  
+  where $S(t| X, \beta)$ is the conditional survival and $S_o(t)$ is the baseline survival function. 
+  
+  The less known proportional odds model can be expressed as
+  
+  \[\text{Odds}(S(t | X, \beta)) = e^{X^T \beta} \text{Odds}(S_o(t)) \]
+  \begin{center}  
+  or
+  \end{center}
+  \[ \frac{S(t | X, \beta)} {1 - S(t | X, \beta) } = e^{X^T \beta}\frac{S_o(t)} {1 - S_o(t)} \]
+  
+  
+  Unlike the special example
+  of the Cox PH model with right-censored data, the baseline parameters 
+  \emph{must} be estimated concurrently
   with the regression parameters. The model can be kept semi-parametric (i.e. no need to 
   decide on a parametric baseline distribution) by using the Turnbull estimator, modified
   to account for the given regression model, as the baseline distribution. 
@@ -83,7 +105,12 @@
   lack of observed values means that model inspection can be quite difficult; there are no
   histograms, etc., to be made. As such, even if fully parametric models are to be used for
   the final analysis, it is strongly encouraged to use semi-parametric models at least for
-  model inspection. 
+  model inspection. {\bf icenReg} fits both proportional odds and proporitonal hazard models for interval
+  censored data. 
+  
+  Another common regression model for survival data is the accelerated failure time model (AFT).
+  At this time, this option is not available for interval censored data. However, this model
+  can be fit for interval censored data using {\bf survival}'s \texttt{survreg} function. 
   
 \section{Models fit with {\bf{icenReg}} }
 
@@ -98,7 +125,7 @@
     \item Semi-parametric model (\texttt{ic\_sp}, with options \texttt{model = "ph"} for 
     porportional hazards, \texttt{"po"} for proportional odds)
     
-    \item Fully parametric model (\texttt{ic\_sp} in additon to \texttt{model} option, also 
+    \item Fully parametric model (\texttt{ic\_sp}, in additon to \texttt{model} option, also 
     have a choice of \texttt{dist}, with options \texttt{"exponential", "gamma", "weibull", "lnorm", "loglogistic" and "generalgamma"})
   
   \end{itemize}
@@ -161,6 +188,62 @@
   containing the event time (note: data is current status) and \texttt{grp} is a group
   indicator with two categories.
   
-  If we separate the 
+  If we separate the data into two datasets, i.e. 
   
+  \begin{verbatim}
+  ge.data <- miceData[miceData$grp == "ge", ]
+  ce.data <- miceData[miceData$grp == "ce", ]
+  \end{verbatim}
+
+  We can then fit the NPMLE by calling the interval censored semi-parametric model, 
+  but supplying no covariates. This can be done by 
+  
+  \begin{verbatim}
+  ge.fit <- ic_sp(cbind(l, u) ~ 0, data = ge.data)
+  ce.fit <- ic_sp(cbind(l, u) ~ 0, data = ce.data)
+  \end{verbatim}
+
+  Because the objects returned by \texttt{ic\_sp} are intended
+  to describe semi-parametric models and thus focus on the 
+  regression parameters. For the NPMLE, we need the information
+  about the survival curve. 
+  We can extract the estimated survival curves by \texttt{getSCurves}
+  
+  \begin{verbatim}
+  ge.sc <- getSCurves(ge.fit)
+  ce.sc <- getSCurves(ce.fit)
+  \end{verbatim}
+
+  We can then plot and examine the NPMLE's for the two different groups
+  using \texttt{plot} and \texttt{lines}
+  
+  \begin{verbatim}
+  plot(ge.sc, xlab = 'Time', 
+    ylab = 'Estimated Survival', col = 'blue')
+  lines(ce.sc, col = 'red')
+  legend('bottomleft', legend = c('ge', 'ce'), 
+      col = c('blue', 'red'), lty = 1)
+  \end{verbatim}
+
+  \begin{figure}
+  \centerline{\includegraphics{MICE_NPMLES.png}}
+  \caption[MICE NPMLE]{NPMLE's for both groups in miceData} 
+  \label{figure:MICE}
+  \end{figure}
+
+  Looking at figure \ref{figure:MICE}, we can see a unique feature about the NPMLE for 
+  interval censored data. That is, there are \emph{two} lines used to represent
+  the survival curve. This is because with interval censored data, the NPMLE
+  is not always unique (in fact, it usually is not); any curve that lies between
+  the two lines has the same likelihood. For example, any curve that lies between
+  the two blues lines in figure \ref{figure:MICE} maximizes the likelihood 
+  associated with \texttt{"ge"} group of mice. 
+
+  Formal statistical tests using the NPMLE are not currently supported by 
+{\bf icenReg}. We recommend using the {\bf interval} package for this. 
+
+  \section{Semi-parametric models}
+
+  Fitting the semi-parametric models is identical to fitting the non-parametric
+
 \end{document}

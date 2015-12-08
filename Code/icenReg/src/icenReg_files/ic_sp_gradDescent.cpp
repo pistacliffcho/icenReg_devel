@@ -80,7 +80,7 @@ double icm_Abst::getMaxScaleSize(vector<double> &p, vector<double> &prop_p){
 
 void icm_Abst::gradientDescent_step(){
     
-	if(failedGA_counts > 200){return;}
+	if(failedGA_counts > 500){return;}
 	
 	double org_llk = sum_llk();
 	
@@ -97,7 +97,7 @@ void icm_Abst::gradientDescent_step(){
     
     vector<bool> isActive(k);
     for(int i = 0; i < k; i++){
-        if(baseP[i] > 0 && !ISNAN(base_p_derv[i])){
+        if(baseP[i] > 0 && !ISNAN(base_p_derv[i]) ){
             isActive[i] = true;
             act_sum++;
         }

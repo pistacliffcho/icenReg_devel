@@ -114,7 +114,7 @@ setRefClass('icenRegSummary',
                 cat('\nfinal llk = ', final_llk, '\nIterations = ', iterations, '\n')
                 if(inherits(fullFit, 'sp_fit')) cat('Bootstrap Samples = ', other[['bs_samps']], '\n')
                 if(sampSizeWarn){
-                  cat("WARNING: only ", other[['bs_samps']], " bootstrap samples used for standard errors. Suggest using more bootstrap samples for inference\n")
+                  cat("WARNING: only ", other[['bs_samps']], " bootstrap samples used for standard errors. \nSuggest using more bootstrap samples for inference\n")
                 }
               }
             )

@@ -398,7 +398,7 @@ simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph',
 					   inspections = 2, inspectLength = 2.5,
 					   rndDigits = NULL, prob_cen = 0.5){
 	rawQ <- runif(n)
-    x1 <- rnorm(n)
+    x1 <- runif(n, -1, 1)
     x2 <- 1 - 2 * rbinom(n, 1, 0.5)
     nu <- exp(x1 * b1 + x2 * b2)
     
@@ -937,10 +937,26 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
   stop('imputeType type not recognized.')
 }
 
+plot.sp_curves <- function(x, sname = 'baseline', xRange = NULL, ...){
+  if(is.null(xRange))
+    xRange <- range(c(x[[1]][,1], x[[1]][,2]), finite = TRUE)
+  plot(NA, xlim = xRange, ylim = c(0,1), ...)
+  lines(x, sname = sname, ...)
+}
 
 lines.sp_curves <- function(x, sname = 'baseline',...){
-  lines(x[[1]][,1], x[[2]][[sname]], ...)
-  lines(x[[1]][,2], x[[2]][[sname]], ...)
+  firstTimeObs <- x[[1]][1,1]
+  firstTimeAssume <- firstTimeObs
+  if(firstTimeObs > 0)
+    firstTimeAssume <- 0
+  lines(c(firstTimeAssume, firstTimeObs), c(1,1), ...)
+  lines(x[[1]][,1], x[[2]][[sname]], ..., type = 's')
+  lines(x[[1]][,2], x[[2]][[sname]], ..., type = 's')
+  lastObs <- nrow(x[[1]])
+  lastTimes <- x[[1]][lastObs,]
+  if(lastTimes[2] == Inf) lastTimes[2] <- lastTimes[1]
+  lastTimes[2] <- lastTimes[2] + (lastTimes[2] - firstTimeObs)
+  lines(lastTimes, c(0,0), ... ) 
 }
 
 dGeneralGamma <- function(x, mu, s, Q){

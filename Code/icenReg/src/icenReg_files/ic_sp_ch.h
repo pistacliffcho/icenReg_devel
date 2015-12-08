@@ -63,7 +63,9 @@ public:
 
     
     void update_etas();
-    
+	virtual void stablizeBCH() = 0;
+    void recenterBCH();
+	
     void icm_step();
     
     void numericRegDervs();
@@ -80,6 +82,8 @@ public:
     
     Eigen::VectorXd     baseCH;     //Vector of baseline log cumulative hazards.
                                     //baseH[0] fixed to -Inf, baseH[k-1] = Inf
+	double intercept;				//used for numerical stabilization
+	
     Eigen::VectorXd     backupCH;   //used to save values in optimization steps
     Eigen::VectorXd     propVec;    //used for proposition step during NR update on regression parameters
  /*   Eigen::VectorXd     H_d1;       //Vector of derivatives for CH's
@@ -182,6 +186,18 @@ public:
         double term2 = exp(term1 - log_p);
         return(term1 * term2 + term1 * term1 *term2);
     }
+	
+	void stablizeBCH(){
+		int k = baseCH.size();
+		double thisChange = baseCH[k-2];
+		intercept += thisChange;
+		for(int i = 1; i < (k-1); i++){
+			baseCH[i] -= thisChange;
+		}
+		update_etas();
+	}
+	
+	
     virtual ~icm_ph(){};
 };
 
@@ -225,6 +241,8 @@ public:
         double ans = top/(bottom * exp(log_p));
         return(ans);
     }
+	void stablizeBCH(){}
+	
     virtual ~icm_po(){};
 };
 

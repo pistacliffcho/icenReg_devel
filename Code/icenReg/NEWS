@@ -6,6 +6,8 @@ added predict function
 added imputeCens function
 added generalized gamma distribution to choice of parametric families
 added imputed cross validation
+added plot method for sp_curves
+
 
 v1.2.8
 Resolved issue of licenses and gave proper credit to the Eigen team for 

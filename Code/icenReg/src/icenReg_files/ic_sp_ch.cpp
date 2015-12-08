@@ -50,8 +50,18 @@ double icm_Abst::par_llk(int ind){
 
 void icm_Abst::update_etas(){
     etas = covars * reg_par;
-    for(int i = 0; i < etas.size(); i++)
-        expEtas[i] = exp(etas[i]);
+    for(int i = 0; i < etas.size(); i++){
+		etas[i] += intercept;
+        expEtas[i] = exp(etas[i] );
+	}
+}
+
+
+void icm_Abst::recenterBCH(){
+	int k = baseCH.size();
+	for(int i = 1; i < (k-1); i++){
+		baseCH[i] += intercept;
+	}
 }
 
 void cumhaz2p_hat(Eigen::VectorXd &ch, vector<double> &p){
@@ -83,7 +93,9 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     icm_obj->etas.resize(n);
     icm_obj->expEtas.resize(n);
     icm_obj->w.resize(n);
-    
+    	
+	icm_obj->intercept = 0.0;
+	
     for(int i = 0; i < n; i++){
         icm_obj->etas[i]       = 0;
         icm_obj->expEtas[i]    = 1;
@@ -464,6 +476,9 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
 		}
 
         for(int i = 0; i < baselineUpdates; i++)  {
+			
+			optObj->stablizeBCH();
+			
             if(i < optObj->iter){
                 optObj->icm_step();
 				if(printDeltaLLK){
@@ -519,6 +534,9 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
 //    Rprintf("Number of failed GA attempts = %d, as a percent of attempts = %f, num total = %d\n", optObj->failedGA_counts, propFailGA, totGAIts);
     
     vector<double> p_hat;
+	
+	optObj->recenterBCH();
+	
     cumhaz2p_hat(optObj->baseCH, p_hat);
     
     
