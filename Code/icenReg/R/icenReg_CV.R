@@ -35,6 +35,7 @@ icenReg_cv <- function(fit, loss_fun = abs_inv, folds = 10, numImputes = 100, us
   if(length(sampInds) > 0)  cv_inds[[folds]] <- sampInds
   modCall <- fit$call
   modCall$data <- as.name("TRAIN_DATA_ICENREG")
+#  if(is(fit, 'sp_fit')) modCall$bs_samples = 0
   rawData <- fit$getRawData()
   cvItems <- list(data = rawData, cv_inds = cv_inds, 
                   loss_fun = loss_fun, numImputes = numImputes,

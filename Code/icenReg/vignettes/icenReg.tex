@@ -562,6 +562,89 @@ Iterations =  15
   dataset and directly computing the loss function. In K-fold cross validation,
   K disjoint subsets of the data are used as validation datasets and the process
   is repeated K-times. 
+  
+  For censored data, this generic recipe is not so simple. In particular, if 
+  a value in the validation set is censored, there is typically no direct
+  method for calculating the contribution to the loss function 
+  associated with this observation. One method to deal with censoring is to calculate
+  likelihood over the validation data set. 
+  
+  As an alternative, we offer an imputation based approach. To calculate the
+  average loss function, we take several imputations (or samples) of the 
+  interval censored data condtional on the covariates \emph{and censoring interval}
+  (i.e. the distribution is truncated such that the imputation will fall inside the
+  given censoring interval). The average loss across all imputations is then taken
+  as the evaluated loss. 
+  
+  To impute the data, we first take a sample of the posterior parameters and conditional
+  on the parameters and censoring interval, we sample the censored values. An important
+  note is that {\bf icenReg} does \emph{not} sample the baseline parameters, but only
+  the regression parameters. For the fully parametric model, both the regression and
+  baseline parameters are sampled.
 
+  For the prediction, the median value conditional on the parameter estimates is used. 
+  This is \emph{not} neccesarily the estimate that minimizes the loss function, but it 
+  is generally a reasonable estimate. 
+  
+  Cross validation can be done with {\bf icenReg}'s \texttt{icenReg\_cv} function. 
+  
+  This takes a regression model (either from \texttt{ic\_par} or \texttt{ic\_sp}), and a
+  loss function to be calculated.
+  
+  CAUTION: When using cross-validation on an \texttt{ic\_sp} fit, the total number of 
+  models fit will be \texttt{fold} (default = 10) x \texttt{bs\_samples}. This can get
+  very expensive very quickly!
+  
+  The default loss function is \texttt{abs\_inv}, which is 
+  defined as 
+  
+  \begin{verbatim}
+  abs_inv <- function(pred, t_val) {
+    mean(abs(1/(pred + 1) - 1/(t_val + 1)))
+  }
+  \end{verbatim}
 
+  This function is \emph{not} the final say in loss functions. 
+  A user can write their own loss function, which should take in arguments
+  \texttt{pred} and \texttt{t\_val}, where \texttt{pred} is the predicted
+  value and \texttt{t\_val} is the true response value. 
+  
+  Imputed cross validation can then be used as such:
+  
+  \begin{verbatim}
+  icenReg_cv(fit = fit_po, loss_fun = abs_inv)
+  \end{verbatim}
+  
+  
+  \section{Appendix}
+  
+  Both the bootstrap and cross validation statistics can be extremely computationally
+  expensive, yet also are both embarrassingly parallel problems. As such, they are 
+  written take advantage of multiple cores via the {\bf doParallel} package. 
+  Below is demonstrated how to run the bootstrap and cross validation using 
+  four cores. 
+  
+  
+  \begin{verbatim}
+  library(doParallel)
+  myCluster <- makeCluster(4, type = 'FORK')
+  registerDoParallel(myCluster)
+  fit <- ic_sp(cbind(inc_l, inc_u) ~ eduLevel + cntry,
+            data = essIncData, model = "po",
+            bs_samples = 50, useMCores = TRUE)
+            
+  par_fit <- ic_par(cbind(inc_l, inc_u) ~ eduLevel + cntry,
+                dist = "lnorm", model = "po",
+                data = essIncData)
+                
+
+  cv_error <- icenReg_cv(par_fit)
+  #Fit a parametric model because it is much faster;
+  #does not need to fit bootstrap samples for each
+  #training set
+  
+  stopCluster(myCluster)
+  \end{verbatim}
+  
+  
 \end{document}
