@@ -11,9 +11,8 @@
 \usepackage{multirow}
 \usepackage{float}
 
-\usepackage{Sweave}
 \begin{document}
-\input{icenReg-concordance}
+\SweaveOpts{concordance=TRUE}
 
 \title{Using {\bf{icenReg}} for interval censored data in {\bf{R} } }
 \author{Clifford Anderson-Bergman}
@@ -562,6 +561,12 @@ Iterations =  15
   dataset and directly computing the loss function. In K-fold cross validation,
   K disjoint subsets of the data are used as validation datasets and the process
   is repeated K-times. 
+  
+  For censored data, this generic recipe is not so simple. In particular, if 
+  a value in the validation set is censored, there is typically no direct
+  method for calculating the contribution to the loss function 
+  associated with this observation. One method to deal with this is to calculate
+  
 
 
 \end{document}
