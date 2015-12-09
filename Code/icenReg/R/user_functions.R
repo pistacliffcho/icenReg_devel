@@ -181,44 +181,52 @@ getSCurves <- function(fit, newdata = NULL){
 }
 
 
-plot.icenReg_fit <- function(x, y, ...){
+plot.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab = "time",...){
 	if(inherits(x, 'impute_par_icph'))	stop('plot currently not supported for imputation model')
 	if(missing(y)) y <- list(...)$newdata	
 	newdata <- y
+  
+  if(fun == 'surv'){ s_trans <- function(x){x}; yName = 'S(t)'}
+  else if(fun == 'cdf'){s_trans <- function(x){1-x}; yName = 'F(t)'}
+  else stop('"fun" option not recognized. Choices are "surv" or "cdf"')
+  
 	if(x$par == 'semi-parametric'){
 		curveInfo <- getSCurves(x, y)
 		allx <- c(curveInfo$Tbull_ints[,1], curveInfo$Tbull_ints[,2])
 		dummyx <- range(allx, finite = TRUE)
 		dummyy <- c(0,1)
 	
-		plot(dummyx, dummyy, xlab = 'time', ylab = 'S(t)', ..., type = 'n')
+		plot(dummyx, dummyy, xlab = xlab, ylab = yName, ..., type = 'n')
 		x_l <- curveInfo$Tbull_ints[,1]
 		x_u <- curveInfo$Tbull_ints[,2]
 		k <- length(x_l)
 		ss <- curveInfo$S_curves
 		
 		for(i in 1:length(ss)){
-			lines(x_l, ss[[i]], col = i, type = 's')
-			lines(x_u, ss[[i]], col = i, type = 's')
-			lines(c(x_l[k], x_u[k]), c(ss[[i]][k], ss[[i]][k]), col = i)
+			lines(x_l, s_trans(ss[[i]]), col = i, type = 's')
+			lines(x_u, s_trans(ss[[i]]), col = i, type = 's')
+			lines(c(x_l[k], x_u[k]), s_trans(c(ss[[i]][k], ss[[i]][k])), col = i)
 		}
 		if(length(ss) > 1){
 			grpNames <- names(ss)
-			legend('topright', legend = grpNames, lwd = rep(1, length(grpNames) ), col = 1:length(ss))
+			legend(lgdLocation, legend = grpNames, lwd = rep(1, length(grpNames) ), col = 1:length(ss))
 		}
 	}
 	else if(inherits(x, 'par_fit')){
-		ranges <- getFitEsts(x, newdata = newdata, p = c(0.05, 0.95) )
-		plot(NA, xlim = range(as.numeric(ranges), finite = TRUE), ylim = c(0,1), xlab = 'time', ylab = 'S(t)')
-		ranges <- getFitEsts(x, newdata = newdata, p = c(0.005, 0.995) )
-		for(i in 1:ncol(ranges)){
-			grid = ranges[1,i] + 0:100/100 * (ranges[2,i] - ranges[1,i])
+    ranges <- matrix(nrow = nrow(newdata), ncol = 2)
+		ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.05 )
+    ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.95 )
+		plot(NA, xlim = range(as.numeric(ranges), finite = TRUE), ylim = c(0,1), xlab = xlab, ylab = yName)
+		ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.005 )
+		ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.995 )
+		for(i in 1:nrow(ranges)){
+			grid = ranges[i,1] + 0:100/100 * (ranges[i,2] - ranges[i,1])
 			est.s <- 1 - getFitEsts(x, newdata = subsetData_ifNeeded(i, newdata), q = grid)
-			lines(grid, est.s, col = i)
+			lines(grid, s_trans(est.s), col = i)
 		}
 		if(ncol(ranges) > 1){
 			grpNames <- rownames(newdata)
-			legend('topright', legend = grpNames, lwd = rep(1, length(grpNames) ), col = 1:ncol(ranges))
+			legend(lgdLocation, legend = grpNames, lwd = rep(1, length(grpNames) ), col = 1:ncol(ranges))
 		}
 	}
 }
@@ -506,6 +514,10 @@ diag_covar <- function(object, varName,
            xlab, ylab, main, 
            lgdLocation = NULL){
 	if(!yType %in% c('survival', 'transform', 'meanRemovedTransform')) stop("yType not recognized. Options = 'survival', 'transform' or 'meanRemovedTransform'")
+  if(missing(data)){
+    if(!is(object, 'icenReg_fit')) stop("either object must be icenReg_fit, or formula with data supplied")
+    data <- object$getRawData()
+  }
   max_n_use <- nrow(data) #for backward compability. No longer need max_n_use
   subDataInfo <- subSampleData(data, max_n_use, weights)
 	data <- subDataInfo$data

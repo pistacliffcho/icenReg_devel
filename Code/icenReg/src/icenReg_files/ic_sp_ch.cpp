@@ -253,7 +253,8 @@ void icm_Abst::icm_step(){
     for(int i = 0; i < thisSize; i ++){
         if(d2[i] == R_NegInf){d2[i] = -almost_inf;}
         if(ISNAN(d2[i]))    {Rprintf("warning: d2 isnan!\n"); return;}
-        if(d2[i] >= 0)      {Rprintf("warning: invalid d2 in icm step. i = %d, d2 = %f. Re-adjusting icm step\n", i, d2[i]);
+        if(d2[i] >= 0) {
+			//Rprintf("warning: invalid d2 in icm step. i = %d, d2 = %f. Re-adjusting icm step\n", i, d2[i]);
             int sum_neg = 0;
             double sum_neg_d2s = 0.0;
             for(int j = 0; j < thisSize; j++){

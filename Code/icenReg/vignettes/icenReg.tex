@@ -24,6 +24,11 @@
 
 \chapter{Introduction}
 
+  This manual is meant to provide an introduction to using {\bf icenReg} to 
+  analyze interval censored data. It is written with expectation that the reader
+  is familiar with basic survival analysis methods. Familiarity with the Kaplan 
+  Meier curves and Cox proportional hazards model should be sufficient. 
+
   \section{Interval Censoring}
 
   Interval censoring occurs when a response is known only up to an interval. 
@@ -47,6 +52,27 @@
   are relatively short, the bias introduced by ignoring the interval censoring may be 
   small enough to be safely ignored. However, in the case that the width of intervals is non
   trivial, statistical methods that account for this should be used for reliable analysis. 
+  
+  Standard notation for interval censoring is that each observation contains a response
+  interval $[l_i,r_i]$ such that the true event time is known to have occurred within. Note
+  that this allows for uncensored observations ($l_i = r_i$), right censored 
+  ($r_i = \infty$), left censored ($l_i = 0$) or none of the above 
+  ($0 < l_i < r_i < \infty$). 
+  
+  In {\bf icenReg}, the response value is allowed to be interval censored. If our 
+  data contains the values \texttt{L} and \texttt{R}, representing the left and 
+  right sides of the response interval, we can pass our response to a regression model
+  using either
+  
+  \begin{verbatim}
+  cbind(L, R)
+  Surv(L, R, type = "interval2")
+  \end{verbatim}
+  
+  It is worth nothing that other R packages, specifically for non-parametric estimation, 
+  allow you to declare whether the response intervals are open, closed or a combination
+  of partially opened, for example $[l_i, r_i)$. In {\bf icenReg}, it is always assumed 
+  that the intervals are closed. 
   
   \section{Classic Estimators}
   
@@ -126,7 +152,7 @@
     \item Semi-parametric model (\texttt{ic\_sp}, with options \texttt{model = "ph"} for 
     porportional hazards, \texttt{"po"} for proportional odds)
     
-    \item Fully parametric model (\texttt{ic\_sp}, in additon to \texttt{model} option, also 
+    \item Fully parametric model (\texttt{ic\_par}, in additon to \texttt{model} option, also 
     have a choice of \texttt{dist}, with options \texttt{"exponential", "gamma", "weibull", "lnorm", "loglogistic" and "generalgamma"})
   
   \end{itemize}
@@ -160,7 +186,7 @@
   even on a slower laptop. 
   
   
-  \chapter{Fitting Models in {\bf{icenReg}} }
+  \chapter{Fitting Models using {\bf{icenReg}} }
   
   An important note about {\bf icenReg} is that in all models, it is assumed that the 
   response interval is {\bf closed}, i.e. the event is known to have occurred within 
@@ -243,8 +269,289 @@
   Formal statistical tests using the NPMLE are not currently supported by 
 {\bf icenReg}. We recommend using the {\bf interval} package for this. 
 
+  As noted earlier, \texttt{ICNPMLE} can be used to fit the univariate
+  or bivariate NPMLE. However, there currently are no methods for plotting
+  or testing on these fits. Because of this, we will not cover the use of this
+  function here. The curious user is welcome to view \texttt{?ICNPMLE}.
+
   \section{Semi-parametric models}
 
-  Fitting the semi-parametric models is identical to fitting the non-parametric
+  Semi-parametric models can be fit with \texttt{ic\_sp} function. This function
+  follows standard regression syntax. As an example, we will fit the 
+  \texttt{essIncData} dataset. In this dataset, have income from the European
+  Social Survey, which includes income reported up to an interval (to preserve
+  the identity of the subjects). Within each country, the intervals are disjoint,
+  but between countries there is penty of overlap. 
+  
+  We fit the model below. Note that this may be time consuming, as the semi-parametric
+  model is somewhat computationally intense and we are 
+  taking \texttt{bs\_samples} bootstrap samples of the estimator. 
+  
+  \begin{verbatim}
+  fit_ph <- ic_sp(cbind(inc_l, inc_u) ~ cntry + eduLevel,
+      bs_samples = 500, data = essIncData)
+      
+  fit_po <- ic_sp(cbind(inc_l, inc_u) ~ cntry + eduLevel,
+      bs_samples = 500, model = "po", data = essIncData)
+  \end{verbatim}
+
+  The first model by default fits a Cox-PH model, while the second fits
+  a proportional odds model. We can look at the results using either the
+  \texttt{summary} function, or just directly looking at the results
+  (the output is the same). 
+  
+  \begin{verbatim}
+> fit_po
+
+Model:  Proportional Odds 
+Baseline:  semi-parametric 
+Call: ic_sp(formula = cbind(inc_l, inc_u) ~ cntry + eduLevel, 
+    data = essIncData, model = "po", bs_samples = 500)
+
+                 Estimate Exp(Est) Std.Error z-value p
+cntryPoland        2.6190   13.730   0.05724  45.760 0
+cntryRussia        0.7940    2.212   0.05450  14.570 0
+cntrySlovakia      0.6351    1.887   0.06766   9.387 0
+eduLevel[12,16)    1.0050    2.732   0.05186  19.380 0
+eduLevel[16,Inf)   1.8550    6.390   0.05875  31.570 0
+
+final llk =  -12483.03 
+Iterations =  18 
+Bootstrap Samples =  500 
+  \end{verbatim}
+
+  For the semi-parametric models, bootstrap samples are used
+  for inference on the regression parameters. The reason for this 
+  is that as far as we know, the limiting distribution of the 
+  baseline distribution is currently undefined. In fact, to our 
+  knowledge, even using the bootstrap error estimates for the baseline
+  distribution is not valid. Because the regression parameters cannot
+  be seperated in the likelihood function, using the negative inverse of the Hessian
+  for the regression standard errors is not generally valid. However, it has been
+  shown that using the bootstrap for inference \emph{on the regression parameters}
+  leads to valid inference. 
+
+  We can use these fits to create plots as well. The \texttt{plot} function 
+  will plot the estimated survival curves or CDF for subjects with the set of 
+  covariates provided in the \texttt{newdata} argument. If \texttt{newdata}
+  is left equal to \texttt{NULL}, the baseline survival function will be plotted. 
+  
+  If we wanted to plot the estimated CDF  
+  for an individual with between
+  zero and 12 years of school from Russia against the estimated CDF for an
+  individual from Bulgaria with 16+ years of school, this can be done with 
+  
+  \begin{verbatim}
+  newdata <- data.frame(cntry = c("Russia", "Bulgaria"),
+    eduLevel = c("[0,12)", "[16,Inf)") )
+    
+  rownames(newdata) <- c("Russian/Low Ed", 
+    "Bulgarian/High Ed")
+
+  plot(fit_po, newdata, fun = "cdf", 
+    lgdLocation = "bottomright", xlab = "income in Euros")
+  \end{verbatim}
+  
+  \begin{figure}
+  \includegraphics{essIncCDF.png}
+  \label{figure:RusvBulg}
+  \end{figure}
+  
+  \section{Parametric Models}
+  
+  We can fit parametric models in {\bf icenReg} using the \texttt{ic\_par} function. 
+  The syntax is essentially the same as above, expect that the user needs to specify
+  \texttt{dist}, the parametric family that the baseline distribution belongs to. 
+  The current choices are \texttt{"exponential", "weibull"} (default), 
+  \texttt{"gamma", "lnorm", "loglogistic"} and \texttt{"generalgamma"} (generalized 
+  gamma distribution). The user must also select \texttt{model = "ph"} or \texttt{"po"}, 
+  just as in the semi-parametric model. 
+  
+  It is not necessary to specify \texttt{bs\_samples} for parametric models, as 
+  inference is done using the asymptotic normality of the estimators. Fitting a 
+  parametric model is typically faster than the semi-parametric model, even if 
+  no bootstrap samples are taken for the semi-parametric model. This is because the 
+  fully-parametric model is of lower dimensional space without constraints. 
+  
+  Suppose we wanted to fit a proportional odds model to the \texttt{essIncData} data 
+  with a log-normal distribution. This could be fit by
+  
+  \begin{verbatim}
+  fit_po_ln <- ic_par(cbind(inc_l, inc_u) ~ eduLevel + cntry,
+    data = essIncData, model = "po")
+  \end{verbatim}
+  
+  We can examine the regression coefficients in the same way as with the semi-parametric model.
+  
+  \begin{verbatim}
+> fit_po_ln
+
+Model:  Proportional Odds 
+Baseline:  weibull 
+Call: ic_par(formula = cbind(inc_l, inc_u) ~ eduLevel + cntry, 
+          data = essIncData, model = "po")
+
+                 Estimate Exp(Est) Std.Error z-value p
+log_shape          0.4725    1.604   0.01038   45.53 0
+log_scale          8.6930 5963.000   0.00810 1073.00 0
+eduLevel[12,16)    0.8835    2.419   0.04690   18.84 0
+eduLevel[16,Inf)   1.7060    5.506   0.06357   26.83 0
+cntryPoland        2.4540   11.640   0.06637   36.98 0
+cntryRussia        0.8047    2.236   0.05358   15.02 0
+cntrySlovakia      0.6911    1.996   0.06120   11.29 0
+
+final llk =  -14732.97 
+Iterations =  15 
+  \end{verbatim}
+  
+  We can also examine the survival/cdf plots in the same way. 
+  
+  \begin{verbatim}
+   plot(fit_po_ln, newdata, fun = "cdf", 
+    lgdLocation = "bottomright", xlab = "income in Euros")
+  \end{verbatim}
+
+  \begin{figure}
+  \includegraphics{essIncCDF_par.png}
+  \label{figure:RusvBulg_par}
+  \end{figure}
+
+\chapter{Inspecting model fit}
+
+  \section{Examining Baseline Distribution}
+  
+  Althought the semi-parametric model is more flexible, and thus more robust to unusual 
+  baseline distributions, there are many reasons one may decide to use a parametric model
+  instead. One reasons is that, as stated earlier, we are not aware of any general distributional
+  theory regarding the baseline distribution, outside of the univariate case with case I 
+  interval censored data. Even in this case, the estimator is highly inefficient, observing
+  convergence rates of $n^{1/3}$ instead of the more standard $n^{1/2}$. Because of this,
+  making inference about values that directly require the baseline distribution, such
+  as creating a confindence interval for the median for subjects with a given set of 
+  covariates, cannot be done with the semi-parametric model. Secondly, we find later
+  on that when it comes to cross-validation, we often found the semi-parametric estimator
+  to be overly optimistic for some loss functions in comparison with a parametric model. 
+  
+  However, even if a parametric model is used for final inference, the semi-parametric model
+  is still useful for assessing model fit. This is especially important for interval censored
+  data, as we do not have the option of examining typical residuals or histograms as we would
+  if the outcome was uncensored. {\bf icenReg} has the function \texttt{diag\_baseline} that plots 
+  several choices of parametric baseline distributions against the semi-parametric estimate. 
+  If the parametric distribution shows no systematic deviations from the semi-parametric
+  fit, this implies the choice of parametric family may do a reason job of describing the 
+  underlying distribution. If there are clear deviations, this model should not be trusted. 
+  
+  To use \texttt{diag\_baseline}, you must provide either a fitted model, or a formula,
+  data and model. You then select the parametric families that you would like plotted 
+  against the non-parametric estimate (default is to fit all available).
+  As an example, suppose we wanted to 
+  examine the different parametric fits for the \texttt{essIncData} dataset. This could 
+  be done with 
+  
+  \begin{verbatim}
+  diag_baseline(cbind(inc_l, inc_u) ~
+    eduLevel + cntry,
+    model = "po",
+    data = essIncData,
+    lgdLocation = "topright")
+  \end{verbatim}
+  
+  Alternatively, using the fits from earlier, we can just call
+  
+  \begin{verbatim}
+  diag_baseline(fit_po,lgdLocation = "topright")
+  \end{verbatim}
+  
+  \begin{figure}
+  \includegraphics{diagBaseline.png}
+  \label{figure:diagBase}
+  \end{figure}
+  
+  Visual diagnostics are always subjective, but in this case we 
+  definitively know that the exponential fit is not appropriate 
+  and we believe the log-normal baseline is most appropriate 
+  for the proporitonal odds model. 
+  \section{Examining Covariate Effect}
+  
+  Although semi-parametric models do not make assumptions about the 
+  parametric family of the baseline distribution, both fully-parametric 
+  and semi-parametric models make assumptions about the form of the 
+  covariate effect, akin to the link function in generalized linear
+  models. 
+  
+  A rule of thumb for identifying gross violations of proportional
+  hazards is to check if the Kaplan Meier curves cross; if they do,
+  and this cross appears not purely by chance, the proportional 
+  hazards assumption seems inappropriate. 
+  
+  This can naturally extend to the case of interval censored data 
+  by replacing the Kaplan Meier curves with the NPMLE. Also, this
+  informal test can be generalized to the proportional odds model;
+  the proportional odds assumption also implies that survival curves
+  that differ only by a constant factor of the odds of survival 
+  should not cross. 
+  
+  Another method of assessing involves transforming your 
+  survival estimates such that if the assumptions are met,
+  the difference in transformed survival will be constant. 
+  For the proportional hazards model, this is the complementary 
+  log-log tranformation (i.e. $\log (-\log(s) )$). For the 
+  proportional odds model, this is the logit transformation
+  (i.e. $\log(s/(1-s))$ ).
+  
+  Plotting these functions can be done automatically in 
+ {\bf icenReg} using the \texttt{diag\_covar} function. The
+ basic flow is that function takes in the fit, divides the data
+ up on a covariate of interest. If it is categorical, it simply
+ breaks up by category, if it is numeric, it attempts to find
+ break point to evenly split up the data. Then, for each subset of 
+ the data, it fits the corresponding semi-parametric model and
+ plots the transformation of the baseline distribution. 
+ 
+ To demonstrate, suppose we wanted to assess whether the Cox-PH
+ or proportional odds model was more appropriate for the 
+ \texttt{essIncData}. This could be done by 
+ 
+ \begin{verbatim}
+ diag_covar(fit_po, lgdLocation = "topright")
+ diag_covar(fit_ph, lgdLocation = "topright")
+ \end{verbatim}
+
+  \begin{figure}
+  \includegraphics{diagCovarPO.png}
+  \end{figure}
+  
+  \begin{figure}
+  \includegraphics{diagCovarPH.png}
+  \end{figure}
+
+  We see that especially for eduLevel, the porportional odds
+  seems much more appropriate (the difference between 
+  transformed values seems more constant). This agrees
+  with the fact that the likelihood is almost 100 greater
+  for the proportional odds model than Cox-PH. 
+  
+  Note that the plots for cntry are very limited. This is 
+  because the mean trend is removed from the plots. However,
+  since the cdf for the semi-parametric model for the 
+  Bulgaria subset of the data is defined as exactly 1 around 
+  10,000, the mean of the transformation is not defined. 
+  
+  We can replot the transformation, without the mean removed,
+  by the following call:
+  
+  \begin{verbatim}
+  diag_covar(fit_po, yType = "transform",
+    lgdLocation = "topright")
+  \end{verbatim}
+
+  \begin{figure}
+  \includegraphics{transformPlot.png}
+  \label{figure:tranformKeepMean}
+  \end{figure}
+  \section{Imputed Cross Validation}
+
+
+\chapter{Utility Functions}
 
 \end{document}

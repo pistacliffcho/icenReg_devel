@@ -1,8 +1,14 @@
 \contentsline {chapter}{\numberline {1}Introduction}{2}
 \contentsline {section}{\numberline {1.1}Interval Censoring}{2}
 \contentsline {section}{\numberline {1.2}Classic Estimators}{3}
-\contentsline {section}{\numberline {1.3}Models fit with {\bf {icenReg}} }{4}
+\contentsline {section}{\numberline {1.3}Models fit with {\bf {icenReg}} }{5}
 \contentsline {section}{\numberline {1.4}Data Examples in {\bf {icenReg}} }{5}
-\contentsline {chapter}{\numberline {2}Fitting Models in {\bf {icenReg}} }{6}
+\contentsline {chapter}{\numberline {2}Fitting Models using {\bf {icenReg}} }{6}
 \contentsline {section}{\numberline {2.1}Non-parametric models}{6}
-\contentsline {section}{\numberline {2.2}Semi-parametric models}{7}
+\contentsline {section}{\numberline {2.2}Semi-parametric models}{8}
+\contentsline {section}{\numberline {2.3}Parametric Models}{10}
+\contentsline {chapter}{\numberline {3}Inspecting model fit}{13}
+\contentsline {section}{\numberline {3.1}Examining Baseline Distribution}{13}
+\contentsline {section}{\numberline {3.2}Examining Covariate Effect}{15}
+\contentsline {section}{\numberline {3.3}Imputed Cross Validation}{17}
+\contentsline {chapter}{\numberline {4}Utility Functions}{18}
