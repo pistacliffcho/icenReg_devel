@@ -1,7 +1,7 @@
 
-R version 3.2.2 (2015-08-14) -- "Fire Safety"
+R version 3.2.1 (2015-06-18) -- "World-Famous Astronaut"
 Copyright (C) 2015 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin13.4.0 (64-bit)
+Platform: x86_64-apple-darwin10.8.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -137,22 +137,22 @@ Call: ic_par(formula = Surv(inc_l, inc_u, type = "interval2") ~ eduLevel *
     cntry, data = essIncData, model = "po", dist = "loglogistic")
 
                                Estimate  Exp(Est) Std.Error   z-value         p
-log_alpha                       8.37400 4333.0000  0.007642 1096.0000 0.000e+00
-log_beta                        1.04300    2.8360  0.011870   87.8200 0.000e+00
-eduLevel[12,16)                 1.12300    3.0740  0.086340   13.0100 0.000e+00
-eduLevel[16,Inf)                2.17100    8.7700  0.115400   18.8100 0.000e+00
-cntryPoland                     2.69700   14.8400  0.093480   28.8500 0.000e+00
-cntryRussia                     0.96130    2.6150  0.082610   11.6400 0.000e+00
-cntrySlovakia                   1.12500    3.0800  0.110100   10.2200 0.000e+00
-eduLevel[12,16):cntryPoland    -0.20260    0.8166  0.136300   -1.4860 1.373e-01
-eduLevel[16,Inf):cntryPoland   -0.20600    0.8139  0.166800   -1.2350 2.170e-01
-eduLevel[12,16):cntryRussia    -0.06104    0.9408  0.119000   -0.5128 6.081e-01
-eduLevel[16,Inf):cntryRussia   -0.38800    0.6784  0.163600   -2.3720 1.770e-02
-eduLevel[12,16):cntrySlovakia  -0.28680    0.7507  0.142700   -2.0100 4.439e-02
-eduLevel[16,Inf):cntrySlovakia -0.81890    0.4409  0.182300   -4.4910 7.097e-06
+log_alpha                       8.37400 4333.0000  0.007643 1096.0000 0.000e+00
+log_beta                        1.04300    2.8360  0.011890   87.6900 0.000e+00
+eduLevel[12,16)                 1.12300    3.0740  0.085110   13.1900 0.000e+00
+eduLevel[16,Inf)                2.17100    8.7700  0.114000   19.0400 0.000e+00
+cntryPoland                     2.69700   14.8400  0.092850   29.0500 0.000e+00
+cntryRussia                     0.96130    2.6150  0.081810   11.7500 0.000e+00
+cntrySlovakia                   1.12500    3.0800  0.109300   10.2900 0.000e+00
+eduLevel[12,16):cntryPoland    -0.20260    0.8166  0.135500   -1.4950 1.348e-01
+eduLevel[16,Inf):cntryPoland   -0.20600    0.8139  0.165600   -1.2440 2.135e-01
+eduLevel[12,16):cntryRussia    -0.06104    0.9408  0.117900   -0.5179 6.045e-01
+eduLevel[16,Inf):cntryRussia   -0.38800    0.6784  0.162300   -2.3900 1.683e-02
+eduLevel[12,16):cntrySlovakia  -0.28680    0.7507  0.141100   -2.0330 4.209e-02
+eduLevel[16,Inf):cntrySlovakia -0.81890    0.4409  0.181100   -4.5210 6.163e-06
 
 final llk =  -14410.81 
-Iterations =  16 
+Iterations =  15 
 > 
 > 
 > 
@@ -185,21 +185,21 @@ Call: ic_par(formula = Surv(inc_l, inc_u, type = "interval2") ~ eduLevel *
 
                                Estimate  Exp(Est) Std.Error   z-value         p
 log_alpha                       8.35200 4239.0000   0.02784 300.00000 0.000e+00
-log_beta                        1.05500    2.8730   0.04373  24.14000 0.000e+00
-eduLevel[12,16)                 1.23600    3.4430   0.34270   3.60800 3.088e-04
-eduLevel[16,Inf)                2.75300   15.6900   0.47040   5.85300 4.839e-09
-cntryPoland                     2.24200    9.4090   0.34980   6.40900 1.468e-10
-cntryRussia                     1.08300    2.9540   0.31960   3.39000 6.999e-04
-cntrySlovakia                   1.15000    3.1580   0.37560   3.06100 2.203e-03
-eduLevel[12,16):cntryPoland     0.22100    1.2470   0.53750   0.41120 6.809e-01
-eduLevel[16,Inf):cntryPoland   -0.01386    0.9862   0.64020  -0.02165 9.827e-01
-eduLevel[12,16):cntryRussia    -0.38500    0.6805   0.46900  -0.82080 4.118e-01
-eduLevel[16,Inf):cntryRussia   -1.04800    0.3507   0.60840  -1.72200 8.504e-02
-eduLevel[12,16):cntrySlovakia  -0.59840    0.5497   0.51100  -1.17100 2.416e-01
-eduLevel[16,Inf):cntrySlovakia -1.15400    0.3155   0.69120  -1.66900 9.512e-02
+log_beta                        1.05500    2.8730   0.04374  24.13000 0.000e+00
+eduLevel[12,16)                 1.23600    3.4430   0.34310   3.60300 3.147e-04
+eduLevel[16,Inf)                2.75300   15.6900   0.47000   5.85700 4.717e-09
+cntryPoland                     2.24200    9.4090   0.35010   6.40200 1.531e-10
+cntryRussia                     1.08300    2.9540   0.31970   3.38800 7.030e-04
+cntrySlovakia                   1.15000    3.1580   0.37560   3.06100 2.206e-03
+eduLevel[12,16):cntryPoland     0.22100    1.2470   0.53830   0.41060 6.813e-01
+eduLevel[16,Inf):cntryPoland   -0.01386    0.9862   0.64010  -0.02165 9.827e-01
+eduLevel[12,16):cntryRussia    -0.38500    0.6805   0.46940  -0.82010 4.121e-01
+eduLevel[16,Inf):cntryRussia   -1.04800    0.3507   0.60810  -1.72300 8.489e-02
+eduLevel[12,16):cntrySlovakia  -0.59840    0.5497   0.51140  -1.17000 2.420e-01
+eduLevel[16,Inf):cntrySlovakia -1.15400    0.3155   0.69040  -1.67100 9.478e-02
 
 final llk =  -1053.966 
-Iterations =  17 
+Iterations =  15 
 > 
 > 
 > 
@@ -321,8 +321,8 @@ Call: ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData,
     model = "po", dist = "loglogistic")
 
           Estimate Exp(Est) Std.Error z-value        p
-log_alpha    6.603 737.2000   0.07747  85.230 0.000000
-log_beta     1.001   2.7200   0.38290   2.614 0.008951
+log_alpha    6.603 737.2000   0.07747  85.240 0.000000
+log_beta     1.001   2.7200   0.38280   2.614 0.008942
 grpge       -1.172   0.3097   0.47130  -2.487 0.012880
 
 final llk =  -80.30575 
@@ -347,14 +347,6 @@ Iterations =  13
 > 
 > 	sim_data <- simIC_weib(n = 500, inspections = 5, inspectLength = 1)
 > 	ph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data)	
-Warning in ic_sp(Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data) :
-  Maximum iterations reached in ic_sp.
-
-Common cause of problem is when many observations are uncensored in Cox-PH model
-as this causes heavy numeric instability in gradient ascent step.
-(note:proportional odds model is more numerically stable).
-ICM step is still stable, so try increasing maxIter two fold and observe if
-difference in final llk is less than 0.1. If not, increase maxIter until this occurs.
 > 	# Default fits a Cox-PH model
 > 	
 > 	summary(ph_fit)		
@@ -364,13 +356,14 @@ Baseline:  semi-parametric
 Call: ic_sp(formula = Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data)
 
    Estimate Exp(Est)
-x1   0.5418   1.7190
-x2  -0.5178   0.5958
+x1   0.6135   1.8470
+x2  -0.4614   0.6304
 
-final llk =  -1556.985 
-Iterations =  1000 
+final llk =  -1794.767 
+Iterations =  148 
 Bootstrap Samples =  0 
-WARNING: only  0  bootstrap samples used for standard errors. Suggest using more bootstrap samples for inference
+WARNING: only  0  bootstrap samples used for standard errors. 
+Suggest using more bootstrap samples for inference
 > 	# Regression estimates close to true 0.5 and -0.5 values
 > 
 > 
@@ -391,13 +384,14 @@ Call: ic_sp(formula = Surv(l, u, type = "interval2") ~ x1 + x2, data = sim_data,
     model = "po")
 
    Estimate Exp(Est)
-x1  -0.7084   0.4924
-x2   0.7522   2.1220
+x1  -0.8759   0.4165
+x2   0.6312   1.8800
 
-final llk =  -1576.202 
-Iterations =  63 
+final llk =  -1808.313 
+Iterations =  47 
 Bootstrap Samples =  0 
-WARNING: only  0  bootstrap samples used for standard errors. Suggest using more bootstrap samples for inference
+WARNING: only  0  bootstrap samples used for standard errors. 
+Suggest using more bootstrap samples for inference
 > 	
 > 	# Not run: how to set up multiple cores
 > 	# library(doParallel)
@@ -509,7 +503,8 @@ grpge   0.6277    1.873     0.497   1.263 0.2066
 final llk =  -76.53436 
 Iterations =  28 
 Bootstrap Samples =  50 
-WARNING: only  50  bootstrap samples used for standard errors. Suggest using more bootstrap samples for inference
+WARNING: only  50  bootstrap samples used for standard errors. 
+Suggest using more bootstrap samples for inference
 > 
 > 
 > 
@@ -624,7 +619,7 @@ Number of maximal intersections w/ positive mass =  90
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  10.31 0.146 10.476 0 0 
+Time elapsed:  14.765 0.209 14.986 0 0 
 > grDevices::dev.off()
 null device 
           1 

@@ -1,6 +1,6 @@
-* using log directory ‘/Volumes/User Files/cliff/Desktop/icenReg_devel/Code/icenReg.Rcheck’
-* using R version 3.2.2 (2015-08-14)
-* using platform: x86_64-apple-darwin13.4.0 (64-bit)
+* using log directory ‘/Users/cliff/Desktop/icenReg_devel/Code/icenReg.Rcheck’
+* using R version 3.2.1 (2015-06-18)
+* using platform: x86_64-apple-darwin10.8.0 (64-bit)
 * using session charset: UTF-8
 * checking for file ‘icenReg/DESCRIPTION’ ... OK
 * checking extension type ... Package
@@ -67,7 +67,19 @@ Package vignette without corresponding PDF/HTML:
    ‘icenReg.Rnw’
 
 * checking running R code from vignettes ... OK
-* checking re-building of vignette outputs ... OK
-* checking PDF version of manual ... OK
+* checking re-building of vignette outputs ... NOTE
+Error in re-building vignettes:
+  ...
+Error in texi2dvi(file = file, pdf = TRUE, clean = clean, quiet = quiet,  : 
+  Running 'texi2dvi' on 'icenReg.tex' failed.
+Messages:
+sh: /usr/local/bin/texi2dvi: No such file or directory
+Calls: buildVignettes -> texi2pdf -> texi2dvi
+Execution halted
+
+* checking PDF version of manual ... WARNING
+LaTeX errors when creating PDF version.
+This typically indicates Rd problems.
+* checking PDF version of manual without hyperrefs or index ... OK
 * DONE
-Status: 2 WARNINGs, 1 NOTE
+Status: 3 WARNINGs, 2 NOTEs

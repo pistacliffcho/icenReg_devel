@@ -1,0 +1,589 @@
+library(icenReg)
+??icenReg
+library(intcox)
+data(intcox.example)
+fit <- ic_ph(Surv(left, right, type = 'interval') ~ x.1 + x.2, data= intcox.example)
+fit <- ic_ph(Surv(left, right, type = 'interval2') ~ x.1 + x.2, data= intcox.example)
+fit
+summary(fit)
+fit <- ic_ph(Surv(left, right, type = 'interval2') ~ x.1 + x.2, data= intcox.example, bs_samples = 100)
+library(icenReg)
+library(survival)
+library(logconPH)
+library(foreach)
+simData <- simPH_Censored(n = 1000)
+l <- simData$times[,1]
+u <- simData$times[,2]
+x1 <- simData$x[,1]
+x2 <- simData$x[,2]
+fit <- ic_ph(Surv(l, u) ~ x1 + x2, bs_samples = 100)
+fit <- ic_ph(Surv(l, u, type = 'interval2') ~ x1 + x2, bs_samples = 100)
+library(icenReg)
+library(survival)
+simData <- simRawTimes()
+ic_ph(Surv(y, y, type = 'interval2') ~ x1 + x2, data = simData)
+std_fit <- coxph(Surv(y, rep(1, 100), type= 'right') ~ x1 + x2, data = simData)
+std_fit
+impFit <- impute_ic_ph(Surv(y, y, type = 'interval2') ~ x1 + x2, data = simData)
+impFit
+debug(impute_ic_ph)
+impFit <- impute_ic_ph(Surv(y, y, type = 'interval2') ~ x1 + x2, data = simData)
+param_y
+yMat
+Q
+impFit <- impute_ic_ph(Surv(y, y, type = 'interval2') ~ x1 + x2, data = simData)
+Q
+library(icenReg)
+library(survival)
+doParallel::foreach
+foreach::foreach
+doParallel %dopar%
+()
+dopar
+%dopar%
+doParallel::%dopar%
+foreach::%dopar%
+?requireNamespace
+foreach::foreach(i = 1:2) %foreach::do% i
+foreach::foreach(i = 1:2) foreach::%do% i
+?mclapply
+mapply(rep, 1:4, 4:1)
+testList <- list(a = c(1,2), b = c(2, 3))
+testList
+cbind(testList)
+rbind(testList)
+library(icenReg)#
+library(intcox)#
+#
+set.seed(1)#
+simdata <- simICPH_beta(n = 1000) #simulates PH-interval censored
+debug(ic_ph)
+ic_ph(Surv(l, u, type = 'interval2') ~ x1, data = simdata)
+x
+colnames(x)
+colnames(x)[-1]
+library(icenReg)
+library(icenReg)#
+library(straweib)#
+data(tooth24)#
+fit <- ic_sp(Surv(left, right, type = 'interval2') ~ sex + dmf, data = tooth24, bs_samples = 0)
+diag_covar(fit)
+dgamma
+dweibull
+dexp
+library(icenReg)
+ic_par
+ic_sp
+library(icenReg)#
+simdata <- simICPH_beta(n = 200, b1 = -1, b2 = 1)#
+#
+system.time(sr_fit <- survreg(Surv(l + 0.000001, u, type = 'interval2') ~ x1 + x2, data = simdata, dist = 'exponential'))#
+system.time(par_fit <- ic_par(Surv(l , u, type = 'interval2') ~ x1 + x2, data = simdata, dist = 'exponential'))
+curve <- getSCurves(par_fit)
+curve <- getSCurves(par_fit, q = 1:100/100)
+curve
+library(icenReg)
+library(straweib)#
+data(tooth24)
+sp_fit <- ic_sp(Surv(left, right, type = 'interval2') ~ dmf + sex, data = tooth24, bs_samples = 0, model = 'po')
+plot(sp_fit)
+plot(sp_fit, newdata = data.frame(sex = 0, dmf = 1))
+plot(sp_fit, data.frame(sex = 0, dmf = 1))
+test <- data.frame(sex = c(0,1), dmf = c(0,1))
+plot(sp_fit, test)
+rownames(test) <- c('grp1', 'grp2')
+plot(sp_fit, test)
+library(icenReg)
+library(straweib)#
+data(tooth24)
+log_fit <- ic_par(Surv(left, right, type = 'interval2') ~ dmf + sex, data = tooth24, model = 'po', dist = 'loglogistic')
+debug(icenReg:::predict.icenReg_fit)
+newdata <- data.frame(sex = c(0,1,2), dmf = c(0,1,2))
+predict(log_fit, newdata = newdata, p = c(0.2, .3, .4, .99))
+type
+?predict.lm
+library(icenREg)
+library(icenReg)
+simdata <- simICPH_beta()
+fit <- ic_par(Surv(l, u, type = 'interval2') ~ x1 + x2, data = simdata)
+getParEsts <-function(fit, newdata, p, q){#
+	if(missing(newdata)) newdata <- NULL#
+	etas <- get_etas(object, newdata)#
+#
+	if(missing(p))	p <- NULL#
+	xs <- argList$p#
+	if(is.null(xs)){#
+		if(is.null(xs)) { xs = 0.5; type = 'p' }#
+		else type = 'q'#
+	}#
+	else type = 'p'#
+	if(inherits(object, 'sp_fit'))	stop('predict not supported for semi-parametric fits. Instead, extract estimated survival curves with "getSCurves"')#
+	if(inherits(object, 'par_fit')){	#
+		s_fun <- get_s_fun(object)#
+		link_fun <- get_link_fun(object)#
+		ans <- matrix(nrow = length(xs), ncol = length(etas))#
+		colnames(ans) <- names(etas)#
+		rownames(ans) <- xs#
+		if(type == 'p'){#
+			optimReadyFun <- function(x, p, baselinePars, eta, s_fun, link_fun){#
+				s_o <- s_fun(x, baselinePars)#
+				s_c <- link_fun(s_o, eta)#
+				f <- 1 - s_c#
+				return( (f-p)^2 )#
+			}	#
+			for(i in 1:length(xs)){#
+				for(j in 1:length(etas)){#
+					upperBound <- findUpperBound(xs[i], s_fun, link_fun, object, etas[j])#
+					ans[i,j] <- optimize(optimReadyFun, interval = c(0, upperBound), #
+									p = xs[i], baselinePars = object$baseline,#
+									etas[j], s_fun, link_fun, tol = 10^-6)$minimum#
+				}#
+			}#
+		return(ans)#
+		}#
+		for(i in 1:length(xs)){#
+			for(j in 1:length(etas))#
+				ans[i,j] <- 1-link_fun(s_fun(xs[i], object$baselin), etas[j])#
+		}#
+		return(ans)#
+	}#
+	stop('predict not currently supported for this object')#
+}
+getParEsts(fit)
+library(icenReg)
+?ic_par
+?ic_sp
+set.seed(0)#
+#
+	sim_data <- simICPH_beta(n = 200)#
+	ph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data)
+sc <- getSCurves(ph_fit)
+ls(sc)
+range(sc$Tbull_ints)
+library(icenReg)
+library(straweib)
+data(tooth24)
+diag_baseline(Surv(left, right, type = 'interval2') ~ dmf + sex, data = tooth24)
+lowlims <- c(1, 3)
+hilims <- c(2, 4)
+runif(2, lowlims, hilims)
+runif(3, lowlims, hilims)
+simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', #
+					   shape = 1, scale = 2, #
+					   inspections = 2, inspectionLength = 1,#
+					   rndDigits = NULL){#
+	rawQ <- runif(n)#
+    x1 <- rnorm(n)#
+    x2 <- rbinom(n, 1, 0.5) - 0.5#
+    nu <- exp(x1 * b1 + x2 * b2)#
+    if(model == 'ph')		adjFun <- function(x, nu) {1 - x^(1/nu)}#
+	else if(model == 'po') 	adjFun <- function(x, nu) {1 - x*(1/nu) / (x * 1/nu - x + 1)}#
+    adjQ <- adjuFun(rawQ, nu)#
+    trueTimes <- qweibull(adjQ, shape = shape, scale = scale)#
+    obsTimes <- runif(0, inspectionLength)#
+    if(!is.null(rndDigits))#
+    	obsTimes <- round(obsTimes, rndDigits)#
+    l <- rep(0, n)#
+    u <- rep(0, n)#
+    caught <- trueTimes < obsTimes#
+    u[caught] <- obsTimes[caught]#
+    l[!caught] <- obsTimes[!caught]#
+    if(inspections > 1){#
+    	for(i in 2:inspections){#
+		    oldObsTimes <- obsTimes#
+    		obsTimes <-  runif(n, min = oldObsTimes, max = oldObsTimes + inspectionLength)#
+		    if(!is.null(rndDigits))#
+    			obsTimes <- round(obsTimes, rndDigits)#
+    		caught <- trueTimes >= oldObsTimes  & trueTimes < obsTimes#
+    		needsCatch <- trueTimes > obsTimes#
+    		u[caught] <- obsTimes[caught]#
+    		l[needsCatch] <- obsTimes[needsCatch]#
+    	}#
+    }#
+    else{#
+    	needsCatch <- !caught	#
+    }#
+    u[needsCatch] <- Inf#
+    if(sum(l > u) > 0)	stop('warning: l > u! Bug in code')#
+    return(data.frame(l = l, u = u, x1 = x1, x2 = x2))#
+}
+simdata <- simIC_weib()
+simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', #
+					   shape = 1, scale = 2, #
+					   inspections = 2, inspectionLength = 1,#
+					   rndDigits = NULL){#
+	rawQ <- runif(n)#
+    x1 <- rnorm(n)#
+    x2 <- rbinom(n, 1, 0.5) - 0.5#
+    nu <- exp(x1 * b1 + x2 * b2)#
+    if(model == 'ph')		adjFun <- function(x, nu) {1 - x^(1/nu)}#
+	else if(model == 'po') 	adjFun <- function(x, nu) {1 - x*(1/nu) / (x * 1/nu - x + 1)}#
+    adjQ <- adjFun(rawQ, nu)#
+    trueTimes <- qweibull(adjQ, shape = shape, scale = scale)#
+    obsTimes <- runif(0, inspectionLength)#
+    if(!is.null(rndDigits))#
+    	obsTimes <- round(obsTimes, rndDigits)#
+    l <- rep(0, n)#
+    u <- rep(0, n)#
+    caught <- trueTimes < obsTimes#
+    u[caught] <- obsTimes[caught]#
+    l[!caught] <- obsTimes[!caught]#
+    if(inspections > 1){#
+    	for(i in 2:inspections){#
+		    oldObsTimes <- obsTimes#
+    		obsTimes <-  runif(n, min = oldObsTimes, max = oldObsTimes + inspectionLength)#
+		    if(!is.null(rndDigits))#
+    			obsTimes <- round(obsTimes, rndDigits)#
+    		caught <- trueTimes >= oldObsTimes  & trueTimes < obsTimes#
+    		needsCatch <- trueTimes > obsTimes#
+    		u[caught] <- obsTimes[caught]#
+    		l[needsCatch] <- obsTimes[needsCatch]#
+    	}#
+    }#
+    else{#
+    	needsCatch <- !caught	#
+    }#
+    u[needsCatch] <- Inf#
+    if(sum(l > u) > 0)	stop('warning: l > u! Bug in code')#
+    return(data.frame(l = l, u = u, x1 = x1, x2 = x2))#
+}
+simdata <- simIC_weib()
+simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', #
+					   shape = 1, scale = 2, #
+					   inspections = 2, inspectionLength = 1,#
+					   rndDigits = NULL){#
+	rawQ <- runif(n)#
+    x1 <- rnorm(n)#
+    x2 <- rbinom(n, 1, 0.5) - 0.5#
+    nu <- exp(x1 * b1 + x2 * b2)#
+    if(model == 'ph')		adjFun <- function(x, nu) {1 - x^(1/nu)}#
+	else if(model == 'po') 	adjFun <- function(x, nu) {1 - x*(1/nu) / (x * 1/nu - x + 1)}#
+    adjQ <- adjFun(rawQ, nu)#
+    trueTimes <- qweibull(adjQ, shape = shape, scale = scale)#
+    obsTimes <- runif(0, inspectionLength)#
+    if(!is.null(rndDigits))#
+    	obsTimes <- round(obsTimes, rndDigits)#
+    l <- rep(0, n)#
+    u <- rep(0, n)#
+    caught <- trueTimes < obsTimes#
+    u[caught] <- obsTimes[caught]#
+    l[!caught] <- obsTimes[!caught]#
+    if(inspections > 1){#
+    	for(i in 2:inspections){#
+		    oldObsTimes <- obsTimes#
+    		obsTimes <- oldObsTimes + runif(n, min = 0, max = inspectionLength)#
+		    if(!is.null(rndDigits))#
+    			obsTimes <- round(obsTimes, rndDigits)#
+    		caught <- trueTimes >= oldObsTimes  & trueTimes < obsTimes#
+    		needsCatch <- trueTimes > obsTimes#
+    		u[caught] <- obsTimes[caught]#
+    		l[needsCatch] <- obsTimes[needsCatch]#
+    	}#
+    }#
+    else{#
+    	needsCatch <- !caught	#
+    }#
+    u[needsCatch] <- Inf#
+    if(sum(l > u) > 0)	stop('warning: l > u! Bug in code')#
+    return(data.frame(l = l, u = u, x1 = x1, x2 = x2))#
+}
+simdata <- simIC_weib()
+summary(simdata)
+debug(simIC_weib)
+summary(simdata)
+simdata <- simIC_weib()
+trueTimes[1:10]
+obsTimes[1:10]
+simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', #
+					   shape = 1, scale = 2, #
+					   inspections = 2, inspectionLength = 1,#
+					   rndDigits = NULL){#
+	rawQ <- runif(n)#
+    x1 <- rnorm(n)#
+    x2 <- rbinom(n, 1, 0.5) - 0.5#
+    nu <- exp(x1 * b1 + x2 * b2)#
+    if(model == 'ph')		adjFun <- function(x, nu) {1 - x^(1/nu)}#
+	else if(model == 'po') 	adjFun <- function(x, nu) {1 - x*(1/nu) / (x * 1/nu - x + 1)}#
+    adjQ <- adjFun(rawQ, nu)#
+    trueTimes <- qweibull(adjQ, shape = shape, scale = scale)#
+    obsTimes <- runif(0, max = inspectionLength)#
+    if(!is.null(rndDigits))#
+    	obsTimes <- round(obsTimes, rndDigits)#
+    l <- rep(0, n)#
+    u <- rep(0, n)#
+    caught <- trueTimes < obsTimes#
+    u[caught] <- obsTimes[caught]#
+    l[!caught] <- obsTimes[!caught]#
+    if(inspections > 1){#
+    	for(i in 2:inspections){#
+		    oldObsTimes <- obsTimes#
+    		obsTimes <- oldObsTimes + runif(n, min = 0, max = inspectionLength)#
+		    if(!is.null(rndDigits))#
+    			obsTimes <- round(obsTimes, rndDigits)#
+    		caught <- trueTimes >= oldObsTimes  & trueTimes < obsTimes#
+    		needsCatch <- trueTimes > obsTimes#
+    		u[caught] <- obsTimes[caught]#
+    		l[needsCatch] <- obsTimes[needsCatch]#
+    	}#
+    }#
+    else{#
+    	needsCatch <- !caught	#
+    }#
+    u[needsCatch] <- Inf#
+    if(sum(l > u) > 0)	stop('warning: l > u! Bug in code')#
+    return(data.frame(l = l, u = u, x1 = x1, x2 = x2))#
+}
+Q
+simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', #
+					   shape = 1, scale = 2, #
+					   inspections = 2, inspectionLength = 1,#
+					   rndDigits = NULL){#
+	rawQ <- runif(n)#
+    x1 <- rnorm(n)#
+    x2 <- rbinom(n, 1, 0.5) - 0.5#
+    nu <- exp(x1 * b1 + x2 * b2)#
+    if(model == 'ph')		adjFun <- function(x, nu) {1 - x^(1/nu)}#
+	else if(model == 'po') 	adjFun <- function(x, nu) {1 - x*(1/nu) / (x * 1/nu - x + 1)}#
+    adjQ <- adjFun(rawQ, nu)#
+    trueTimes <- qweibull(adjQ, shape = shape, scale = scale)#
+    obsTimes <- runif(0, max = inspectionLength)#
+    if(!is.null(rndDigits))#
+    	obsTimes <- round(obsTimes, rndDigits)#
+    l <- rep(0, n)#
+    u <- rep(0, n)#
+    caught <- trueTimes < obsTimes#
+    u[caught] <- obsTimes[caught]#
+    l[!caught] <- obsTimes[!caught]#
+    if(inspections > 1){#
+    	for(i in 2:inspections){#
+		    oldObsTimes <- obsTimes#
+    		obsTimes <- oldObsTimes + runif(n, max = inspectionLength)#
+		    if(!is.null(rndDigits))#
+    			obsTimes <- round(obsTimes, rndDigits)#
+    		caught <- trueTimes >= oldObsTimes  & trueTimes < obsTimes#
+    		needsCatch <- trueTimes > obsTimes#
+    		u[caught] <- obsTimes[caught]#
+    		l[needsCatch] <- obsTimes[needsCatch]#
+    	}#
+    }#
+    else{#
+    	needsCatch <- !caught	#
+    }#
+    u[needsCatch] <- Inf#
+    if(sum(l > u) > 0)	stop('warning: l > u! Bug in code')#
+    return(data.frame(l = l, u = u, x1 = x1, x2 = x2))#
+}
+simdata <- simIC_weib()
+summary(simdata)
+debug(simIC_weib)
+summary(simdata)
+simdata <- simIC_weib()
+obsTimes[1:10]
+inspectionLength
+Q
+simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', #
+					   shape = 1, scale = 2, #
+					   inspections = 2, inspectionLength = 1,#
+					   rndDigits = NULL){#
+	rawQ <- runif(n)#
+    x1 <- rnorm(n)#
+    x2 <- rbinom(n, 1, 0.5) - 0.5#
+    nu <- exp(x1 * b1 + x2 * b2)#
+    if(model == 'ph')		adjFun <- function(x, nu) {1 - x^(1/nu)}#
+	else if(model == 'po') 	adjFun <- function(x, nu) {1 - x*(1/nu) / (x * 1/nu - x + 1)}#
+    adjQ <- adjFun(rawQ, nu)#
+    trueTimes <- qweibull(adjQ, shape = shape, scale = scale)#
+    obsTimes <- runif(n = n, max = inspectionLength)#
+    if(!is.null(rndDigits))#
+    	obsTimes <- round(obsTimes, rndDigits)#
+    l <- rep(0, n)#
+    u <- rep(0, n)#
+    caught <- trueTimes < obsTimes#
+    u[caught] <- obsTimes[caught]#
+    l[!caught] <- obsTimes[!caught]#
+    if(inspections > 1){#
+    	for(i in 2:inspections){#
+		    oldObsTimes <- obsTimes#
+    		obsTimes <- oldObsTimes + runif(n, max = inspectionLength)#
+		    if(!is.null(rndDigits))#
+    			obsTimes <- round(obsTimes, rndDigits)#
+    		caught <- trueTimes >= oldObsTimes  & trueTimes < obsTimes#
+    		needsCatch <- trueTimes > obsTimes#
+    		u[caught] <- obsTimes[caught]#
+    		l[needsCatch] <- obsTimes[needsCatch]#
+    	}#
+    }#
+    else{#
+    	needsCatch <- !caught	#
+    }#
+    u[needsCatch] <- Inf#
+    if(sum(l > u) > 0)	stop('warning: l > u! Bug in code')#
+    return(data.frame(l = l, u = u, x1 = x1, x2 = x2))#
+}
+simdata <- simIC_weib()
+summary(simdata)
+simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', #
+					   shape = 1, scale = 2, #
+					   inspections = 2, inspectionLength = 2,#
+					   rndDigits = NULL){#
+	rawQ <- runif(n)#
+    x1 <- rnorm(n)#
+    x2 <- rbinom(n, 1, 0.5) - 0.5#
+    nu <- exp(x1 * b1 + x2 * b2)#
+    if(model == 'ph')		adjFun <- function(x, nu) {1 - x^(1/nu)}#
+	else if(model == 'po') 	adjFun <- function(x, nu) {1 - x*(1/nu) / (x * 1/nu - x + 1)}#
+    adjQ <- adjFun(rawQ, nu)#
+    trueTimes <- qweibull(adjQ, shape = shape, scale = scale)#
+    obsTimes <- runif(n = n, max = inspectionLength)#
+    if(!is.null(rndDigits))#
+    	obsTimes <- round(obsTimes, rndDigits)#
+    l <- rep(0, n)#
+    u <- rep(0, n)#
+    caught <- trueTimes < obsTimes#
+    u[caught] <- obsTimes[caught]#
+    l[!caught] <- obsTimes[!caught]#
+    if(inspections > 1){#
+    	for(i in 2:inspections){#
+		    oldObsTimes <- obsTimes#
+    		obsTimes <- oldObsTimes + runif(n, max = inspectionLength)#
+		    if(!is.null(rndDigits))#
+    			obsTimes <- round(obsTimes, rndDigits)#
+    		caught <- trueTimes >= oldObsTimes  & trueTimes < obsTimes#
+    		needsCatch <- trueTimes > obsTimes#
+    		u[caught] <- obsTimes[caught]#
+    		l[needsCatch] <- obsTimes[needsCatch]#
+    	}#
+    }#
+    else{#
+    	needsCatch <- !caught	#
+    }#
+    u[needsCatch] <- Inf#
+    if(sum(l > u) > 0)	stop('warning: l > u! Bug in code')#
+    return(data.frame(l = l, u = u, x1 = x1, x2 = x2))#
+}
+simdata <- simIC_weib()
+summary(simdata)
+mean(simdata$u == Inf)
+simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', #
+					   shape = 1, scale = 2, #
+					   inspections = 2, inspectionLength = 2.5,#
+					   rndDigits = NULL){#
+	rawQ <- runif(n)#
+    x1 <- rnorm(n)#
+    x2 <- rbinom(n, 1, 0.5) - 0.5#
+    nu <- exp(x1 * b1 + x2 * b2)#
+    if(model == 'ph')		adjFun <- function(x, nu) {1 - x^(1/nu)}#
+	else if(model == 'po') 	adjFun <- function(x, nu) {1 - x*(1/nu) / (x * 1/nu - x + 1)}#
+    adjQ <- adjFun(rawQ, nu)#
+    trueTimes <- qweibull(adjQ, shape = shape, scale = scale)#
+    obsTimes <- runif(n = n, max = inspectionLength)#
+    if(!is.null(rndDigits))#
+    	obsTimes <- round(obsTimes, rndDigits)#
+    l <- rep(0, n)#
+    u <- rep(0, n)#
+    caught <- trueTimes < obsTimes#
+    u[caught] <- obsTimes[caught]#
+    l[!caught] <- obsTimes[!caught]#
+    if(inspections > 1){#
+    	for(i in 2:inspections){#
+		    oldObsTimes <- obsTimes#
+    		obsTimes <- oldObsTimes + runif(n, max = inspectionLength)#
+		    if(!is.null(rndDigits))#
+    			obsTimes <- round(obsTimes, rndDigits)#
+    		caught <- trueTimes >= oldObsTimes  & trueTimes < obsTimes#
+    		needsCatch <- trueTimes > obsTimes#
+    		u[caught] <- obsTimes[caught]#
+    		l[needsCatch] <- obsTimes[needsCatch]#
+    	}#
+    }#
+    else{#
+    	needsCatch <- !caught	#
+    }#
+    u[needsCatch] <- Inf#
+    if(sum(l > u) > 0)	stop('warning: l > u! Bug in code')#
+    return(data.frame(l = l, u = u, x1 = x1, x2 = x2))#
+}
+simdata <- simIC_weib()
+mean(simdata$u == Inf)
+library(icenReg)#
+#
+data(mdata)#
+fit <- ic_sp(Surv(l, u, type = 'interval2') ~ grp, data = mdata)#
+#
+x <- 400:1000#
+debug(parFitEsts)#
+y <- parFitEsts(fit, q = x)
+library(icenReg)#
+#
+data(mdata)#
+fit <- ic_sp(Surv(l, u, type = 'interval2') ~ grp, data = mdata)#
+#
+x <- 60:100 * 20#
+#debug(parFitEsts)#
+y <- parFitEsts(fit, q = x)#
+plot(x, y, type = 'l')
+data(mdata)#
+fit <- ic_sp(Surv(l, u, type = 'interval2') ~ grp, data = mdata)#
+#
+x <- 60:200 * 10#
+#debug(parFitEsts)#
+y <- parFitEsts(fit, q = x)#
+plot(x, y, type = 'l')
+library(icenReg)#
+#
+data(mdata)#
+fit <- ic_sp(Surv(l, u, type = 'interval2') ~ grp, data = mdata)
+sc <- getSCurves(fit)
+sc
+library(icenReg)
+debug(icenReg:::splitAndFit)
+?simIC_weib
+set.seed(1)#
+	sim_data <- simIC_weib(n = 2000, b1 = .3, b2 = -.3, model = 'ph', #
+	                       shape = 2, scale = 2, inspections = 6, inspectLength = 1)#
+	#simulates data from a cox-ph with beta weibull distribution.#
+	diag_covar(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data, model = 'po')
+theseWeights
+library(icenReg)
+debug(diag_covar)
+?simIC_weib
+sim_data <- simIC_weib(n = 2000, b1 = .3, b2 = -.3, model = 'ph', #
+	                       shape = 2, scale = 2, inspections = 6, inspectLength = 1)#
+	#simulates data from a cox-ph with beta weibull distribution.#
+	diag_covar(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data, model = 'po')
+weights
+library(icenReg)
+?essIncData
+data(essIncData)#
+	lnormFit <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 	#
+	                   data = essIncData,#
+	                   model = 'po',#
+	                   dist = 'loglogistic')#
+	summary(lnormFit)
+data(essIncData)#
+	corFit <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 	#
+	                   data = essIncData,#
+	                   model = 'po',#
+	                   dist = 'loglogistic', recenterCovar = F)#
+	summary(lnormFit)
+ls(lnormfit)
+ls(lnormFit)
+corFit$hessian
+lnormFit$pca_info$rotation %*% lnormFit$pca_hessian
+dim(lnormFit$pca_hessian)
+dim(lnormFit$pca_info$rotation)
+hessTransMat <- diag(1, 13)
+hessTransMat[(-1:-2), (-1:-2)] <- lnormFIt$pca_info$rotation
+hessTransMat[(-1:-2), (-1:-2)] <- lnormFit$pca_info$rotation
+lnormFit$pca_info$rotation %*% lnormFit$pca_hessian
+hessTransMat %*% lnormFit$pca_hessian
+library(icenReg)
+?essIncData
+data(essIncData)#
+	lnormFit <- ic_par(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 	#
+	                   data = essIncData,#
+	                   model = 'po',#
+	                   dist = 'loglogistic')#
+	summary(lnormFit)
+x <- 1:10
+ncol(x)
