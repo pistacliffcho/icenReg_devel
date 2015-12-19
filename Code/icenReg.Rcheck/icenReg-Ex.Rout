@@ -1,7 +1,7 @@
 
-R version 3.2.1 (2015-06-18) -- "World-Famous Astronaut"
+R version 3.2.3 (2015-12-10) -- "Wooden Christmas-Tree"
 Copyright (C) 2015 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin10.8.0 (64-bit)
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -20,6 +20,18 @@ Type 'q()' to quit R.
 > pkgname <- "icenReg"
 > source(file.path(R.home("share"), "R", "examples-header.R"))
 > options(warn = 1)
+> base::assign(".ExTimings", "icenReg-Ex.timings", pos = 'CheckExEnv')
+> base::cat("name\tuser\tsystem\telapsed\n", file=base::get(".ExTimings", pos = 'CheckExEnv'))
+> base::assign(".format_ptime",
++ function(x) {
++   if(!is.na(x[4L])) x[1L] <- x[1L] + x[4L]
++   if(!is.na(x[5L])) x[2L] <- x[2L] + x[5L]
++   options(OutDec = '.')
++   format(x[1L:3L], digits = 7L)
++ },
++ pos = 'CheckExEnv')
+> 
+> ### * </HEADER>
 > library('icenReg')
 Loading required package: survival
 Loading required package: MLEcens
@@ -31,6 +43,7 @@ Loading required package: MLEcens
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: ICNPMLE
 > ### Title: Computes the NPMLE for Univariate or Bivariate Interval Censored
 > ###   Data
@@ -53,12 +66,15 @@ Number of maximal intersections w/ positive mass =  58
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("ICNPMLE", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("diag_baseline")
 > ### * diag_baseline
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: diag_baseline
 > ### Title: Compare parametric baseline distributions with semi-parametric
 > ###   baseline
@@ -82,12 +98,15 @@ Number of maximal intersections w/ positive mass =  58
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("diag_baseline", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("diag_covar")
 > ### * diag_covar
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: diag_covar
 > ### Title: Evaluate covariate effect for regression model
 > ### Aliases: diag_covar
@@ -109,6 +128,8 @@ Number of maximal intersections w/ positive mass =  58
 + 		         data = useData, model = 'ph')
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("diag_covar", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("essIncData")
@@ -116,6 +137,7 @@ Number of maximal intersections w/ positive mass =  58
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: essIncData
 > ### Title: Interval Censored Income Data from European Social Survey
 > ### Aliases: essIncData
@@ -137,25 +159,27 @@ Call: ic_par(formula = Surv(inc_l, inc_u, type = "interval2") ~ eduLevel *
     cntry, data = essIncData, model = "po", dist = "loglogistic")
 
                                Estimate  Exp(Est) Std.Error   z-value         p
-log_alpha                       8.37400 4333.0000  0.007643 1096.0000 0.000e+00
-log_beta                        1.04300    2.8360  0.011890   87.6900 0.000e+00
-eduLevel[12,16)                 1.12300    3.0740  0.085110   13.1900 0.000e+00
-eduLevel[16,Inf)                2.17100    8.7700  0.114000   19.0400 0.000e+00
-cntryPoland                     2.69700   14.8400  0.092850   29.0500 0.000e+00
-cntryRussia                     0.96130    2.6150  0.081810   11.7500 0.000e+00
-cntrySlovakia                   1.12500    3.0800  0.109300   10.2900 0.000e+00
-eduLevel[12,16):cntryPoland    -0.20260    0.8166  0.135500   -1.4950 1.348e-01
-eduLevel[16,Inf):cntryPoland   -0.20600    0.8139  0.165600   -1.2440 2.135e-01
-eduLevel[12,16):cntryRussia    -0.06104    0.9408  0.117900   -0.5179 6.045e-01
-eduLevel[16,Inf):cntryRussia   -0.38800    0.6784  0.162300   -2.3900 1.683e-02
-eduLevel[12,16):cntrySlovakia  -0.28680    0.7507  0.141100   -2.0330 4.209e-02
-eduLevel[16,Inf):cntrySlovakia -0.81890    0.4409  0.181100   -4.5210 6.163e-06
+log_alpha                       8.37400 4333.0000  0.007642 1096.0000 0.000e+00
+log_beta                        1.04300    2.8360  0.011870   87.8200 0.000e+00
+eduLevel[12,16)                 1.12300    3.0740  0.086340   13.0100 0.000e+00
+eduLevel[16,Inf)                2.17100    8.7700  0.115400   18.8100 0.000e+00
+cntryPoland                     2.69700   14.8400  0.093480   28.8500 0.000e+00
+cntryRussia                     0.96130    2.6150  0.082610   11.6400 0.000e+00
+cntrySlovakia                   1.12500    3.0800  0.110100   10.2200 0.000e+00
+eduLevel[12,16):cntryPoland    -0.20260    0.8166  0.136300   -1.4860 1.373e-01
+eduLevel[16,Inf):cntryPoland   -0.20600    0.8139  0.166800   -1.2350 2.170e-01
+eduLevel[12,16):cntryRussia    -0.06104    0.9408  0.119000   -0.5128 6.081e-01
+eduLevel[16,Inf):cntryRussia   -0.38800    0.6784  0.163600   -2.3720 1.770e-02
+eduLevel[12,16):cntrySlovakia  -0.28680    0.7507  0.142700   -2.0100 4.439e-02
+eduLevel[16,Inf):cntrySlovakia -0.81890    0.4409  0.182300   -4.4910 7.097e-06
 
 final llk =  -14410.81 
-Iterations =  15 
+Iterations =  16 
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("essIncData", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("essIncData_small")
@@ -163,6 +187,7 @@ Iterations =  15
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: essIncData_small
 > ### Title: Interval Censored Income Data from European Social Survey
 > ### Aliases: essIncData_small
@@ -185,24 +210,26 @@ Call: ic_par(formula = Surv(inc_l, inc_u, type = "interval2") ~ eduLevel *
 
                                Estimate  Exp(Est) Std.Error   z-value         p
 log_alpha                       8.35200 4239.0000   0.02784 300.00000 0.000e+00
-log_beta                        1.05500    2.8730   0.04374  24.13000 0.000e+00
-eduLevel[12,16)                 1.23600    3.4430   0.34310   3.60300 3.147e-04
-eduLevel[16,Inf)                2.75300   15.6900   0.47000   5.85700 4.717e-09
-cntryPoland                     2.24200    9.4090   0.35010   6.40200 1.531e-10
-cntryRussia                     1.08300    2.9540   0.31970   3.38800 7.030e-04
-cntrySlovakia                   1.15000    3.1580   0.37560   3.06100 2.206e-03
-eduLevel[12,16):cntryPoland     0.22100    1.2470   0.53830   0.41060 6.813e-01
-eduLevel[16,Inf):cntryPoland   -0.01386    0.9862   0.64010  -0.02165 9.827e-01
-eduLevel[12,16):cntryRussia    -0.38500    0.6805   0.46940  -0.82010 4.121e-01
-eduLevel[16,Inf):cntryRussia   -1.04800    0.3507   0.60810  -1.72300 8.489e-02
-eduLevel[12,16):cntrySlovakia  -0.59840    0.5497   0.51140  -1.17000 2.420e-01
-eduLevel[16,Inf):cntrySlovakia -1.15400    0.3155   0.69040  -1.67100 9.478e-02
+log_beta                        1.05500    2.8730   0.04373  24.14000 0.000e+00
+eduLevel[12,16)                 1.23600    3.4430   0.34270   3.60800 3.088e-04
+eduLevel[16,Inf)                2.75300   15.6900   0.47040   5.85300 4.839e-09
+cntryPoland                     2.24200    9.4090   0.34980   6.40900 1.468e-10
+cntryRussia                     1.08300    2.9540   0.31960   3.39000 6.999e-04
+cntrySlovakia                   1.15000    3.1580   0.37560   3.06100 2.203e-03
+eduLevel[12,16):cntryPoland     0.22100    1.2470   0.53750   0.41120 6.809e-01
+eduLevel[16,Inf):cntryPoland   -0.01386    0.9862   0.64020  -0.02165 9.827e-01
+eduLevel[12,16):cntryRussia    -0.38500    0.6805   0.46900  -0.82080 4.118e-01
+eduLevel[16,Inf):cntryRussia   -1.04800    0.3507   0.60840  -1.72200 8.504e-02
+eduLevel[12,16):cntrySlovakia  -0.59840    0.5497   0.51100  -1.17100 2.416e-01
+eduLevel[16,Inf):cntrySlovakia -1.15400    0.3155   0.69120  -1.66900 9.512e-02
 
 final llk =  -1053.966 
-Iterations =  15 
+Iterations =  17 
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("essIncData_small", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("getFitEsts")
@@ -210,6 +237,7 @@ Iterations =  15
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: getFitEsts
 > ### Title: Get Estimates from icenReg Regression Model
 > ### Aliases: getFitEsts
@@ -229,6 +257,8 @@ Iterations =  15
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("getFitEsts", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("getSCurves")
@@ -236,6 +266,7 @@ Iterations =  15
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: getSCurves
 > ### Title: Get Estimated Survival Curves from Semi-parametric Model for
 > ###   Interval Censored Data
@@ -279,12 +310,15 @@ Iterations =  15
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("getSCurves", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("ic_par")
 > ### * ic_par
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: ic_par
 > ### Title: Parametric Regression Models for Interval Censored Data
 > ### Aliases: ic_par
@@ -321,8 +355,8 @@ Call: ic_par(formula = Surv(l, u, type = "interval2") ~ grp, data = miceData,
     model = "po", dist = "loglogistic")
 
           Estimate Exp(Est) Std.Error z-value        p
-log_alpha    6.603 737.2000   0.07747  85.240 0.000000
-log_beta     1.001   2.7200   0.38280   2.614 0.008942
+log_alpha    6.603 737.2000   0.07747  85.230 0.000000
+log_beta     1.001   2.7200   0.38290   2.614 0.008951
 grpge       -1.172   0.3097   0.47130  -2.487 0.012880
 
 final llk =  -80.30575 
@@ -330,6 +364,8 @@ Iterations =  13
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("ic_par", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("ic_sp")
@@ -337,6 +373,7 @@ Iterations =  13
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: ic_sp
 > ### Title: Semi-Parametric models for Interval Censored Data
 > ### Aliases: ic_sp vcov.icenReg_fit summary.icenReg_fit plot.icenReg_fit
@@ -388,7 +425,7 @@ x1  -0.8759   0.4165
 x2   0.6312   1.8800
 
 final llk =  -1808.313 
-Iterations =  47 
+Iterations =  30 
 Bootstrap Samples =  0 
 WARNING: only  0  bootstrap samples used for standard errors. 
 Suggest using more bootstrap samples for inference
@@ -404,12 +441,15 @@ Suggest using more bootstrap samples for inference
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("ic_sp", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("icenReg_cv")
 > ### * icenReg_cv
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: icenReg_cv
 > ### Title: Get Cross-Validation Statistics from icenReg Regression model
 > ### Aliases: icenReg_cv
@@ -444,6 +484,8 @@ Suggest using more bootstrap samples for inference
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("icenReg_cv", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("imputeCens")
@@ -451,6 +493,7 @@ Suggest using more bootstrap samples for inference
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: imputeCens
 > ### Title: Impute Interval Censored Data from icenReg Regression Model
 > ### Aliases: imputeCens
@@ -468,6 +511,8 @@ Suggest using more bootstrap samples for inference
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("imputeCens", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("miceData")
@@ -475,6 +520,7 @@ Suggest using more bootstrap samples for inference
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: miceData
 > ### Title: Lung Tumor Interval Censored Data from Hoel and Walburg 1972
 > ### Aliases: miceData
@@ -508,12 +554,15 @@ Suggest using more bootstrap samples for inference
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("miceData", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("optCliq")
 > ### * optCliq
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: optCliq
 > ### Title: Computes the MLE for a Binary Mixture Model.
 > ### Aliases: optCliq cliqOptInfo
@@ -538,12 +587,15 @@ Outer iterations =  5
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("optCliq", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("predict.icenReg_fit")
 > ### * predict.icenReg_fit
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: predict.icenReg_fit
 > ### Title: Predictions from icenReg Regression Model
 > ### Aliases: predict.icenReg_fit
@@ -561,6 +613,8 @@ Outer iterations =  5
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("predict.icenReg_fit", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > graphics::par(get("par.postscript", pos = 'CheckExEnv'))
 > cleanEx()
 > nameEx("simBVCen")
@@ -568,6 +622,7 @@ Outer iterations =  5
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: simBVCen
 > ### Title: Simulates Bivariate Interval Censored Data
 > ### Aliases: simBVCen
@@ -590,12 +645,15 @@ Number of maximal intersections w/ positive mass =  90
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("simBVCen", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("simIC_weib")
 > ### * simIC_weib
 > 
 > flush(stderr()); flush(stdout())
 > 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 > ### Name: simIC_weib
 > ### Title: Simulates interval censored data from regression model with a
 > ###   Weibull baseline
@@ -615,11 +673,13 @@ Number of maximal intersections w/ positive mass =  90
 > 
 > 
 > 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("simIC_weib", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > ### * <FOOTER>
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  14.765 0.209 14.986 0 0 
+Time elapsed:  7.916 0.163 8.129 0 0 
 > grDevices::dev.off()
 null device 
           1 

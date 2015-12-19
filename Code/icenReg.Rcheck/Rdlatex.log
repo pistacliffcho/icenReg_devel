@@ -1,334 +1,419 @@
 Hmm ... looks like a package
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013)
+
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex)
  restricted \write18 enabled.
 entering extended mode
+LaTeX2e <2015/01/01>
+Babel <3.9l> and hyphenation patterns for 79 languages loaded.
 (./Rd2.tex
-LaTeX2e <2011/06/27>
-Babel <3.9f> and hyphenation patterns for 78 languages loaded.
-
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/book.cls
-Document Class: book 2007/10/19 v1.4h Standard LaTeX document class
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/bk10.clo))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/bk10.clo))
 (/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/ifthen.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/tools/longtable.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/tools/bm.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/alltt.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/tools/verbatim.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/url/url.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/textcomp.sty
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/ts1enc.def))
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/fontenc.sty
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/t1enc.def))
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/times.sty))
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/inputenc.sty
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/t1enc.dfu)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/ot1enc.dfu)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/omsenc.dfu)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/ts1enc.dfu))
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/latin1.def))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/longtable.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/bm.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/url/url.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1enc.def))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/times.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/zi4.sty
+`inconsolata-zi4' v1.05, 2014/06/22 Text macros for Inconsolata (msharpe)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/keyval.sty))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/color.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/ltxcmds.sty)))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/local/texlive/2015/texmf-dist/tex/generic/ifxetex/ifxetex.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/latexconfig/hyperref.cfg))
+
+Package hyperref Message: Driver (autodetected): hpdftex.
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+
+Package hyperref Warning: Option `hyperindex' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+
+Package hyperref Warning: Option `pagebackref' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+) (/usr/local/texlive/2015/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/omsenc.dfu)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1enc.dfu))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/latin1.def))
+Writing index file Rd2.idx
 No file Rd2.aux.
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/ts1cmr.fd)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/t1ptm.fd)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/t1pcr.fd)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/t1phv.fd)
-No file Rd2.toc.
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [1{/usr/local/texl
-ive/2013/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def)
-Underfull \hbox (badness 1546) in paragraph at lines 57--57
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1ptm.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1phv.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [1{/usr/local/texl
+ive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
+Underfull \hbox (badness 1546) in paragraph at lines 59--59
 []\T1/ptm/m/it/10 Compare para-met-ric base-line dis-tri-bu-tions with semi-par
 ametric
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/ts1pcr.fd) [2]
-Overfull \hbox (9.78043pt too wide) in paragraph at lines 105--105
- [] \T1/pcr/m/n/9 fit_po <- ic_sp(Surv(inc_l, inc_u, type = \TS1/pcr/m/n/9 '\T1
-/pcr/m/n/9 interval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ eduLevel * cntry,[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [3]
-Overfull \hbox (9.53812pt too wide) in paragraph at lines 158--159
-\T1/pcr/m/n/10 "transform"\T1/ptm/m/n/10 , which is the trans-formed func-tions
- with-out the means sub-tracted and \T1/pcr/m/n/10 "survival"\T1/ptm/m/n/10 ,
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [4]
-Overfull \hbox (20.58041pt too wide) in paragraph at lines 226--226
- []\T1/pcr/m/n/9 lnormFit <- ic_par(Surv(inc_l, inc_u, type = \TS1/pcr/m/n/9 '\
-T1/pcr/m/n/9 interval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ eduLevel * cntry,[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [5]
-Overfull \hbox (20.58041pt too wide) in paragraph at lines 272--272
- []\T1/pcr/m/n/9 lnormFit <- ic_par(Surv(inc_l, inc_u, type = \TS1/pcr/m/n/9 '\
-T1/pcr/m/n/9 interval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ eduLevel * cntry,[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [6]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [7]
-Overfull \hbox (74.58035pt too wide) in paragraph at lines 361--361
- []\T1/pcr/m/n/9 fit <- ic_sp(Surv(l, u, type = \TS1/pcr/m/n/9 '\T1/pcr/m/n/9 i
-nterval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ x1 + x2, data = sim_data, bs_samples 
-= 0)[] 
-[8] (/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [9]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [10]
-Overfull \hbox (48.78088pt too wide) in paragraph at lines 493--493
- [] \T1/pcr/m/n/10 ICNPMLE(times, B = c(1,1), max.inner = 100, max.outer = 100,
- tol = 1e-10)[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (30.78088pt too wide) in paragraph at lines 542--542
- []  \T1/pcr/m/n/10 ic_par(formula, data, model = \TS1/pcr/m/n/10 '\T1/pcr/m/n/
-10 ph\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 , dist = \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 w
-eibull\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 , weights = NULL)[] 
-[11]
-Overfull \hbox (49.76918pt too wide) in paragraph at lines 559--560
-[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/pcr/m/n/1
-0 cbind(l, u) \T1/ptm/m/n/10 or \T1/pcr/m/n/10 Surv(l, u, type = \TS1/pcr/m/n/1
-0 '\T1/pcr/m/n/10 interval2\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 )\T1/ptm/m/n/10 ,
+(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [2]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [3]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [4]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [5]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [6]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [7] [8]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [9]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [10]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [11]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 561--562
+[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
+0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
+0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [12]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 627--628
+[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
+0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
+0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
 
-Overfull \hbox (15.18042pt too wide) in paragraph at lines 580--580
- []                        \T1/pcr/m/n/9 data = miceData, dist = \TS1/pcr/m/n/9
- '\T1/pcr/m/n/9 loglogistic\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 , model = \TS1/pcr/m/n
-/9 '\T1/pcr/m/n/9 po\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [12]
-Overfull \hbox (49.76918pt too wide) in paragraph at lines 625--626
-[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/pcr/m/n/1
-0 cbind(l, u) \T1/ptm/m/n/10 or \T1/pcr/m/n/10 Surv(l, u, type = \TS1/pcr/m/n/1
-0 '\T1/pcr/m/n/10 interval2\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 )\T1/ptm/m/n/10 ,
-
-Overfull \hbox (24.61737pt too wide) in paragraph at lines 629--630
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 631--632
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
-* set if bs_samples > 0 (via \T1/pcr/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
+* set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
+[13] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [14]
+Overfull \hbox (88.15749pt too wide) in paragraph at lines 708--717
+\T1/ptm/m/n/10 con-di-tional on the re-sponse in-ter-val, co-vari-ates and re-g
+res-sion pa-ram-e-ters at the MLE. \T1/zi4/m/n/10 imputeType = \TS1/zi4/m/n/10 
+'\T1/zi4/m/n/10 fixedParSample\TS1/zi4/m/n/10 '
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [15]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [16]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [17]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [18]
+No file Rd2.ind.
+[19] (./Rd2.aux)
 
-Overfull \hbox (38.39868pt too wide) in paragraph at lines 629--630
-\T1/ptm/m/n/10 sim-u-la-tion study. If \T1/pcr/m/n/10 seed == NULL\T1/ptm/m/n/1
-0 , then the start-ing seed will be \T1/pcr/m/n/10 round(runif(0, max = 10^8))\
-T1/ptm/m/n/10 ,
-[13]
-Overfull \hbox (4.38043pt too wide) in paragraph at lines 651--651
- []\T1/pcr/m/n/9 ph_fit <- ic_sp(Surv(l, u, type = \TS1/pcr/m/n/9 '\T1/pcr/m/n/
-9 interval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ x1 + x2, data = sim_data)[] 
+Package rerunfilecheck Warning: File `Rd2.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
 
-Overfull \hbox (4.38043pt too wide) in paragraph at lines 663--663
- []\T1/pcr/m/n/9 po_fit <- ic_sp(Surv(l, u, type = \TS1/pcr/m/n/9 '\T1/pcr/m/n/
-9 interval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ x1 + x2, data = sim_data,[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [14]
-Overfull \hbox (60.78088pt too wide) in paragraph at lines 689--689
- []  \T1/pcr/m/n/10 imputeCens(fit, newdata = NULL, imputeType = "fullSample", 
-numImputes = 5)[] 
-
-Overfull \hbox (102.52704pt too wide) in paragraph at lines 706--715
-\T1/ptm/m/n/10 tional on the re-sponse in-ter-val, co-vari-ates and es-ti-mated
- pa-ram-e-ters at the MLE. Fi-nally, \T1/pcr/m/n/10 imputeType = \TS1/pcr/m/n/1
-0 '\T1/pcr/m/n/10 fullSample\TS1/pcr/m/n/10 '
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [15]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [16]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [17]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [18]
-Overfull \hbox (6.78088pt too wide) in paragraph at lines 917--917
- []  \T1/pcr/m/n/10 simIC_weib(n = 100, b1 = 0.5, b2 = -0.5, model = "ph", shap
-e = 2,[] 
-
-Overfull \hbox (24.78088pt too wide) in paragraph at lines 918--918
- []    \T1/pcr/m/n/10 scale = 2, inspections = 2, inspectLength = 2.5, rndDigit
-s = NULL,[] 
-
-Overfull \hbox (8.61703pt too wide) in paragraph at lines 939--940
-[]\T1/ptm/m/n/10 Exact event times are sim-u-lated ac-cord-ing to re-gres-sion 
-model: co-vari-ate \T1/pcr/m/n/10 x1 \T1/ptm/m/n/10 is dis-tributed \T1/pcr/m/n
-/10 rnorm(n)
-
-Overfull \hbox (36.7804pt too wide) in paragraph at lines 950--950
- []                       \T1/pcr/m/n/9 shape = 2, scale = 2, inspections = 6, 
-inspectLength = 1)[] 
-
-Overfull \hbox (52.98038pt too wide) in paragraph at lines 953--953
- []\T1/pcr/m/n/9 diag_covar(Surv(l, u, type = \TS1/pcr/m/n/9 '\T1/pcr/m/n/9 int
-erval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ x1 + x2, data = sim_data, model = \TS1/
-pcr/m/n/9 '\T1/pcr/m/n/9 po\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )[] 
-
-Overfull \hbox (52.98038pt too wide) in paragraph at lines 954--954
- []\T1/pcr/m/n/9 diag_covar(Surv(l, u, type = \TS1/pcr/m/n/9 '\T1/pcr/m/n/9 int
-erval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ x1 + x2, data = sim_data, model = \TS1/
-pcr/m/n/9 '\T1/pcr/m/n/9 ph\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )[] 
-[19]
-Overfull \hbox (42.18039pt too wide) in paragraph at lines 955--955
- []\T1/pcr/m/n/9 #\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ph\TS1/pcr/m/n/9 ' \T1/pcr/m/n/
-9 fit looks better than \TS1/pcr/m/n/9 '\T1/pcr/m/n/9 po\TS1/pcr/m/n/9 '\T1/pcr
-/m/n/9 ; the difference between the transformed survival[] 
-[20] (./Rd2.aux) )
-(see the transcript file for additional information){/usr/local/texlive/2013/te
-xmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2013/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2013/texmf-dist/fonts/t
-ype1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2013/texmf-dist/fonts/ty
-pe1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw
-/courier/ucrr8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/helveti
-c/uhvr8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/times/utmb8a.p
-fb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
-ocal/texlive/2013/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texli
-ve/2013/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (20 pages, 155547 bytes).
+ )
+(see the transcript file for additional information){/usr/local/texlive/2015/te
+xmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/usr/local/texlive/2015/texmf-
+dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2015/texmf-dist/fonts/enc/
+dvips/inconsolata/i4-t1-0.enc}</usr/local/texlive/2015/texmf-dist/fonts/type1/p
+ublic/inconsolata/Inconsolata-zi4r.pfb></usr/local/texlive/2015/texmf-dist/font
+s/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2015/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2015/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2015/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/u
+rw/helvetic/uhvr8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/time
+s/utmb8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.p
+fb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
+ocal/texlive/2015/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (19 pages, 158071 bytes).
 Transcript written on Rd2.log.
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013)
+This is makeindex, version 2.15 [TeX Live 2015] (kpathsea + Thai support).
+Scanning input file Rd2.idx....done (22 entries accepted, 0 rejected).
+Sorting entries....done (98 comparisons).
+Generating output file Rd2.ind....done (61 lines written, 0 warnings).
+Output written in Rd2.ind.
+Transcript written in Rd2.ilg.
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex)
  restricted \write18 enabled.
 entering extended mode
+LaTeX2e <2015/01/01>
+Babel <3.9l> and hyphenation patterns for 79 languages loaded.
 (./Rd2.tex
-LaTeX2e <2011/06/27>
-Babel <3.9f> and hyphenation patterns for 78 languages loaded.
-
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/book.cls
-Document Class: book 2007/10/19 v1.4h Standard LaTeX document class
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/bk10.clo))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/bk10.clo))
 (/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/ifthen.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/tools/longtable.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/tools/bm.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/alltt.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/tools/verbatim.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/url/url.sty)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/textcomp.sty
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/ts1enc.def))
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/fontenc.sty
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/t1enc.def))
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/times.sty))
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/inputenc.sty
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/t1enc.dfu)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/ot1enc.dfu)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/omsenc.dfu)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/ts1enc.dfu))
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/latin1.def)) (./Rd2.aux)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/ts1cmr.fd)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/t1ptm.fd)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/t1pcr.fd)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [1{/usr/local/texl
-ive/2013/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def)
-Underfull \hbox (badness 1546) in paragraph at lines 57--57
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/longtable.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/bm.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/url/url.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1enc.def))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/times.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/zi4.sty
+`inconsolata-zi4' v1.05, 2014/06/22 Text macros for Inconsolata (msharpe)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/keyval.sty))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/color.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/ltxcmds.sty)))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/local/texlive/2015/texmf-dist/tex/generic/ifxetex/ifxetex.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/latexconfig/hyperref.cfg))
+
+Package hyperref Message: Driver (autodetected): hpdftex.
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+
+Package hyperref Warning: Option `hyperindex' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+
+Package hyperref Warning: Option `pagebackref' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+) (/usr/local/texlive/2015/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/omsenc.dfu)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1enc.dfu))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/latin1.def))
+Writing index file Rd2.idx
+(./Rd2.aux) (/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1ptm.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./Rd2.out) (./Rd2.out)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [1{/usr/local/texl
+ive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
+Underfull \hbox (badness 1546) in paragraph at lines 59--59
 []\T1/ptm/m/it/10 Compare para-met-ric base-line dis-tri-bu-tions with semi-par
 ametric
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/ts1pcr.fd) [2]
-Overfull \hbox (9.78043pt too wide) in paragraph at lines 105--105
- [] \T1/pcr/m/n/9 fit_po <- ic_sp(Surv(inc_l, inc_u, type = \TS1/pcr/m/n/9 '\T1
-/pcr/m/n/9 interval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ eduLevel * cntry,[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [3]
-Overfull \hbox (9.53812pt too wide) in paragraph at lines 158--159
-\T1/pcr/m/n/10 "transform"\T1/ptm/m/n/10 , which is the trans-formed func-tions
- with-out the means sub-tracted and \T1/pcr/m/n/10 "survival"\T1/ptm/m/n/10 ,
-[4] (/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (20.58041pt too wide) in paragraph at lines 226--226
- []\T1/pcr/m/n/9 lnormFit <- ic_par(Surv(inc_l, inc_u, type = \TS1/pcr/m/n/9 '\
-T1/pcr/m/n/9 interval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ eduLevel * cntry,[] 
-[5] (/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (20.58041pt too wide) in paragraph at lines 272--272
- []\T1/pcr/m/n/9 lnormFit <- ic_par(Surv(inc_l, inc_u, type = \TS1/pcr/m/n/9 '\
-T1/pcr/m/n/9 interval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ eduLevel * cntry,[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [6]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [7]
-Overfull \hbox (74.58035pt too wide) in paragraph at lines 361--361
- []\T1/pcr/m/n/9 fit <- ic_sp(Surv(l, u, type = \TS1/pcr/m/n/9 '\T1/pcr/m/n/9 i
-nterval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ x1 + x2, data = sim_data, bs_samples 
-= 0)[] 
-[8] (/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [9]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [10]
-Overfull \hbox (48.78088pt too wide) in paragraph at lines 493--493
- [] \T1/pcr/m/n/10 ICNPMLE(times, B = c(1,1), max.inner = 100, max.outer = 100,
- tol = 1e-10)[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (30.78088pt too wide) in paragraph at lines 542--542
- []  \T1/pcr/m/n/10 ic_par(formula, data, model = \TS1/pcr/m/n/10 '\T1/pcr/m/n/
-10 ph\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 , dist = \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 w
-eibull\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 , weights = NULL)[] 
-[11]
-Overfull \hbox (49.76918pt too wide) in paragraph at lines 559--560
-[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/pcr/m/n/1
-0 cbind(l, u) \T1/ptm/m/n/10 or \T1/pcr/m/n/10 Surv(l, u, type = \TS1/pcr/m/n/1
-0 '\T1/pcr/m/n/10 interval2\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 )\T1/ptm/m/n/10 ,
+(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [2]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [3] [4]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [5]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [6]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [7] [8]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [9]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [10]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [11]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 561--562
+[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
+0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
+0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [12]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 627--628
+[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
+0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
+0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
 
-Overfull \hbox (15.18042pt too wide) in paragraph at lines 580--580
- []                        \T1/pcr/m/n/9 data = miceData, dist = \TS1/pcr/m/n/9
- '\T1/pcr/m/n/9 loglogistic\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 , model = \TS1/pcr/m/n
-/9 '\T1/pcr/m/n/9 po\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [12]
-Overfull \hbox (49.76918pt too wide) in paragraph at lines 625--626
-[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/pcr/m/n/1
-0 cbind(l, u) \T1/ptm/m/n/10 or \T1/pcr/m/n/10 Surv(l, u, type = \TS1/pcr/m/n/1
-0 '\T1/pcr/m/n/10 interval2\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 )\T1/ptm/m/n/10 ,
-
-Overfull \hbox (24.61737pt too wide) in paragraph at lines 629--630
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 631--632
 []\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
-* set if bs_samples > 0 (via \T1/pcr/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
-
-Overfull \hbox (38.39868pt too wide) in paragraph at lines 629--630
-\T1/ptm/m/n/10 sim-u-la-tion study. If \T1/pcr/m/n/10 seed == NULL\T1/ptm/m/n/1
-0 , then the start-ing seed will be \T1/pcr/m/n/10 round(runif(0, max = 10^8))\
-T1/ptm/m/n/10 ,
-[13]
-Overfull \hbox (4.38043pt too wide) in paragraph at lines 651--651
- []\T1/pcr/m/n/9 ph_fit <- ic_sp(Surv(l, u, type = \TS1/pcr/m/n/9 '\T1/pcr/m/n/
-9 interval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ x1 + x2, data = sim_data)[] 
-
-Overfull \hbox (4.38043pt too wide) in paragraph at lines 663--663
- []\T1/pcr/m/n/9 po_fit <- ic_sp(Surv(l, u, type = \TS1/pcr/m/n/9 '\T1/pcr/m/n/
-9 interval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ x1 + x2, data = sim_data,[] 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [14]
-Overfull \hbox (60.78088pt too wide) in paragraph at lines 689--689
- []  \T1/pcr/m/n/10 imputeCens(fit, newdata = NULL, imputeType = "fullSample", 
-numImputes = 5)[] 
-
-Overfull \hbox (102.52704pt too wide) in paragraph at lines 706--715
-\T1/ptm/m/n/10 tional on the re-sponse in-ter-val, co-vari-ates and es-ti-mated
- pa-ram-e-ters at the MLE. Fi-nally, \T1/pcr/m/n/10 imputeType = \TS1/pcr/m/n/1
-0 '\T1/pcr/m/n/10 fullSample\TS1/pcr/m/n/10 '
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [15]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [16]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [17]
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def)
-(/usr/local/texlive/2013/texmf-dist/tex/latex/base/utf8.def) [18]
-Overfull \hbox (6.78088pt too wide) in paragraph at lines 917--917
- []  \T1/pcr/m/n/10 simIC_weib(n = 100, b1 = 0.5, b2 = -0.5, model = "ph", shap
-e = 2,[] 
-
-Overfull \hbox (24.78088pt too wide) in paragraph at lines 918--918
- []    \T1/pcr/m/n/10 scale = 2, inspections = 2, inspectLength = 2.5, rndDigit
-s = NULL,[] 
-
-Overfull \hbox (8.61703pt too wide) in paragraph at lines 939--940
-[]\T1/ptm/m/n/10 Exact event times are sim-u-lated ac-cord-ing to re-gres-sion 
-model: co-vari-ate \T1/pcr/m/n/10 x1 \T1/ptm/m/n/10 is dis-tributed \T1/pcr/m/n
-/10 rnorm(n)
-
-Overfull \hbox (36.7804pt too wide) in paragraph at lines 950--950
- []                       \T1/pcr/m/n/9 shape = 2, scale = 2, inspections = 6, 
-inspectLength = 1)[] 
-
-Overfull \hbox (52.98038pt too wide) in paragraph at lines 953--953
- []\T1/pcr/m/n/9 diag_covar(Surv(l, u, type = \TS1/pcr/m/n/9 '\T1/pcr/m/n/9 int
-erval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ x1 + x2, data = sim_data, model = \TS1/
-pcr/m/n/9 '\T1/pcr/m/n/9 po\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )[] 
-
-Overfull \hbox (52.98038pt too wide) in paragraph at lines 954--954
- []\T1/pcr/m/n/9 diag_covar(Surv(l, u, type = \TS1/pcr/m/n/9 '\T1/pcr/m/n/9 int
-erval2\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ) ~ x1 + x2, data = sim_data, model = \TS1/
-pcr/m/n/9 '\T1/pcr/m/n/9 ph\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )[] 
+* set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
+[13] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [14]
+Overfull \hbox (88.15749pt too wide) in paragraph at lines 708--717
+\T1/ptm/m/n/10 con-di-tional on the re-sponse in-ter-val, co-vari-ates and re-g
+res-sion pa-ram-e-ters at the MLE. \T1/zi4/m/n/10 imputeType = \TS1/zi4/m/n/10 
+'\T1/zi4/m/n/10 fixedParSample\TS1/zi4/m/n/10 '
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [15]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [16]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [17]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [18] (./Rd2.ind
 [19]
-Overfull \hbox (42.18039pt too wide) in paragraph at lines 955--955
- []\T1/pcr/m/n/9 #\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ph\TS1/pcr/m/n/9 ' \T1/pcr/m/n/
-9 fit looks better than \TS1/pcr/m/n/9 '\T1/pcr/m/n/9 po\TS1/pcr/m/n/9 '\T1/pcr
-/m/n/9 ; the difference between the transformed survival[] 
-[20] (./Rd2.aux) )
-(see the transcript file for additional information){/usr/local/texlive/2013/te
-xmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2013/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2013/texmf-dist/fonts/t
-ype1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2013/texmf-dist/fonts/ty
-pe1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw
-/courier/ucrr8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/helveti
-c/uhvr8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/times/utmb8a.p
-fb></usr/local/texlive/2013/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
-ocal/texlive/2013/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texli
-ve/2013/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (20 pages, 155623 bytes).
+
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 7.
+
+[20]) (./Rd2.aux)
+
+Package rerunfilecheck Warning: File `Rd2.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information){/usr/local/texlive/2015/te
+xmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/usr/local/texlive/2015/texmf-
+dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2015/texmf-dist/fonts/enc/
+dvips/inconsolata/i4-t1-0.enc}</usr/local/texlive/2015/texmf-dist/fonts/type1/p
+ublic/inconsolata/Inconsolata-zi4r.pfb></usr/local/texlive/2015/texmf-dist/font
+s/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2015/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2015/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2015/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/u
+rw/helvetic/uhvr8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/time
+s/utmb8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.p
+fb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
+ocal/texlive/2015/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (20 pages, 161627 bytes).
+Transcript written on Rd2.log.
+This is makeindex, version 2.15 [TeX Live 2015] (kpathsea + Thai support).
+Scanning input file Rd2.idx....done (22 entries accepted, 0 rejected).
+Sorting entries....done (98 comparisons).
+Generating output file Rd2.ind....done (61 lines written, 0 warnings).
+Output written in Rd2.ind.
+Transcript written in Rd2.ilg.
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2015/01/01>
+Babel <3.9l> and hyphenation patterns for 79 languages loaded.
+(./Rd2.tex
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/bk10.clo))
+(/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/longtable.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/bm.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/alltt.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/verbatim.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/url/url.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/textcomp.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1enc.def))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/t1enc.def))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/times.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/zi4.sty
+`inconsolata-zi4' v1.05, 2014/06/22 Text macros for Inconsolata (msharpe)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/keyval.sty))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/color.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/latexconfig/color.cfg)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/ltxcmds.sty)))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/hobsub-hyperref.sty
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/hobsub-generic.sty))
+(/usr/local/texlive/2015/texmf-dist/tex/generic/ifxetex/ifxetex.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/auxhook.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/kvoptions.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/latexconfig/hyperref.cfg))
+
+Package hyperref Message: Driver (autodetected): hpdftex.
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty))
+
+Package hyperref Warning: Option `hyperindex' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+
+Package hyperref Warning: Option `pagebackref' has already been used,
+(hyperref)                setting the option has no effect on input line 366.
+
+) (/usr/local/texlive/2015/texmf-dist/tex/latex/base/makeidx.sty)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/inputenc.sty
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/t1enc.dfu)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ot1enc.dfu)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/omsenc.dfu)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1enc.dfu))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/latin1.def))
+Writing index file Rd2.idx
+(./Rd2.aux) (/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1cmr.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1ptm.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/gettitlestring.sty))
+(./Rd2.out) (./Rd2.out)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [1{/usr/local/texl
+ive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
+Underfull \hbox (badness 1546) in paragraph at lines 59--59
+[]\T1/ptm/m/it/10 Compare para-met-ric base-line dis-tri-bu-tions with semi-par
+ametric
+(/usr/local/texlive/2015/texmf-dist/tex/latex/inconsolata/ts1zi4.fd) [2]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [3] [4]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [5]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [6]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [7] [8]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [9]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [10]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [11]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 561--562
+[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
+0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
+0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [12]
+Overfull \hbox (3.76918pt too wide) in paragraph at lines 627--628
+[]\T1/ptm/m/n/10 Response vari-able should ei-ther be of the form \T1/zi4/m/n/1
+0 cbind(l, u) \T1/ptm/m/n/10 or \T1/zi4/m/n/10 Surv(l, u, type = \TS1/zi4/m/n/1
+0 '\T1/zi4/m/n/10 interval2\TS1/zi4/m/n/10 '\T1/zi4/m/n/10 )\T1/ptm/m/n/10 ,
+
+Overfull \hbox (10.61737pt too wide) in paragraph at lines 631--632
+[]\T1/ptm/m/n/10 It is very im-por-tant to note that a ran-dom seed is *al-ways
+* set if bs_samples > 0 (via \T1/zi4/m/n/10 set.seed(seed)\T1/ptm/m/n/10 ),
+[13] (/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [14]
+Overfull \hbox (88.15749pt too wide) in paragraph at lines 708--717
+\T1/ptm/m/n/10 con-di-tional on the re-sponse in-ter-val, co-vari-ates and re-g
+res-sion pa-ram-e-ters at the MLE. \T1/zi4/m/n/10 imputeType = \TS1/zi4/m/n/10 
+'\T1/zi4/m/n/10 fixedParSample\TS1/zi4/m/n/10 '
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [15]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [16]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [17]
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/utf8.def) [18] (./Rd2.ind
+[19]
+
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 7.
+
+[20]) (./Rd2.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information){/usr/local/texlive/2015/te
+xmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}{/usr/local/texlive/2015/texmf-
+dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2015/texmf-dist/fonts/enc/
+dvips/inconsolata/i4-t1-0.enc}</usr/local/texlive/2015/texmf-dist/fonts/type1/p
+ublic/inconsolata/Inconsolata-zi4r.pfb></usr/local/texlive/2015/texmf-dist/font
+s/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2015/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2015/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2015/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/u
+rw/helvetic/uhvr8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/time
+s/utmb8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.p
+fb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/l
+ocal/texlive/2015/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (20 pages, 161994 bytes).
 Transcript written on Rd2.log.
 Saving output to 'icenReg-manual.pdf' ...
 Done
-You may want to clean up by 'rm -rf /var/folders/26/r0yptc9d0txcqs07ph2_4j8h0000gn/T//RtmptqEZmN/Rd2pdf38540348a84'
+You may want to clean up by 'rm -rf /var/folders/1h/zn3gmnv55ws0qnj4br9cv0lm0000gn/T//Rtmp7Agb9c/Rd2pdf15906c12f3'

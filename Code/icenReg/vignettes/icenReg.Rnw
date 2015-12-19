@@ -11,6 +11,10 @@
 \usepackage{multirow}
 \usepackage{float}
 
+
+%\VignetteIndexEntry{icenReg}
+
+
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 

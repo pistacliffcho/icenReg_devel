@@ -1,5 +1,6 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL,
                   useGA = T, maxIter = 1000, baseUpdates = 5){
+  if(missing(data)) data <- environment(formula)
   useExpSteps = FALSE
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -35,7 +36,6 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
   	exact <- mf[,1][,3] == 1
   	yMat[exact, 2] = yMat[exact, 1]
   }
-  
 	storage.mode(yMat) <- 'double'
     
     if(sum(is.na(mf)) > 0)
@@ -668,6 +668,7 @@ diag_covar <- function(object, varName,
 
 
 ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL){
+  if(missing(data)) data <- environment(formula)
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
 #    m <- match(c("formula", "data", "subset", "weights", "na.action", "offset"), names(mf), 0L)

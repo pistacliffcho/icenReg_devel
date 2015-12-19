@@ -12,6 +12,7 @@ findMaximalIntersections <- function(lower, upper){
 
 
 fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){  # useGA, maxIter, baselineUpdates, useFullHess){
+  if(any(obsMat[,1] > obsMat[,2])) stop("left side of response interval greater than right side. This is impossible.")
   useGA <- other_info$useGA
   maxIter <- other_info$maxIter
   baselineUpdates <- other_info$baselineUpdates

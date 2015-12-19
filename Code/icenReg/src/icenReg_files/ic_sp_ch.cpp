@@ -498,9 +498,9 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
                 }
                 if(useExpSteps){
         //         optObj->vem();
-        //         optObj->last_p_update();
+                 optObj->last_p_update();
         //         optObj->vem_sweep();
-                   optObj->vem_sweep2();
+        //           optObj->vem_sweep2();
 					if(printDeltaLLK){
 						llk1 = llk2;
 						llk2 = optObj->sum_llk();

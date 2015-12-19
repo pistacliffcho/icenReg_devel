@@ -21,13 +21,13 @@ export(ic_par)
 export(icenReg_cv)
 export(abs_inv)
 
-importFrom("graphics", "legend", "lines", "par", "plot")
+#importFrom("graphics", "legend", "lines", "par", "plot")
 importFrom("methods", "is", "new")
 importFrom("stats", ".getXlevels", "contrasts", "cov",
 "delete.response", "is.empty.model", "median", "model.frame",
 "model.matrix", "model.response", "na.pass", "optimize", "pexp",
 "pgamma", "pnorm", "prcomp", "pweibull", "qbeta", "qexp", "qweibull",
-"rbinom", "rnorm", "runif", "terms")
+"rbinom", "rnorm", "runif", "terms", "sd")
 
 
 ## BIVARIATE CENSORED EXPORTS

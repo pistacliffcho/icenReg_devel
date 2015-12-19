@@ -45,7 +45,7 @@ icenReg_cv <- function(fit, loss_fun = abs_inv, folds = 10, numImputes = 100, us
               TRAIN_DATA_ICENREG <- rawData[-cv_inds[[i]], ]
               VALID_DATA_ICENREG <- rawData[cv_inds[[i]], ]
               cv_fit <- eval(modCall)
-              cv_preds <- predict(cv_fit, newdata = VALID_DATA_ICENREG)
+              cv_preds <- predict.icenReg_fit(cv_fit, newdata = VALID_DATA_ICENREG)
               cv_imputes <- imputeCens(cv_fit, VALID_DATA_ICENREG, numImputes = numImputes)
               ans <- evalCV(cv_imputes, cv_preds, loss_fun)
               rm(cv_fit, cv_preds, cv_imputes, TRAIN_DATA_ICENREG, VALID_DATA_ICENREG)
