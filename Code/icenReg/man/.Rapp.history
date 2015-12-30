@@ -237,7 +237,6 @@ scoresData <- data.frame(prbProx = combineData$Mean.Proximity.to.Target,#
 						 distanceRS = distanceScore,#
 						 cseRS = cseScore)
 cor(scoresData)
-cor(scoresData)
 names(combineData)
 summary(combineData$hAPP)
 summary(combineData[,5] == combineData[,15])
@@ -313,5 +312,4 @@ sortProbeData <- rawProbeData[newOrd2,]#
 combineData <- cbind(sortProbeData, sortProcData)
 combineData[badInds, c(5,15)]
 load('~/Dropbox/Cliff (1)/CliffsProjects/Srinath_Fluctuater/srinath.RData')
-ls()
 ls()

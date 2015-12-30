@@ -641,7 +641,7 @@ Iterations =  11
   
   \begin{verbatim}
   library(doParallel)
-  myCluster <- makeCluster(4, type = 'FORK')
+  myCluster <- makeCluster(4)
   registerDoParallel(myCluster)
   fit <- ic_sp(cbind(inc_l, inc_u) ~ eduLevel + cntry,
             data = essIncData, model = "po",

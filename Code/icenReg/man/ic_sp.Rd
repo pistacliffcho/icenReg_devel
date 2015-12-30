@@ -71,7 +71,7 @@ Wellner, J. A., and Zhan, Y. (1997) A hybrid algorithm for computation of the ma
 	
 	# Not run: how to set up multiple cores
 	# library(doParallel)
-	# myCluster <- makeCluster(2, type = 'FORK') 
+	# myCluster <- makeCluster(2) 
 	# registerDoParallel(myCluster)
 	# fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2,
 	#              data = sim_data, useMCores = TRUE

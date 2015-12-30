@@ -66,7 +66,7 @@
   # fit3 <- ic_par(cbind(l,u) ~ bs(x1, df = 6) + x2, data = simData)  
        # Overfit model
   
-  # myCluster <- makeCluster(5, 'FORK')
+  # myCluster <- makeCluster(5)
   # registerDoParellel(myCluster)
         #Setting up to use multiple cores
   
