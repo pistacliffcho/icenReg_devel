@@ -112,14 +112,18 @@ setRefClass('icenRegSummary',
                 if(!printSE){
                   if(nrow(printMat) > 1) printMat <- printMat[,1:2]
                   else{
-                    newMat <- matrix(nrow = 1, ncol = 2)
-                    newMat[1,] <- printMat[1,1:2]
-                    rownames(newMat) <- rownames(printMat)
-                    colnames(newMat) <- colnames(printMat)[1:2]
-                    printMat <- newMat
+                    if(nrow(printMat) == 0) {printMat <- "No covariates used \n"}
+                    else{
+                      newMat <- matrix(nrow = 1, ncol = 2)
+                      newMat[1,] <- printMat[1,1:2]
+                      rownames(newMat) <- rownames(printMat)
+                      colnames(newMat) <- colnames(printMat)[1:2]
+                      printMat <- newMat
+                    }
                   }
                 }
-                print(printMat)
+                if(is.character(printMat)) { cat(printMat)}
+                else{print(printMat)}
                 cat('\nfinal llk = ', final_llk, '\nIterations = ', iterations, '\n')
                 if(inherits(fullFit, 'sp_fit')) cat('Bootstrap Samples = ', other[['bs_samps']], '\n')
                 if(sampSizeWarn){

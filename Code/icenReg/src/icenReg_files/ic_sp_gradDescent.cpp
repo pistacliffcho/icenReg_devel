@@ -77,7 +77,35 @@ double icm_Abst::getMaxScaleSize(vector<double> &p, vector<double> &prop_p){
     return(max_scale);
 }
 
+void icm_Abst::EM_step(){
+	double org_llk = sum_llk();
+	
+    backupCH = baseCH;
+    baseCH_2_baseS();
+    baseS_2_baseP();
 
+    numeric_dobs_dp();
+    int k = base_p_derv.size();
+//    double n = etas.size();
+	baseP_backup.resize(k);
+	for(int i = 0; i < k; i++){
+		baseP_backup[i] = baseP[i];
+//		baseP[i] *= (n + base_p_derv[i]);
+		baseP[i] *= (base_p_derv[i]);
+		if(baseP[i] < 0){baseP[i] = 0;}
+	}
+	double sum_p = 0;
+	for(int i = 0; i < k; i++){ sum_p += baseP[i]; }
+	for(int i = 0; i < k; i++){ baseP[i] /= sum_p; }	
+	
+	double new_llk = llk_from_p();	
+	
+	if(new_llk < org_llk){
+	//	Rprintf("Note: EM step failed. Difference in llk = %f, current iter = %d\n", new_llk - org_llk, iter);
+		for(int i = 0; i < k; i++){ baseP[i] = baseP_backup[i];}
+		new_llk = llk_from_p();
+	}
+}
 void icm_Abst::gradientDescent_step(){
     
 	if(failedGA_counts > 500){return;}
@@ -169,7 +197,8 @@ void icm_Abst::gradientDescent_step(){
         failedGA_counts++;
         baseCH= backupCH;
         new_llk = sum_llk();
-        Rprintf("warning: delta_val is nan in GA step. llk_h = %f, llk_l = %f, llk_0 = %f, scale_max = %f\n", llk_h, llk_l, llk_0, scale_max);
+        Rprintf("warning: delta_val is nan in GA step. llk_h = %f, llk_l = %f, llk_0 = %f, scale_max = %f\n", 
+    			llk_h, llk_l, llk_0, scale_max);
         return;
     }
 
@@ -220,64 +249,78 @@ void icm_Abst::numeric_dobs_dp(){
 //    baseCH_2_baseS();
     
     int p_k = baseS.size();
-    int n = etas.size();
-    vector<double> dob_dp_both(n);
-    vector<double> dob_dp_rightOnly(n);
-
-    double sl, sr, llk_h,llk_l, this_eta, this_h;
-    
-    double h_mult = 0.001;
-    
-    h *= h_mult;
-    
-    for(int i = 0; i < n; i++){
-        sl = baseS[ obs_inf[i].l];
-        sr = baseS[ obs_inf[i].r + 1];
-        this_eta = etas[i];
-        if(sl == 1.0 && sr == 0.0){
-            dob_dp_rightOnly[i] = 0;
-            dob_dp_both[i] = 0;
-        }
-        else if(sr == 0){
-            dob_dp_rightOnly[i] = 0;
-            this_h = min(sl/2.0, h);
-            sl -= this_h;
-            llk_h = cal_log_obs(sl, sr, this_eta);
-            sl += this_h * 2.0;
-            llk_l = cal_log_obs(sl, sr, this_eta);
-            dob_dp_both[i] = (llk_h - llk_l) / (2 * this_h);
-        }
-        else if( sl == 1.0 ){
-            this_h = min(sr / 2.0, h);
-            sr -= this_h;
-            llk_h = cal_log_obs(sl, sr, this_eta);
-            sr += 2.0 * this_h;
-            llk_l = cal_log_obs(sl, sr, this_eta);
-            dob_dp_both[i] = (llk_h - llk_l)/(2*this_h);
-            dob_dp_rightOnly[i] = dob_dp_both[i];
-        }
-        else{
-            this_h = min(sr /2.0, h);
-            sr -= this_h;
-            llk_h = cal_log_obs(sl, sr, this_eta);
-            sr += 2.0 * this_h;
-            llk_l = cal_log_obs(sl, sr, this_eta);
-            sr -= this_h;
-            dob_dp_rightOnly[i] = (llk_h - llk_l)/(2*this_h);
-            sr -= this_h;
-            sl -= this_h;
-            llk_h = cal_log_obs(sl, sr, this_eta);
-            
-            sr += 2.0 * this_h;
-            sl += 2.0 * this_h;
-            llk_l = cal_log_obs(sl, sr, this_eta);
-            dob_dp_both[i] = (llk_h - llk_l)/(2*this_h);
-            
-        }
-    }
-    int lind, rind;
-    
     int k = p_k - 1;
+    int n = etas.size();
+    dob_dp_both.resize(n);
+    dob_dp_rightOnly.resize(n);
+    int lind, rind;
+	double h_mult = 0.0001;
+   	h *= h_mult;
+
+	if(hasCovars){
+	    double sl, sr, llk_h,llk_l, this_eta, this_h;    
+   	 
+   		for(int i = 0; i < n; i++){
+    	    sl = baseS[ obs_inf[i].l];
+    	    sr = baseS[ obs_inf[i].r + 1];
+    	    this_eta = etas[i];
+    	    if(sl == 1.0 && sr == 0.0){
+    	        dob_dp_rightOnly[i] = 0;
+    	        dob_dp_both[i] = 0;
+    	    }
+    	    else if(sr == 0){
+    	        dob_dp_rightOnly[i] = 0;
+    	        this_h = min(sl/2.0, h);
+    	        sl -= this_h;
+    	        llk_h = cal_log_obs(sl, sr, this_eta);
+    	        sl += this_h * 2.0;
+    	        llk_l = cal_log_obs(sl, sr, this_eta);
+    	        dob_dp_both[i] = (llk_h - llk_l) / (2 * this_h);
+    	    }
+    	    else if( sl == 1.0 ){
+    	        this_h = min(sr / 2.0, h);
+    	        sr -= this_h;
+    	        llk_h = cal_log_obs(sl, sr, this_eta);
+    	        sr += 2.0 * this_h;
+    	        llk_l = cal_log_obs(sl, sr, this_eta);
+    	        dob_dp_both[i] = (llk_h - llk_l)/(2*this_h);
+    	        dob_dp_rightOnly[i] = dob_dp_both[i];
+    	    }
+    	    else{
+    	        this_h = min(sr /2.0, h);
+    	        sr -= this_h;
+    	        llk_h = cal_log_obs(sl, sr, this_eta);
+    	        sr += 2.0 * this_h;
+    	        llk_l = cal_log_obs(sl, sr, this_eta);
+    	        sr -= this_h;
+    	        dob_dp_rightOnly[i] = (llk_h - llk_l)/(2*this_h);
+    	        sr -= this_h;
+    	        sl -= this_h;
+    	        llk_h = cal_log_obs(sl, sr, this_eta);
+            
+    	        sr += 2.0 * this_h;
+    	        sl += 2.0 * this_h;
+    	        llk_l = cal_log_obs(sl, sr, this_eta);
+    	        dob_dp_both[i] = (llk_h - llk_l)/(2*this_h);
+    	        
+    	    }
+    	}
+    }
+    else{
+    	for(int i = 0; i < p_k; i++){
+    		dob_dp_both[i] = 0;
+    		dob_dp_rightOnly[i] = 0;
+    	}
+    	double thisProb;
+    	double num_n = n;
+    	for(int i = 0; i < n; i++){
+    		lind = obs_inf[i].l;
+    		rind = obs_inf[i].r + 1;
+    		thisProb = baseS[lind] - baseS[rind];
+    		dob_dp_rightOnly[i] = 1.0/(num_n*thisProb);
+    	}
+    }
+    
     base_p_derv.resize(k);
 
     int k_l, k_r;

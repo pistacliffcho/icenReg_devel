@@ -478,10 +478,11 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
 				Rprintf("covar update = %f  ", llk2 - llk1);
 			}
 		}
+		else{optObj->EM_step();}
 
         for(int i = 0; i < baselineUpdates; i++)  {
 			
-			optObj->stablizeBCH();
+			if(optObj->hasCovars){optObj->stablizeBCH();}
 			
             if(i < optObj->iter){
                 optObj->icm_step();
@@ -589,6 +590,9 @@ SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals){
     vector<double> mi_l;
     vector<double> mi_r;
     
+    mi_l.reserve(k);
+    mi_r.reserve(k);
+    
     bool foundLeft = false;
     double last_left = R_NegInf;
     for(int i = 0; i < k; i++){
@@ -607,17 +611,23 @@ SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals){
     int n = LENGTH(lVals);
     SEXP l_ind = PROTECT(allocVector(INTSXP, n));
     SEXP r_ind = PROTECT(allocVector(INTSXP, n));
+    
+    int* cl_ind = INTEGER(l_ind);
+    int* cr_ind = INTEGER(r_ind);
+    double* clVals = REAL(lVals);
+    double* crVals = REAL(rVals);
+    
     for(int i = 0; i < n; i++){
         for(int j = 0; j < tbulls; j++){
-            if(mi_l[j] >= REAL(lVals)[i]){
-                INTEGER(l_ind)[i] = j;
+            if(mi_l[j] >= clVals[i]){
+				cl_ind[i] = j;
                 break;
             }
         }
         
         for(int j = tbulls-1; j >= 0; j--){
-            if(mi_r[j] <= REAL(rVals)[i]){
-                INTEGER(r_ind)[i] = j;
+            if(mi_r[j] <= crVals[i]){
+				cr_ind[i] = j;
                 break;
             }
         }

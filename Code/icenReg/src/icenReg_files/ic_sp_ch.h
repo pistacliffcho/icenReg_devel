@@ -106,6 +106,7 @@ public:
     bool startGD;
     vector<double> baseS;
     vector<double> baseP;
+    vector<double> baseP_backup;
     vector<double> d_cond_S_left;
     vector<double> d_cond_S_right;
     vector<double> base_p_derv;
@@ -122,6 +123,12 @@ public:
     void calc_base_p_derv();
     double getMaxScaleSize( vector<double> &p, vector<double> &prop_p);
     void gradientDescent_step();
+    void EM_step();
+    
+    vector<double> dob_dp_both;
+    vector<double> dob_dp_rightOnly;
+
+    
     
     void numeric_dobs_dp();
     double cal_log_obs(double s1, double s2, double eta);
