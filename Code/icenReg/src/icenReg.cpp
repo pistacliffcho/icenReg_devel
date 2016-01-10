@@ -6,7 +6,8 @@
 //
 //
 
-#include "Eigen_local/Dense"
+//#include "Eigen_local/Dense"
+#include <Eigen/Dense>
 #include <stdio.h>
 #include <vector>
 #include <R.h>

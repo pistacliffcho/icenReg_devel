@@ -12,16 +12,16 @@
 \description{
  	RFM mice were sacrificed and examined for lung tumors. This resulted in current status interval censored data: if the tumor was present, this implied left censoring and if no tumor was present this implied right censoring. Mice were placed in two different groups: conventional environment or germ free environment.}
 \examples{
-	data(miceData)
+data(miceData)
 	
-	coxph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ grp, 
-	                   bs_samples = 50,	
-	                   data = miceData)
+coxph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ grp, 
+                   bs_samples = 50,	
+                   data = miceData)
 	
-	#In practice, more bootstrap samples should be used for inference
-	#Keeping it quick for CRAN testing purposes 
+#In practice, more bootstrap samples should be used for inference
+#Keeping it quick for CRAN testing purposes 
 	
-	summary(coxph_fit)
+summary(coxph_fit)
 }
 \source{
 	Hoel D. and Walburg, H.,(1972), Statistical analysis of survival experiments, \emph{The Annals of Statistics}, 18, 1259-1294 

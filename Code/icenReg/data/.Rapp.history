@@ -1,0 +1,2 @@
+load("/Users/cliffordanderson-bergman/Desktop/icenReg_devel/Code/icenReg/data/IR_diabetes.Rdata")
+load("/Users/cliffordanderson-bergman/Desktop/icenReg_devel/Code/icenReg/data/IR_diabetes.RData")

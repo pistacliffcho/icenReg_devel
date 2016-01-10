@@ -150,7 +150,7 @@ double getNonParSurv(double t, SEXP SC){
     double* svals_ptr = REAL(svals);
     
     int ind = 0;
-    while(t > tb_ptr[ind + k]  && ind < k){ ind++; }
+    while(ind < k && t > tb_ptr[ind + k]){ ind++; }
     if(ind == k){ return(0.0); }
     if(ind == 0){ return(1.0); }
     if(t < tb_ptr[ind]){ return(svals_ptr[ind - 1]); }

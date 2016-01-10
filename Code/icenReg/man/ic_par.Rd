@@ -2,19 +2,20 @@
 \alias{ic_par}
 \title{Parametric Regression  Models for Interval Censored Data}
 \usage{
-  ic_par(formula, data, model = 'ph', dist = 'weibull', weights = NULL) 
+ic_par(formula, data, 
+       model = 'ph', dist = 'weibull', 
+       weights = NULL) 
 }
 \arguments{
   \item{formula}{regression formula. Response must be a \code{Surv} object of type \code{'interval2'} or \code{cbind}. See details.}
   \item{data}{dataset}
-  \item{model}{What type of model to fit. Current choices are "\code{ph}" (Cox PH) or "\code{po}" (proportional odds)}
+  \item{model}{What type of model to fit. Current choices are "\code{ph}" (proportional hazards) or "\code{po}" (proportional odds)}
   \item{dist}{What baseline parametric distribution to use. See details for current choices}
   \item{weights}{vector of case weights. Not standardized; see details}
 }
 \description{
- 	Fits a parametric regression model for interval censored data. Can fit either a Cox-PH model or a proportional odds model.  
- 	
- }
+Fits a parametric regression model for interval censored data. Can fit either a proportional hazards or a proportional odds model.  
+}
  
 \details{
 	Currently supported distributions choices are "exponential", "weibull", "gamma", "lnorm", "loglogistic" and "generalgamma" (i.e. generalized gamma distribution). 
@@ -29,16 +30,17 @@
 } 
   
 \examples{
-	data(miceData)
+data(miceData)
 	
-	logist_ph_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, 
-	                        data = miceData, dist = 'loglogistic')
+logist_ph_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, 
+                       data = miceData, dist = 'loglogistic')
 
-	logist_po_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, 
-	                        data = miceData, dist = 'loglogistic', model = 'po')
+logist_po_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, 
+                       data = miceData, dist = 'loglogistic',
+                       model = 'po')
 
-	summary(logist_ph_fit)
-	summary(logist_po_fit)
+summary(logist_ph_fit)
+summary(logist_po_fit)
 }
 \author{
   Clifford Anderson-Bergman

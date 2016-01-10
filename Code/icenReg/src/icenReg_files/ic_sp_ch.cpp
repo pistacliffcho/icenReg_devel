@@ -159,8 +159,9 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     double curVal = 1.0;
     
     int intActIndex = 0;
+    int minActPoint_k = minActPoints.size();
     for(int i = 1; i < (maxInd+1); i++){
-        if(intActIndex < minActPoints.size() ){
+        if(intActIndex < minActPoint_k ){
             if(i == minActPoints[intActIndex]){
                 intActIndex++;
                 curVal += stepSize;
@@ -271,7 +272,9 @@ void icm_Abst::icm_step(){
         }
     }
     vector<double> x(d1.size());
-    if(x.size() != baseCH.size() - 2){Rprintf("warning: x.size()! = actIndex.size()\n"); return;}
+    int x_k = x.size();
+    int baseCH_k = baseCH.size();
+    if(x_k != baseCH_k - 2){Rprintf("warning: x.size()! = actIndex.size()\n"); return;}
     thisSize = baseCH.size() - 2;
     for(int i = 0; i < thisSize; i++){x[i] = baseCH[i + 1];}
     vector<double> prop(d1.size());

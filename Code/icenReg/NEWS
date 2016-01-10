@@ -1,5 +1,15 @@
 
 UPDATES:
+v1.3.3 
+Fixed memory access issue reported by CRAN
+
+v1.3.2
+Preparing for JSS submission
+Removed unpublished algorithms and methods
+
+v1.3.1
+Imported method as reported by CRAN
+
 v1.3.0 
 getFitEsts is much faster
 added predict function

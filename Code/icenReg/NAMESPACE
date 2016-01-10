@@ -18,8 +18,8 @@ export(diag_covar)
 export(diag_baseline)
 export(imputeCens)
 export(ic_par)
-export(icenReg_cv)
-export(abs_inv)
+#export(icenReg_cv)
+#export(abs_inv)
 
 importFrom("graphics", "legend", "lines", "par", "plot")
 importFrom("methods", "is", "new")
@@ -31,10 +31,10 @@ importFrom("stats", ".getXlevels", "contrasts", "cov",
 
 
 ## BIVARIATE CENSORED EXPORTS
-importFrom(MLEcens, reduc)
-export(optCliq)
-export(ICNPMLE)
-export(simBVCen)
+#importFrom(MLEcens, reduc)
+#export(optCliq)
+#export(ICNPMLE)
+#export(simBVCen)
 #export(initICNPMLE)
 #exportClasses(IC_NPMLE)
 #exportClasses(cliqOptInfo)

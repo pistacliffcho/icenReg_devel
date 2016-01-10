@@ -181,11 +181,13 @@ getSCurves <- function(fit, newdata = NULL){
 }
 
 
-plot.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab = "time",...){
+plot.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab = "time",
+                             colors = NULL, ...){
 	if(inherits(x, 'impute_par_icph'))	stop('plot currently not supported for imputation model')
 	if(missing(y)) y <- list(...)$newdata	
 	newdata <- y
-  
+  nRows <- 1
+  if(!is.null(newdata)) nRows <- nrow(newdata)
   if(fun == 'surv'){ s_trans <- function(x){x}; yName = 'S(t)'}
   else if(fun == 'cdf'){s_trans <- function(x){1-x}; yName = 'F(t)'}
   else stop('"fun" option not recognized. Choices are "surv" or "cdf"')
@@ -201,30 +203,33 @@ plot.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab 
 		x_u <- curveInfo$Tbull_ints[,2]
 		k <- length(x_l)
 		ss <- curveInfo$S_curves
+		if(is.null(colors))  colors <- 1:length(ss)
 		
 		for(i in 1:length(ss)){
-			lines(x_l, s_trans(ss[[i]]), col = i, type = 's')
-			lines(x_u, s_trans(ss[[i]]), col = i, type = 's')
-			lines(c(x_l[k], x_u[k]), s_trans(c(ss[[i]][k], ss[[i]][k])), col = i)
+			lines(x_l, s_trans(ss[[i]]), col = colors[i], type = 's')
+			lines(x_u, s_trans(ss[[i]]), col = colors[i], type = 's')
+			lines(c(x_l[k], x_u[k]), s_trans(c(ss[[i]][k], ss[[i]][k])), col = colors[i])
 		}
 		if(length(ss) > 1){
 			grpNames <- names(ss)
-			legend(lgdLocation, legend = grpNames, lwd = rep(1, length(grpNames) ), col = 1:length(ss))
+			legend(lgdLocation, legend = grpNames, lwd = rep(1, length(grpNames) ), col = colors)
 		}
 	}
 	else if(inherits(x, 'par_fit')){
-    ranges <- matrix(nrow = nrow(newdata), ncol = 2)
+    ranges <- matrix(nrow = nRows, ncol = 2)
 		ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.05 )
     ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.95 )
 		plot(NA, xlim = range(as.numeric(ranges), finite = TRUE), ylim = c(0,1), xlab = xlab, ylab = yName)
 		ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.005 )
 		ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.995 )
+		if(is.null(colors))  colors <- 1:nRows
+		
 		for(i in 1:nrow(ranges)){
 			grid = ranges[i,1] + 0:100/100 * (ranges[i,2] - ranges[i,1])
 			est.s <- 1 - getFitEsts(x, newdata = subsetData_ifNeeded(i, newdata), q = grid)
-			lines(grid, s_trans(est.s), col = i)
+			lines(grid, s_trans(est.s), col = colors[i])
 		}
-		if(ncol(ranges) > 1){
+		if(nrow(ranges) > 1){
 			grpNames <- rownames(newdata)
 			legend(lgdLocation, legend = grpNames, lwd = rep(1, length(grpNames) ), col = 1:ncol(ranges))
 		}
@@ -404,7 +409,7 @@ impute_ic_ph <- function(formula, data, imps = 100, eta = 10^-10, rightCenVal = 
 simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', 
 					   shape = 2, scale = 2, 
 					   inspections = 2, inspectLength = 2.5,
-					   rndDigits = NULL, prob_cen = 0.5){
+					   rndDigits = NULL, prob_cen = 1){
 	rawQ <- runif(n)
     x1 <- runif(n, -1, 1)
     x2 <- 1 - 2 * rbinom(n, 1, 0.5)
@@ -532,7 +537,7 @@ diag_covar <- function(object, varName,
 		allVars <- getVarNames_fromFormula(fullFormula)
 		nV <- length(allVars)
 		k <- ceiling(sqrt(nV))
-		par(mfrow = c( ceiling(nV/k), k) )
+		if(k > 1) par(mfrow = c( ceiling(nV/k), k) )
 		for(vn in allVars){
 			useFactor <- length( unique((data[[vn]])) ) < 5
 			diag_covar(object, vn, factorSplit = useFactor, model = model, data = data, yType = yType, weights = weights, lgdLocation = lgdLocation)
@@ -908,6 +913,9 @@ predict.icenReg_fit <- function(object, type = 'response',
 
 
 imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes = 5){
+#  if(is(fit, 'sp_fit'))
+#    stop("imputation not available for semi-parametric model. 
+#         This is due to the lack of distributional theory for baseline distribution")
   if(is.null(newdata)) newdata <- fit$getRawData()
   yMat <- expandY(fit$formula, newdata, fit)
   p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
@@ -977,7 +985,7 @@ lines.sp_curves <- function(x, sname = 'baseline',...){
     firstTimeAssume <- 0
   lines(c(firstTimeAssume, firstTimeObs), c(1,1), ...)
   lines(x[[1]][,1], x[[2]][[sname]], ..., type = 's')
-  lines(x[[1]][,2], x[[2]][[sname]], ..., type = 's')
+  lines(x[[1]][,2], x[[2]][[sname]],   ..., type = 's')
   lastObs <- nrow(x[[1]])
   lastTimes <- x[[1]][lastObs,]
   if(lastTimes[2] == Inf) lastTimes[2] <- lastTimes[1]

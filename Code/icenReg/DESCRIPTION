@@ -1,12 +1,13 @@
 Package: icenReg
 Type: Package
 Title: Regression Models for Interval Censored Data 
-Version: 1.3.1
-Date: 2015-12-10
-Author: Clifford Anderson-Bergman; the Eigen team for Eigen library included(for C++ matrix operations); uses Marloes Maathuis's HeightMap algorithm (MLEcens::reduc)
-Depends: survival, MLEcens
-Imports: foreach, methods
+Version: 1.3.4
+Date: 2016-1-6
+Author: Clifford Anderson-Bergman; uses Marloes Maathuis's HeightMap algorithm (MLEcens::reduc)
+Depends: survival
+Imports: foreach, methods, MLEcens
+LinkingTo: RcppEigen
 Maintainer: Clifford Anderson-Bergman <pistacliffcho@gmail.com>
-Description: Regression models for interval censored data. Currently supports Cox-PH and proportional odds models. Allows for both semi and fully parametric models. Includes functions for easy visual diagnostics of model fits and imputed cross-validation. Includes functions for fitting both the univariate and bivariate NPMLE.  
+Description: Regression models for interval censored data. Currently supports Cox-PH and proportional odds models. Allows for both semi and fully parametric models. Includes functions for easy visual diagnostics of model fits and imputation of censored data. 
 License: LGPL (>= 2.0, < 3)
 Packaged: 2014-08-20 19:43:34 UTC; cliff

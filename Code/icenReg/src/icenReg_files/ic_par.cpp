@@ -406,6 +406,8 @@ void IC_parOpt::fillFullHessianAndScore(SEXP r_mat, SEXP score){
         }
     }
     update_etas();
+    calculate_baseline_probs();
+
 }
 
 void IC_parOpt::NR_reg_pars(){
@@ -591,7 +593,7 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
     double lk_old = R_NegInf;
     int iter = 0;
     int maxIter = 1000;
-    double tol = pow(10.0, -13.0);
+    double tol = pow(10.0, -10.0);
     double lk_new = optObj.calcLike_all();
 
     if(lk_new == R_NegInf){

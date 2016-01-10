@@ -17,14 +17,15 @@
  \details{ 	
 	If \code{newdata} is left blank, will provide estimates for original data set. 
 	
-	For the argument \code{type}, there are two options. \code{"lp"} provides the linear predictor for each subject (i.e. in a Cox-PH, this is the log-hazards ratio, in proportional odds, the log proporitonal odds), \code{"response"} provides the median response value for each subject, *conditional on that subject's covariates, but ignoring their actual response interval*. Use \code{imputeCens} to impute the censored values. 
+	For the argument \code{type}, there are two options. \code{"lp"} provides the linear predictor for each subject (i.e. in a proportional hazards model, this is the log-hazards ratio, in proportional odds, the log proporitonal odds), \code{"response"} provides the median response value for each subject, *conditional on that subject's covariates, but ignoring their actual response interval*. Use \code{imputeCens} to impute the censored values. 
 }
 \examples{
 
 simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
-                      inspections = 6, inspectLength = 1)
+                      inspections = 6,
+                      inspectLength = 1)
   
-fit <- ic_par(Surv(l, u, type = 'interval2') ~ x1 + x2,
+fit <- ic_par(cbind(l, u) ~ x1 + x2,
                    data = simdata)
 
 imputedValues <- predict(fit)

@@ -7,7 +7,7 @@ diag_covar(object, varName,
            yType = 'meanRemovedTransform',
            factorSplit = TRUE, 
            numericCuts, col, 
-           xlab, ylab, main, 
+           xlab, ylab, main,
            lgdLocation = NULL) }
 \arguments{
   \item{object}{Either a formula or a model fit with \code{ic_sp} or \code{ic_par}}
@@ -31,9 +31,9 @@ If \code{varName} is not provided, will attempt to figure out how to divide up e
 \details{
 	For the Cox-PH and proportional odds models, there exists a transformation of survival curves such that the difference should be constant for subjects with different covariates. In the case of the Cox-PH, this is the log(-log(S(t|X))) transformation, for the proporitonal odds, this is the log(S(t|X) / (1 - S(t|X))) transformation. 
 	
-	The function diag_covar allows the user to easily use these transformations to diagnosis whether such a model is appropriate. In particular, it takes a single covariate and stratifies the data on different levels of that covariate. Then, it fits the semi-parametric regression model (adjusting for all other covariates in the data set) on each of these stratas and extracts the baseline survival function. If the stratified covariate does follow the regression assumption, the difference between these transformed baseline survival functions should be approximately constant. 
+	The function diag_covar allows the user to easily use these transformations to diagnosis whether such a model is appropriate. In particular, it takes a single covariate and stratifies the data on different levels of that covariate. Then, it fits the semi-parametric regression model (adjusting for all other covariates in the data set) on each of these stratum and extracts the baseline survival function. If the stratified covariate does follow the regression assumption, the difference between these transformed baseline survival functions should be approximately constant. 
 	
-	To help diagnosis, the default function plotted is the transformed survival functions, with the overall means subtracted off. If the assumption holds true, then the difference between the plotted lines should be approximately constant. Other choices of \code{yType}, the function to plot, are \code{"transform"}, which is the transformed functions without the means subtracted and \code{"survival"}, which is the baseline survival distribution is plotted for each strata. 
+	To help diagnosis, the default function plotted is the transformed survival functions, with the overall means subtracted off. If the assumption holds true, then the mean removed curves should be approximately parallel lines (with stochastic noise). Other choices of \code{yType}, the function to plot, are \code{"transform"}, which is the transformed functions without the means subtracted and \code{"survival"}, which is the baseline survival distribution is plotted for each strata. 
 	
 	Currently does not support stratifying covariates that are involved in an interaction term. 
 	
@@ -42,19 +42,17 @@ If \code{varName} is not provided, will attempt to figure out how to divide up e
 	\code{lgdLocation} is an argument placed to \code{legend} dictating where the legend will be placed. If \code{lgdLocation = NULL}, will use standard placement given \code{yType}. See \code{?legend} for more details. 
 }
 \examples{
-	 data(essIncData_small)
-	 useData <- essIncData_small
-	 
-	 #Note to user: suggest replacing useData with essIncData
-	 #instead of essIncData_small. Using small dataset to quickly 
-	 #pass CRAN tests
-	 par(mfrow = c(1,2))
-	 	 
-	 diag_covar(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 
-		         data = useData, model = 'po')
+data(IR_diabetes)
+
+diag_covar(cbind(left, right) ~ gender, 
+    data = IR_diabetes, model = 'po')
 		
-	 diag_covar(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry, 
-		         data = useData, model = 'ph')}
+diag_covar(cbind(left, right) ~ gender, 
+    data = IR_diabetes, model = 'ph')
+    
+#Neither fit is perfect
+#Proportional odds looks better
+}
 \author{
   Clifford Anderson-Bergman
 }

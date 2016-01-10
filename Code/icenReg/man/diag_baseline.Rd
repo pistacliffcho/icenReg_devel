@@ -24,19 +24,12 @@ diag_baseline(object, data, model = "ph", weights = NULL,
 	
 }
 \examples{
-	 data(essIncData_small)
-	 useData <- essIncData_small
-	 
-	 #Note to user: suggest replacing useData with essIncData
-	 #instead of essIncData_small. Using small dataset to quickly 
-	 #pass CRAN tests
-	 
-	 fit_po <- ic_sp(Surv(inc_l, inc_u, type = 'interval2') ~ eduLevel * cntry,
-	                 data = useData, bs_samples = 0, model = 'po')
-	
-	 diag_baseline(fit_po)
+data(IR_diabetes)
+fit <- ic_par(cbind(left, right) ~ gender, 
+              data = IR_diabetes)
 
-	 #Weibull model appears best fit
+diag_baseline(fit, lgdLocation = "topright", 
+     dist = c("exponential", "weibull", "loglogistic"))
 }
 \author{
   Clifford Anderson-Bergman

@@ -34,7 +34,7 @@
 	
 	In regards to weights, they are not standardized. This means that if weight[i] = 2, this is the equivalent to having two observations with the same values as subject i. 
 
-	It is very important to note that a random seed is *always* set if bs_samples > 0 (via \code{set.seed(seed)}), which can create problems in simulation studies if the same seed is set in every call to ic_sp during a simulation study. If \code{seed == NULL}, then the starting seed will be \code{round(runif(0, max = 10^8))}, which should be approximately equivalent to not setting a seed. 
+	It is very important to note that a random seed is *always* set if bs_samples > 0 (via \code{set.seed(seed)}), which can create problems in simulation studies if the same seed is set in every call to ic_sp during a simulation study. If \code{seed == NULL}, then the starting seed will be \code{round(runif(0, max = 10^8))}, which should be approximately equivalent to not setting a seed. The reason the seed is manually provided to facilitate randomization in parallel. 
 
   The algorithm used is inspired by the extended ICM algorithm from Wei Pan 1999. However, it uses a conditional Newton Raphson step (for the regression parameters) and an ICM step (for the baseline survival parameters), rather than one single ICM step (for both sets). In addition, a gradient ascent can also be used to update the baseline parameters. This step is necessary if the data contains many uncensored observations, very similar to how the EM algorithm greatly accelerates the ICM algorithm for the NPMLE (gradient ascent is used rather than the EM, as the M step is not in closed form for semi-parametric models). 
   
@@ -48,35 +48,36 @@ Wellner, J. A., and Zhan, Y. (1997) A hybrid algorithm for computation of the ma
 }
   
 \examples{
-	set.seed(1)
+set.seed(1)
 
-	sim_data <- simIC_weib(n = 500, inspections = 5, inspectLength = 1)
-	ph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data)	
-	# Default fits a Cox-PH model
+sim_data <- simIC_weib(n = 500, inspections = 5, inspectLength = 1)
+ph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, 
+data = sim_data)	
+# Default fits a Cox-PH model
 	
-	summary(ph_fit)		
-	# Regression estimates close to true 0.5 and -0.5 values
+summary(ph_fit)		
+# Regression estimates close to true 0.5 and -0.5 values
 
 
-	new_data <- data.frame(x1 = c(0,1), x2 = c(1, 1) )
-	rownames(new_data) <- c('group 1', 'group 2')
-	plot(ph_fit, new_data)
-	# plotting the estimated survival curves
+new_data <- data.frame(x1 = c(0,1), x2 = c(1, 1) )
+rownames(new_data) <- c('group 1', 'group 2')
+plot(ph_fit, new_data)
+# plotting the estimated survival curves
 
-	po_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, data = sim_data,
-	                model = 'po')
-	# fits a proportional odds model
+po_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, 
+                data = sim_data, model = 'po')
+# fits a proportional odds model
 	
-	summary(po_fit)
+summary(po_fit)
 	
-	# Not run: how to set up multiple cores
-	# library(doParallel)
-	# myCluster <- makeCluster(2) 
-	# registerDoParallel(myCluster)
-	# fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2,
-	#              data = sim_data, useMCores = TRUE
-	#              bs_samples = 500)
-	# stopCluster(myCluster)
+# Not run: how to set up multiple cores
+# library(doParallel)
+# myCluster <- makeCluster(2) 
+# registerDoParallel(myCluster)
+# fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2,
+#              data = sim_data, useMCores = TRUE
+#              bs_samples = 500)
+# stopCluster(myCluster)
 }
 \author{
   Clifford Anderson-Bergman

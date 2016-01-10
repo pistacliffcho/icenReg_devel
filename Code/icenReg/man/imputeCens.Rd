@@ -2,7 +2,9 @@
 \alias{imputeCens}
 \title{Impute Interval Censored Data from icenReg Regression Model}
 \usage{
-  imputeCens(fit, newdata = NULL, imputeType = "fullSample", numImputes = 5)
+imputeCens(fit, newdata = NULL, 
+           imputeType = "fullSample",
+          numImputes = 5)
 }
 \arguments{
   \item{fit}{model fit with \code{ic_par} or \code{ic_sp}}
@@ -27,17 +29,13 @@ of the response variable, conditional on the response interval,
 covariates, and the random sample of the coefficients. 
 
 
-NOTE: for the fully-parametric model, sampling the coefficients includes sampling 
-the baseline parameters. However, for the semi-parametric model, 
-the baseline parameters are **treated as fixed**, as 
-we are unaware of any sort of asymptotic approximation of their distribution. 
  }
 \examples{
 
 simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
                       inspections = 6, inspectLength = 1)
   
-fit <- ic_par(Surv(l, u, type = 'interval2') ~ x1 + x2,
+fit <- ic_par(cbind(l, u) ~ x1 + x2,
                    data = simdata)
 
 imputedValues <- imputeCens(fit)

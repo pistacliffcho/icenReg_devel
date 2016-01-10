@@ -61,6 +61,8 @@ void icm_Abst::vem(){
     numeric_dobs_dp();
     
     int min_ind, max_ind;
+    min_ind = 0;
+    max_ind = 0;
     double minVal = R_PosInf;
     double maxVal = R_NegInf;
     
