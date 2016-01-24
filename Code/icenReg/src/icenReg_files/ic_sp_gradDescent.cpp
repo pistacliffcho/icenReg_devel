@@ -84,7 +84,7 @@ void icm_Abst::EM_step(){
     baseCH_2_baseS();
     baseS_2_baseP();
 
-    numeric_dobs_dp();
+    numeric_dobs_dp(false);
     int k = base_p_derv.size();
 //    double n = etas.size();
 	baseP_backup.resize(k);
@@ -116,7 +116,7 @@ void icm_Abst::gradientDescent_step(){
     baseCH_2_baseS();
     baseS_2_baseP();
     	
-    numeric_dobs_dp();
+    numeric_dobs_dp(true);
     int k = base_p_derv.size();
     prop_p.resize(k);
     double prop_mean = 0;
@@ -245,9 +245,7 @@ double icm_Abst::cal_log_obs(double s1, double s2, double eta){
 
 
 
-void icm_Abst::numeric_dobs_dp(){
-//    baseCH_2_baseS();
-    
+void icm_Abst::numeric_dobs_dp(bool forGA){    
     int p_k = baseS.size();
     int k = p_k - 1;
     int n = etas.size();
@@ -257,7 +255,7 @@ void icm_Abst::numeric_dobs_dp(){
 	double h_mult = 0.0001;
    	h *= h_mult;
 
-	if(hasCovars){
+	if(forGA){
 	    double sl, sr, llk_h,llk_l, this_eta, this_h;    
    	 
    		for(int i = 0; i < n; i++){

@@ -1,7 +1,6 @@
-ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, seed = NULL,
-                  useGA = T, maxIter = 1000, baseUpdates = 5){
+ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, 
+                  useGA = T, useEM = F, maxIter = 5000, baseUpdates = 5){
   if(missing(data)) data <- environment(formula)
-  useExpSteps = FALSE
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
     m <- match(c("formula", "data", "subset", "na.action", "offset"), names(mf), 0L)
@@ -58,41 +57,27 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	
   other_info <- list(useGA = useGA, maxIter = maxIter, 
                      baselineUpdates = baseUpdates, 
-                     useFullHess = useFullHess, useExpSteps = useExpSteps)  
+                     useFullHess = useFullHess, 
+                     useEM = useEM)  
 
    	fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)
 	dataEnv <- list()
 	dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
 	if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- as.character(formula[[3]])
 	dataEnv[['y']] <- yMat
-	if(!is.numeric(seed))
-		seed <- round(runif(1, max = 10000000))
-   	if(seed < 0) stop('seed must be non-negative')   
-	seeds = 1:bs_samples + seed
+	seeds = as.integer( runif(bs_samples, 0, 2^31) )
 	bsMat <- numeric()
+	if(useMCores) `%mydo%` <- `%dopar%`
+	else          `%mydo%` <- `%do%`
 	if(bs_samples > 0){
-	   	if(useMCores == F){
-	 		for(i in 1:bs_samples){
-	    		set.seed(i + seed)
-	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				bsMat <- rbind(bsMat, getBS_coef(sampDataEnv, 
-				                                 callText = callText, other_info = other_info))
-	    	}
-	    }
-	    else{
-	    	bsMat <- foreach(i = seeds, 
-	    					.combine = 'rbind') %dopar%{
-	    		set.seed(i)
-	    		sampDataEnv <- bs_sampleData(dataEnv, weights)
-				getBS_coef(sampDataEnv, callText = callText,
+	    bsMat <- foreach(i = seeds, .combine = 'rbind') %mydo%{
+	        set.seed(i)
+	        sampDataEnv <- bs_sampleData(dataEnv, weights)
+			    getBS_coef(sampDataEnv, callText = callText,
 				           other_info = other_info)
-
 	    	}
-	    }
-   	 }
+	 }
 	    
-#	 xNames <- colnames(x)
-
 	 if(bs_samples > 0){
 	   	 names(fitInfo$coefficients) <- xNames
 	   	 colnames(bsMat) <- xNames
@@ -100,18 +85,19 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	   	 numNA <- sum(incompleteIndicator)
 	   	 if(numNA > 0){
 	    		if(numNA / length(incompleteIndicator) >= 0.1)
-	    		cat('warning: ', numNA,' bootstrap samples (out of ', bs_samples, ') were dropped due to singular covariate matrix. Likely due to very sparse covariate. Be wary of these results.\n', sep = '')
+	    		cat('warning: ', numNA,
+	    		    ' bootstrap samples (out of ', bs_samples, 
+	    		    ') were dropped due to singular covariate matrix.',
+              'Likely due to very sparse covariate. Be wary of these results.\n', sep = '')
 	    		bsMat <- bsMat[!incompleteIndicator,]
 	    	}
-	covar <- cov(bsMat)
-    est_bias <- colMeans(bsMat) - fitInfo$coefficients 
-    fitInfo$coef_bc <- fitInfo$coefficients - est_bias
-    }
-    
-    else{ 
-    	bsMat <- NULL
-    	covar <- NULL
-    	coef_bc <- NULL
+	      covar <- cov(bsMat)
+        est_bias <- colMeans(bsMat) - fitInfo$coefficients 
+        fitInfo$coef_bc <- fitInfo$coefficients - est_bias
+    }else{ 
+        bsMat <- NULL
+        covar <- NULL
+        coef_bc <- NULL
     }
     names(fitInfo$coefficients) <- xNames
     fitInfo$bsMat <- bsMat
@@ -125,7 +111,6 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
     fitInfo$reg_pars <- fitInfo$coefficients
     fitInfo$terms <- mt
     fitInfo$xlevels <- .getXlevels(mt, mf)
-#    class(fitInfo) <- c(callText, 'icenReg_fit', 'sp_fit')
     if(fitInfo$iterations == maxIter){
       warning(paste0('Maximum iterations reached in ic_sp.', 
               '\n\nCommon cause of problem is when many observations are uncensored in Cox-PH model',
@@ -426,7 +411,7 @@ impute_ic_ph <- function(formula, data, imps = 100, eta = 10^-10, rightCenVal = 
 	mf_forImputes[['one_vec']] <- one_vec
 
 	if(!is.numeric(seed))
-		seed <- round(runif(1, max = 10000000))
+		seed <- round( runif(1, max = 10000000) )
 
 	if(!useMCores){
 		set.seed(seed)

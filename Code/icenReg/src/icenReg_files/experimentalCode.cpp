@@ -58,7 +58,7 @@ void icm_Abst::vem(){
     baseCH_2_baseS();
     baseS_2_baseP();
 
-    numeric_dobs_dp();
+    numeric_dobs_dp(true);
     
     int min_ind, max_ind;
     min_ind = 0;
@@ -88,7 +88,7 @@ void icm_Abst::vem_sweep(){
     baseCH_2_baseS();
     baseS_2_baseP();
     
-    numeric_dobs_dp();
+    numeric_dobs_dp(true);
     int k = baseP.size();
     int ind1, ind2;
     bool foundPos = false;

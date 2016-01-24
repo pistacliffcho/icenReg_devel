@@ -130,7 +130,7 @@ public:
 
     
     
-    void numeric_dobs_dp();
+    void numeric_dobs_dp(bool forGA);
     double cal_log_obs(double s1, double s2, double eta);
     
     vector<bool> usedVec;
@@ -254,7 +254,9 @@ public:
 };
 
 extern "C" {
-    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates, SEXP R_useFullHess, SEXP R_useExpSteps);
+    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
+                  SEXP R_w, SEXP R_use_GD, SEXP R_maxiter,
+                SEXP R_baselineUpdates, SEXP R_useFullHess, SEXP R_useEMStep);
     SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals);
 }
 #endif /* defined(____ic_sp_cm__) */

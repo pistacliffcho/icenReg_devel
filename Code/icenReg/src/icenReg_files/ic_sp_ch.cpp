@@ -432,10 +432,12 @@ void icm_Abst::covar_nr_step(){
 
 
 /*      CALLING ALGORITHM FROM R     */
-SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP R_use_GD, SEXP R_maxiter, SEXP R_baselineUpdates, SEXP R_useFullHess, SEXP R_useExpSteps){
+SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
+ 			  SEXP R_w, SEXP R_use_GD, SEXP R_maxiter,
+ 			  SEXP R_baselineUpdates, SEXP R_useFullHess, SEXP R_useEMStep){
     icm_Abst* optObj;
     bool useGD = LOGICAL(R_use_GD)[0] == TRUE;
-    bool useExpSteps = LOGICAL(R_useExpSteps)[0] == TRUE;
+    bool useEMStep = LOGICAL(R_useEMStep)[0] == TRUE;
 	
 	bool printDeltaLLK = false;
 	
@@ -478,41 +480,25 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
 				Rprintf("covar update = %f  ", llk2 - llk1);
 			}
 		}
-		else{optObj->EM_step();}
 
         for(int i = 0; i < baselineUpdates; i++)  {
 			
 			if(optObj->hasCovars){optObj->stablizeBCH();}
+			else if(useEMStep){ optObj->EM_step(); }
 			
-            if(i < optObj->iter){
-                optObj->icm_step();
+            optObj->icm_step();
+			if(printDeltaLLK){
+				llk1 = llk2;
+				llk2 = optObj->sum_llk();
+				Rprintf("icm update = %f  ", llk2 - llk1);
+			}	
+          if(useGD){
+                optObj->gradientDescent_step();
 				if(printDeltaLLK){
 					llk1 = llk2;
 					llk2 = optObj->sum_llk();
-					Rprintf("icm update = %f  ", llk2 - llk1);
-				}	
-                if(useGD){
-                    optObj->gradientDescent_step();
-					if(printDeltaLLK){
-						llk1 = llk2;
-						llk2 = optObj->sum_llk();
-						Rprintf("GD update = %f  ", llk2 - llk1);
-					}	
-					
+					Rprintf("GD update = %f  ", llk2 - llk1);
                 }
-                if(useExpSteps){
-        //         optObj->vem();
-                 optObj->last_p_update();
-        //         optObj->vem_sweep();
-        //           optObj->vem_sweep2();
-					if(printDeltaLLK){
-						llk1 = llk2;
-						llk2 = optObj->sum_llk();
-						Rprintf("Experimental update = %f  ", llk2 - llk1);
-					}	
-					
-                }
-				
             }
 			
         }
@@ -533,14 +519,9 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType, SEXP R_w, SEXP
         Rprintf("warning: likelihood decreased! difference = %f\n", llk_new - llk_old);
     }
     
-//    int totGAIts = optObj->iter * optObj->numBaselineIts;
-//    double propFailGA = (optObj->failedGA_counts + 0.0) / totGAIts;
-    
-//    Rprintf("Number of failed GA attempts = %d, as a percent of attempts = %f, num total = %d\n", optObj->failedGA_counts, propFailGA, totGAIts);
-    
     vector<double> p_hat;
 	
-	optObj->recenterBCH();
+	  optObj->recenterBCH();
 	
     cumhaz2p_hat(optObj->baseCH, p_hat);
     
