@@ -25,3 +25,6 @@ using namespace std;
 
 #include "icenReg_files/experimentalCode.cpp"
 #include "icenReg_files/regressionTransforms.cpp"
+
+#include "icenReg_files/EMICM.h"
+#include "icenReg_files/EMICM.cpp"

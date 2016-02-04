@@ -129,10 +129,6 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     icm_obj->baseS.resize(maxInd + 2);
     icm_obj->baseS[0] = 1.0;
     icm_obj->baseS[maxInd+1] = 0;
-/*    icm_obj->H_d1.resize(maxInd - 1);
-    icm_obj->H_d2.resize(maxInd - 1, maxInd - 1);   */
-    
-    vector<int> minActPoints;
     int this_l, this_r;
     icm_obj->obs_inf.resize(n);
     icm_obj->node_inf.resize(maxInd + 2);
@@ -141,33 +137,17 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     for(int i = 0; i < n; i++){
         this_l = INTEGER(Rlind)[i];
         this_r = INTEGER(Rrind)[i];
-        addIfNeeded(minActPoints, this_l, this_r, maxInd);
         icm_obj->obs_inf[i].l = this_l;
         icm_obj->obs_inf[i].r = this_r;
         icm_obj->node_inf[this_l].l.push_back(i);
         icm_obj->node_inf[this_r + 1].r.push_back(i);
     }
     
-    sort(minActPoints.begin(), minActPoints.end());
-    
-    
-/*    double stepSize = 4.0/minActPoints.size();
-    double curVal = -2.0;           
- the above was for the log CH. Now trying for survival instead... */
-
-    double stepSize = -1.0/(1.0 + minActPoints.size() );
+    double stepSize = -1.0/(1.0 + icm_obj->baseS.size() );
     double curVal = 1.0;
     
-    int intActIndex = 0;
-    int minActPoint_k = minActPoints.size();
     for(int i = 1; i < (maxInd+1); i++){
-        if(intActIndex < minActPoint_k ){
-            if(i == minActPoints[intActIndex]){
-                intActIndex++;
-                curVal += stepSize;
-            }
-        }
-//        icm_obj->baseCH[i] = curVal;      TURN ON IF WANT TO SWITCH TO CH START
+    	curVal += stepSize;
         icm_obj->baseS[i] = curVal;
     }
     
@@ -576,13 +556,16 @@ SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals){
     
     bool foundLeft = false;
     double last_left = R_NegInf;
+    
+    double* c_AllVals = REAL(R_AllVals);
+    
     for(int i = 0; i < k; i++){
         if(!foundLeft)                      foundLeft = LOGICAL(isL)[i] == TRUE;
-        if(LOGICAL(isL)[i] == TRUE)         last_left = REAL(R_AllVals)[i];
+        if(LOGICAL(isL)[i] == TRUE)         last_left = c_AllVals[i];
         if(foundLeft){
             if(LOGICAL(isR)[i] == TRUE){
                 mi_l.push_back(last_left);
-                mi_r.push_back(REAL(R_AllVals)[i]);
+                mi_r.push_back(c_AllVals[i]);
                 foundLeft = false;
             }
         }
@@ -598,21 +581,26 @@ SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals){
     double* clVals = REAL(lVals);
     double* crVals = REAL(rVals);
     
+    double this_Lval, this_Rval;
+    
     for(int i = 0; i < n; i++){
-        for(int j = 0; j < tbulls; j++){
-            if(mi_l[j] >= clVals[i]){
+    	this_Lval = clVals[i];
+/*        for(int j = 0; j < tbulls; j++){
+            if(mi_l[j] >= this_Lval){
 				cl_ind[i] = j;
                 break;
             }
-        }
-        
-        for(int j = tbulls-1; j >= 0; j--){
-            if(mi_r[j] <= crVals[i]){
+        }	*/	
+       cl_ind[i] = findSurroundingVals(this_Lval, mi_l, true);
+        this_Rval = crVals[i];
+      /*  for(int j = tbulls-1; j >= 0; j--){
+            if(mi_r[j] <= this_Rval){
 				cr_ind[i] = j;
                 break;
             }
-        }
-    }
+        } */
+    	cr_ind[i] = findSurroundingVals(this_Rval, mi_r, false);
+     }
     
     
     SEXP ans = PROTECT(allocVector(VECSXP, 4));

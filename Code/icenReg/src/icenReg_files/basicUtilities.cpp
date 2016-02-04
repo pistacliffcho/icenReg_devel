@@ -192,18 +192,40 @@ void pavaForOptim(vector<double> &d1, vector<double> &d2, vector<double> &x, vec
     }
 }
 
+
+void pavaForOptim(Eigen::VectorXd &d1, Eigen::VectorXd  &d2, Eigen::VectorXd  &x, Eigen::VectorXd  &prop_delta){
+    int k = d1.size();
+    int d2_size = d2.size();
+    int x_size = x.size();
+    if(k != d2_size || k!= x_size){ Rprintf("incorrect sizes provided to pavaForOptim\n"); return;}
+    prop_delta.resize(k);
+    vector<double> y(k);
+    vector<double> w(k);
+    
+    for(int i = 0; i < k; i++){
+        y[i] = -d1[i]/d2[i] + x[i];
+        w[i] = d2[i]/2;
+    }
+    int k_sign = k;
+    pava( &y[0], &w[0], &k_sign );
+    for(int i = 0; i < k; i++){
+        prop_delta[i] = y[i] - x[i];
+    }
+}
+
 void addIfNeeded(vector<int> &points, int l, int r, int max){
     if(r > max)     {Rprintf("warning: r > max\n"); return;}
-    bool chg_btw = false;
+    if(r == max){ 
+    	points.push_back(r);
+    	return;
+    }
     int thisSize = points.size();
     for(int i = 0; i < thisSize; i++){
-        if(l < points[i] && (r + 1) >= points[i]) { chg_btw = true;};
- //       if(l <= points[i])  l_below = true;
- //       if( r >= points[i]) r_geq   = true;
+        if(l < points[i] && (r + 1) >= points[i]) { 
+        	return;
+        }
     }
-    if(chg_btw) {return;}   //no need to add point
-    if(r == max)    points.push_back(r);
-    else            points.push_back(r+1);
+	points.push_back(r+1);
 }
 
 
@@ -504,4 +526,64 @@ void getUniqInts(int i1, int i2, vector<int> &uniqInts, vector<vector<int> > &ve
     for(int i = 0; i < thisSize; i++){
         usedVec[i] = false;
     }
+}
+
+
+int findSurroundingVals(double val, vector<double>& ordVec, bool isLeft){
+	
+	int a = 0;
+	int b = ordVec.size()-1;
+	
+	if(val <= ordVec[0]) return(0);
+	if(val >= ordVec[b]) return(b);
+	if(val <= ordVec[1]) return(1);
+	if(val >= ordVec[b-1]) return(b-1);
+
+	a++;
+	b--;
+	
+	int maxTries = b;
+	
+	int propInd = (a + b)/2;
+	double propVal; 
+	int tries = 0;
+	if(isLeft){
+		while( b - a > 0 && tries < maxTries){
+			tries++;
+			propInd = (a + b)/2;
+			propVal = ordVec[propInd];
+			if(propVal == val){ return(propInd); }
+			if(propVal < val){
+				if(ordVec[propInd+1] > val){ return(propInd+1); } 
+				a = propInd; }
+			else{ 
+				if(ordVec[propInd-1] < val){ return(propInd);}
+				b = propInd;
+			}
+		}
+	}
+	else{
+		while( b - a > 0 && tries < maxTries){
+			tries++;
+			propInd = (a + b)/2;
+			propVal = ordVec[propInd];
+			if(propVal == val){ return(propInd); }
+			if(propVal < val){
+				if(ordVec[propInd+1] > val){return(propInd);}
+				 a = propInd; 
+			}
+			else{ 
+				if(ordVec[propInd-1] < val){ return(propInd-1);}
+				b = propInd;
+			}
+		}
+	}
+	Rprintf("warning: findSurroundsVals failed!! propInd = %d, a = %d, b = %d, max = %d\n", 
+			propInd, a, b, ordVec.size());
+	Rprintf("isLeft = %d, propVal = %f, ordVec[a] = %f, ordVec[b] = %f\n",
+	 	isLeft, propVal, ordVec[a], ordVec[b]);
+	Rprintf("val = %f\n", val);
+			
+	Rprintf("tries = %d\n", tries);
+	return(0);
 }
