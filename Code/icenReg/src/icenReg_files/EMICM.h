@@ -34,8 +34,9 @@ public:
     void calc_m_for_em();
     void calc_icm_ders();
     
+    double run(double tol, int maxIter, int emSteps);
     
-    void printICMdervs();
+   	int iter; 
 };
 
 

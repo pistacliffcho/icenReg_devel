@@ -419,11 +419,6 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
     bool useGD = LOGICAL(R_use_GD)[0] == TRUE;
     bool useEMStep = LOGICAL(R_useEMStep)[0] == TRUE;
 	
-	bool printDeltaLLK = false;
-	
-	double llk2, llk1;
-	llk2 = R_NegInf;
-	
     if(INTEGER(fitType)[0] == 1){
         optObj = new icm_ph;
     }
@@ -434,74 +429,18 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
 
     setup_icm(Rlind, Rrind, Rcovars, R_w, optObj);
     
-    double llk_old = R_NegInf;
-    double llk_new = optObj->sum_llk();
-    
     optObj->useFullHess = LOGICAL(R_useFullHess)[0] == TRUE;
     
     
-    bool metOnce = false;
     double tol = pow(10.0, -10.0);
     int maxIter = INTEGER(R_maxiter)[0];
     int baselineUpdates = INTEGER(R_baselineUpdates)[0];
-    while(optObj->iter < maxIter && (llk_new - llk_old) > tol){
-        optObj->iter++;
-        llk_old = llk_new;
-		
-		if(printDeltaLLK){
-			llk2 = llk_new;
-		}
-		
-        if(optObj->hasCovars){ 
-			optObj->covar_nr_step();
-			if(printDeltaLLK){
-				llk1 = llk2;
-				llk2 = optObj->sum_llk();
-				Rprintf("covar update = %f  ", llk2 - llk1);
-			}
-		}
-
-        for(int i = 0; i < baselineUpdates; i++)  {
-			
-			if(optObj->hasCovars){optObj->stablizeBCH();}
-			else if(useEMStep){ optObj->EM_step(); }
-			
-            optObj->icm_step();
-			if(printDeltaLLK){
-				llk1 = llk2;
-				llk2 = optObj->sum_llk();
-				Rprintf("icm update = %f  ", llk2 - llk1);
-			}	
-          if(useGD){
-                optObj->gradientDescent_step();
-				if(printDeltaLLK){
-					llk1 = llk2;
-					llk2 = optObj->sum_llk();
-					Rprintf("GD update = %f  ", llk2 - llk1);
-                }
-            }
-			
-        }
-		if(printDeltaLLK){Rprintf("\n");}	
-        llk_new = optObj->sum_llk();
-        
-        if(llk_new - llk_old > tol){metOnce = false;}
-        if(metOnce == false){
-            if(llk_new - llk_old <= tol){
-                metOnce = true;
-                llk_old = llk_old - 2 * tol;
-            }
-        }
-    }
-
- 
-    if((llk_new - llk_old) < -0.001 ){
-        Rprintf("warning: likelihood decreased! difference = %f\n", llk_new - llk_old);
-    }
+    
+    double llk_new = optObj->run(maxIter, tol, useGD, useEMStep, baselineUpdates);
     
     vector<double> p_hat;
 	
-	  optObj->recenterBCH();
+	optObj->recenterBCH();
 	
     cumhaz2p_hat(optObj->baseCH, p_hat);
     
@@ -540,6 +479,40 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
     
     return(ans);
 
+}
+
+
+double icm_Abst::run(int maxIter, double tol, bool useGD, bool useEM, int baselineUpdates){
+	iter = 0;
+	bool metOnce = false;
+	double llk_old = R_NegInf;
+	double llk_new = sum_llk();
+    while(iter < maxIter && (llk_new - llk_old) > tol){
+        iter++;
+        llk_old = llk_new;
+        if(hasCovars){ covar_nr_step(); }
+
+        for(int i = 0; i < baselineUpdates; i++)  {
+			if(hasCovars){stablizeBCH();}
+			else if(useEM){ EM_step(); }			
+            icm_step();
+            if(useGD){ gradientDescent_step(); }
+        }
+			
+	    llk_new = sum_llk();
+	    if(llk_new - llk_old > tol){metOnce = false;}
+	    if(metOnce == false){
+	    	if(llk_new - llk_old <= tol){
+	            metOnce = true;
+	            llk_old = llk_old - 2 * tol;
+	        }
+		}
+ 
+ 	   if((llk_new - llk_old) < -0.001 ){
+ 	       Rprintf("warning: likelihood decreased! difference = %f\n", llk_new - llk_old);
+ 	   }
+ 	}
+ 	return(llk_new);
 }
 
 
@@ -591,7 +564,7 @@ SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals){
                 break;
             }
         }	*/	
-       cl_ind[i] = findSurroundingVals(this_Lval, mi_l, true);
+       cl_ind[i] = findSurroundingVals(this_Lval, mi_l, mi_r, true);
         this_Rval = crVals[i];
       /*  for(int j = tbulls-1; j >= 0; j--){
             if(mi_r[j] <= this_Rval){
@@ -599,7 +572,7 @@ SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals){
                 break;
             }
         } */
-    	cr_ind[i] = findSurroundingVals(this_Rval, mi_r, false);
+    	cr_ind[i] = findSurroundingVals(this_Rval, mi_l, mi_r, false);
      }
     
     

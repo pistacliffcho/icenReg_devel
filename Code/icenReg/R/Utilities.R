@@ -39,11 +39,11 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){
 	c_ans <- .Call('ic_sp_ch', mi_info$l_inds, mi_info$r_inds, covars, fitType, as.numeric(weights), useGA, 
 	               as.integer(maxIter), as.integer(baselineUpdates),
 	               as.logical(useFullHess), as.logical(useEM)) 
-	names(c_ans) <- c('p_hat', 'coefficients', 'final_llk', 'iterations', 'score')
+	names(c_ans) <- c('p_hat', 'coefficients', 'llk', 'iterations', 'score')
 	myFit <- new(callText)
 	myFit$p_hat <- c_ans$p_hat
 	myFit$coefficients <- c_ans$coefficients
-	myFit$final_llk <- c_ans$final_llk
+	myFit$llk <- c_ans$llk
 	myFit$iterations <- c_ans$iterations
 	myFit$score <- c_ans$score
 	myFit[['T_bull_Intervals']] <- rbind(mi_info[['mi_l']], mi_info[['mi_r']])
@@ -202,12 +202,12 @@ fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po',
 				uncenInd_mat, gicInd_mat, leftCenInd, rightCenInd,
 				parInd, linkInd, hessian, as.numeric(w_reordered) )
 								
-	names(c_fit) <- c('reg_pars', 'baseline', 'final_llk', 'iterations', 'hessian', 'score')
+	names(c_fit) <- c('reg_pars', 'baseline', 'llk', 'iterations', 'hessian', 'score')
 	
 	fit <- new(callText)
 	fit$reg_pars <- c_fit$reg_pars
 	fit$baseline <- c_fit$baseline
-	fit$final_llk <- c_fit$final_llk
+	fit$llk <- c_fit$llk
 	fit$iterations <- c_fit$iterations
 	fit$hessian <- c_fit$hessian
 	fit$score <- c_fit$score
@@ -442,6 +442,7 @@ s_loglgst <- function(x, par){
 }
 
 get_etas <- function(fit, newdata = NULL){
+  if(fit$par == 'non-parametric'){ans <- 1; names(ans) <- 'baseline'; return(ans)}
 	if(is.null(newdata)){ans <- exp(-fit$baseOffset); names(ans) <- 'baseline'; return(ans)}
 	if(is.character(newdata)){
 		if(newdata == 'midValues')
@@ -472,9 +473,11 @@ get_s_fun <- function(fit){
 
 po_link <- function(s, nu){ nu * s / (s * (nu - 1) + 1)	}
 ph_link <- function(s, nu){ s^nu }
+no_link <- function(s , nu){ s }
 get_link_fun <- function(fit){
-	if(fit$model == 'po') 	return(po_link)
+	if(fit$model == 'po') return(po_link)
 	if(fit$model == 'ph')	return(ph_link)
+  if(fit$model == 'NA') return(no_link)
 	stop('model type not recognized. Should be "ph" or "po"')
 }
 

@@ -1,26 +1,41 @@
-#include<iostream>
 
 /* Basic Function Call */
 
 SEXP EMICM(SEXP Rlind, SEXP Rrind, SEXP iters){
-	double old_llk = R_NegInf;
-	int maxIters = 1000;
-	int ems = INTEGER(iters)[0];
-	double tol = pow(10.0, -10.0);
-	int iter = 0;
-	
+	int maxIters = INTEGER(iters)[0];
+	int ems = 10;
+	double tol = pow(10.0, -10.0);	
 	emicm emicmObj(Rlind, Rrind);
-	emicmObj.llk(true);
-	while( (emicmObj.current_llk - old_llk) > tol && iter < maxIters){
-		iter++;
-		old_llk = emicmObj.current_llk;
-		emicmObj.em_step(ems);
-		emicmObj.icm_step();
-	}
-	cout << "iters = "<< iter << "\n";
-	return(R_NilValue);
+	double final_llk = emicmObj.run(tol, maxIters, ems);
+	SEXP ans = PROTECT(allocVector(VECSXP, 3));
+	SEXP R_phat = PROTECT(allocVector(REALSXP, emicmObj.baseP.size() ));
+	SEXP R_llk = PROTECT(allocVector(REALSXP, 1) );
+	SEXP R_iters = PROTECT(allocVector(INTSXP, 1) );
+	
+	double* c_phat = REAL(R_phat);
+	for(int i = 0; i < LENGTH(R_phat); i++){ c_phat[i] = emicmObj.baseP[i]; }
+	REAL(R_llk)[0] = final_llk;
+	INTEGER(R_iters)[0] = emicmObj.iter;
+		
+	SET_VECTOR_ELT(ans, 0, R_phat);
+	SET_VECTOR_ELT(ans, 1, R_llk);
+	SET_VECTOR_ELT(ans, 2, R_iters);
+	
+	UNPROTECT(4);
+	return(ans);
 }
 
+double emicm::run(double tol, int maxIter, int emSteps){
+	double old_llk = R_NegInf;
+	llk(true);
+	while(current_llk - old_llk > tol && iter < maxIter){
+		iter++;
+		old_llk = current_llk;
+		em_step(emSteps);
+		icm_step();
+	}
+	return(current_llk);
+}
 
 /* EM step */
 
@@ -33,7 +48,6 @@ void emicm::em_step(int iters){
 		double tot = 0;
 		for(int j = 0; j < k; j++){ 
 			baseP[j] *= em_m[j];
-			if(baseP[j] < 0) { cout << "warning: baseP[j] < 0. j = " << j << "\n";}
 			tot += baseP[j];
 		}
 		for(int j = 0; j < k; j++){ baseP[j] /= tot; }
@@ -92,21 +106,29 @@ void emicm::calc_m_for_em(){
 	double n = obs_inf.size();
 	em_m.resize(k);
 
-
 	thisNode = &node_inf[0];
-		for(unsigned int j = 0; j < thisNode->l.size(); j++){
-			this_m += 1.0 / pobs[ thisNode->l[j] ];
-		} 
+	
+	vector<int>* l; 
+	vector<int>* r;
+	l = &(thisNode->l);
+	for(unsigned int j = 0; j < l->size(); j++){ 
+		this_m += 1.0 / pobs[ (*l)[j] ];
+	}
+			
 	em_m[0] = this_m / n;
 	for(int i = 1; i < k; i++){
 		thisNode = &node_inf[i];
-		for(unsigned int j = 0; j < thisNode->l.size(); j++){
-			this_m += 1.0 / pobs[ thisNode->l[j] ];
+		l = &(thisNode->l);
+		for(unsigned int j = 0; j < l->size(); j++){
+			this_m += 1.0 / pobs[ (*l)[j] ];
 		} 
+
 		thisNode = &node_inf[i-1];
-		for(unsigned int j = 0; j < thisNode->r.size(); j++){
-			this_m -= 1.0 / pobs[ thisNode->r[j] ];
+		r = &(thisNode->r);
+		for(unsigned int j = 0; j < r->size(); j++){
+			this_m -= 1.0 / pobs[ (*r)[j] ];
 		}
+
 		em_m[i] = this_m / n; 
 	}
 }
@@ -178,27 +200,6 @@ void addIcmProp(Eigen::VectorXd &bch, Eigen::VectorXd &prop){
 }
 
 
-void emicm::printICMdervs(){
-	double llk0 = current_llk;
-	double llk_l, llk_h;
-	
-	cout << "numeric derivatives\n";
-	
-	int k = prop_delta.size();
-	double h = 0.0001;
-	for(int i = 1; i <= k; i++){
-		baseCH[i] += h;
-		llk_h = llk(false);
-		baseCH[i] -= 2*h;
-		llk_l = llk(false);
-		baseCH[i] += h;
-		cout << "d1 = " << (llk_h - llk_l) / (2 * h) 
-			 << "  d2 = " << (llk_h + llk_l - 2 * llk0) / (h*h) << "\n";
-	}
-	cout << "\n";
-}
-
-
 /* General utilities */
 
 void emicm::update_p_ob(int i, bool useS){
@@ -221,8 +222,9 @@ void emicm::update_p_ob(bool useS){
 double emicm::llk(bool useS){
 	current_llk = 0;
 	int n = pobs.size();
+	if(!useS){ch2p();}
 	for(int i = 0; i < n; i++){ 
-		update_p_ob(i, useS); 
+		update_p_ob(i, true); 
 		current_llk += log(pobs[i]);
 		}
 	if(ISNAN(current_llk)){ current_llk = R_NegInf; }
@@ -250,7 +252,6 @@ emicm::emicm(SEXP Rlind, SEXP Rrind){
 		baseP[i] = startProb; 
 		tot += startProb;
 	}
-		
 	
 	p2s();
 	s2ch();
@@ -258,15 +259,53 @@ emicm::emicm(SEXP Rlind, SEXP Rrind){
 	int this_l, this_r;
 	obs_inf.resize(n);
 	node_inf.resize(maxInd+2);
+	
+	vector<int> lcount(maxInd+2);
+	vector<int> rcount(maxInd+2);
+	vector<int> lcurrent(maxInd+2);
+	vector<int> rcurrent(maxInd+2);
+
+	for(int i = 0; i < (maxInd+2); i++){ 
+		lcount[i] = 0;
+		rcount[i] = 0;
+		lcurrent[i] = 0;
+		rcurrent[i] = 0;
+	}
+	
 	for(int i = 0; i < n; i++){
 		this_l = clind[i];
 		this_r = crind[i];
 		obs_inf[i].l = this_l;
 		obs_inf[i].r = this_r;
-		node_inf[this_l].l.push_back(i);
-		node_inf[this_r].r.push_back(i);
+/*		node_inf[this_l].l.push_back(i);
+		node_inf[this_r].r.push_back(i); */
+		lcount[this_l]++;
+		rcount[this_r]++;
 	}
+	
+	for(int i = 0; i < (maxInd+2); i++){
+		node_inf[i].l.resize( lcount[i] );
+		node_inf[i].r.resize( rcount[i] );
+	}
+
+	int luse, ruse;
+	
+	
+	for(int i = 0; i < n; i++){
+		this_l = clind[i];
+		this_r = crind[i];
+		luse = lcurrent[this_l];
+		ruse = rcurrent[this_r];
+		
+		node_inf[this_l].l[luse] = i;
+		node_inf[this_r].r[ruse] = i;
+		
+		lcurrent[this_l]++;
+		rcurrent[this_r]++;
+	}
+	
 	current_llk = R_NegInf;
+	iter = 0;
 }
 
 void emicm::p2s(){

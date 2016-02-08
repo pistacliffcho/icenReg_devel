@@ -528,62 +528,46 @@ void getUniqInts(int i1, int i2, vector<int> &uniqInts, vector<vector<int> > &ve
     }
 }
 
+int isValueInInterval(double val, double l, double r){
+	if(val < l) return(-1);
+	if(val > r) return(1);
+	return(0);
+}
 
-int findSurroundingVals(double val, vector<double>& ordVec, bool isLeft){
+int isValueInInterval(double val, int ind, 
+					  vector<double>& lvec, vector<double>& rvec){
+	return(isValueInInterval(val, lvec[ind], rvec[ind]));					  
+}
+
+int findSurroundingVals(double val, vector<double>& leftVec,
+						vector<double>& rightVec, bool isLeft){
 	
 	int a = 0;
-	int b = ordVec.size()-1;
+	int b = leftVec.size()-1;
+	if(b == 0){return(0);}
+	if(isValueInInterval(val, R_NegInf, rightVec[0]) == 0) return(0);
+	if(isValueInInterval(val, leftVec[b], R_PosInf) == 0) return(b);
 	
-	if(val <= ordVec[0]) return(0);
-	if(val >= ordVec[b]) return(b);
-	if(val <= ordVec[1]) return(1);
-	if(val >= ordVec[b-1]) return(b-1);
-
-	a++;
-	b--;
+/*	a++;
+	b--;	*/
 	
 	int maxTries = b;
 	
 	int propInd = (a + b)/2;
-	double propVal; 
 	int tries = 0;
-	if(isLeft){
-		while( b - a > 0 && tries < maxTries){
-			tries++;
-			propInd = (a + b)/2;
-			propVal = ordVec[propInd];
-			if(propVal == val){ return(propInd); }
-			if(propVal < val){
-				if(ordVec[propInd+1] > val){ return(propInd+1); } 
-				a = propInd; }
-			else{ 
-				if(ordVec[propInd-1] < val){ return(propInd);}
-				b = propInd;
-			}
-		}
+	int testVal;
+	while( b - a > 1 && tries < maxTries){
+		tries++;
+		propInd = (a + b)/2;
+		testVal = isValueInInterval(val, propInd, leftVec, rightVec);
+		if(testVal == 0){ return(propInd);}
+		if(testVal == -1){ b = propInd; }
+		else{ a = propInd; }
 	}
-	else{
-		while( b - a > 0 && tries < maxTries){
-			tries++;
-			propInd = (a + b)/2;
-			propVal = ordVec[propInd];
-			if(propVal == val){ return(propInd); }
-			if(propVal < val){
-				if(ordVec[propInd+1] > val){return(propInd);}
-				 a = propInd; 
-			}
-			else{ 
-				if(ordVec[propInd-1] < val){ return(propInd-1);}
-				b = propInd;
-			}
-		}
+	if(a == b){
+		Rprintf("this is very surprising... a = %d, size = %d\n", a, leftVec.size());
+		return(a);
 	}
-	Rprintf("warning: findSurroundsVals failed!! propInd = %d, a = %d, b = %d, max = %d\n", 
-			propInd, a, b, ordVec.size());
-	Rprintf("isLeft = %d, propVal = %f, ordVec[a] = %f, ordVec[b] = %f\n",
-	 	isLeft, propVal, ordVec[a], ordVec[b]);
-	Rprintf("val = %f\n", val);
-			
-	Rprintf("tries = %d\n", tries);
-	return(0);
+	if( isLeft ) return(b); 
+	return(a);
 }

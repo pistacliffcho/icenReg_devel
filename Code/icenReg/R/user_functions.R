@@ -132,7 +132,7 @@ getSCurves <- function(fit, newdata = NULL){
 	etas <- get_etas(fit, newdata)
 	grpNames <- names(etas)
 	transFxn <- get_link_fun(fit)
-	if(fit$par == 'semi-parametric'){
+	if(fit$par == 'semi-parametric' | fit$par == 'non-parametric'){
 		x_l <- fit$T_bull_Intervals[1,]
 		x_u <- fit$T_bull_Intervals[2,]
 		x_l <- c(x_l[1], x_l)
@@ -177,12 +177,13 @@ plot.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab 
   else if(fun == 'cdf'){s_trans <- function(x){1-x}; yName = 'F(t)'}
   else stop('"fun" option not recognized. Choices are "surv" or "cdf"')
   
-	if(x$par == 'semi-parametric'){
+	if(x$par == 'semi-parametric' | x$par == 'non-parametric'){
 		curveInfo <- getSCurves(x, y)
 		allx <- c(curveInfo$Tbull_ints[,1], curveInfo$Tbull_ints[,2])
 		dummyx <- range(allx, finite = TRUE)
 		dummyy <- c(0,1)
 	
+
 		plot(dummyx, dummyy, xlab = xlab, ylab = yName, ..., type = 'n')
 		x_l <- curveInfo$Tbull_ints[,1]
 		x_u <- curveInfo$Tbull_ints[,2]
@@ -311,7 +312,7 @@ summaryOld.icenReg_fit <- function(object,...){
 		cat('\n')
 		print(output)
 		if(inherits(fit, 'ic_ph') | inherits(fit, 'ic_po')){
-			cat('\nfinal llk = ', fit$final_llk, '\n')
+			cat('\nfinal llk = ', fit$llk, '\n')
 			cat('Iterations = ', fit$iterations, '\n')
 			cat('Bootstrap samples = ', nrow(fit$bsMat), '\n')
 			if(nrow(fit$bsMat) < 100)
@@ -322,7 +323,7 @@ summaryOld.icenReg_fit <- function(object,...){
 			cat('\nnumber of imputations = ', nrow(fit$imp_coef), '\n')
 		}
 		if(inherits(fit, 'par_fit')){
-			cat('\nfinal llk = ', fit$final_llk, '\n')
+			cat('\nfinal llk = ', fit$llk, '\n')
 			cat('Iterations = ', fit$iterations,'\n')
 		}
 	}
@@ -341,7 +342,7 @@ summaryOld.icenReg_fit <- function(object,...){
 		cat("Call = \n")
 		print(fit$call)
 		print(output)
-		cat('final llk = ', fit$final_llk, '\n')
+		cat('final llk = ', fit$llk, '\n')
 		cat('Iterations = ', fit$iterations, '\n')	
 		cat('Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samples" > 0 (suggested at least 1000)')
 	}
@@ -1070,4 +1071,28 @@ pGeneralGamma <- function(q, mu, s, Q){
   ans <- .Call('qGeneralGamma', x, mu, s, Q)
   return(ans)
   
+}
+
+
+
+ic_np <- function(data, maxIter = 1000, tol = 10^-10){
+  data <- as.matrix(data)
+  if(ncol(data) != 2) stop("data should be an nx2 matrix or data.frame")
+  if(any(data[,1] > data[,2]) ) stop(paste0("data[,1] > data[,2].",
+                                          "This is impossible for interval censored data") )
+  storage.mode(data) <- "double"
+  mis <- icenReg:::findMaximalIntersections(data[,1], data[,2])
+  fit <- .Call("EMICM", mis$l_inds, mis$r_inds, as.integer(maxIter))
+  tbulls <- rbind(mis$mi_l, mis$mi_r)
+  ans <- new('ic_np')
+  #ans <- list(phat = fit[[1]], Tbull_ints = tbulls, llk = fit[[2]], iters = fit[[3]])
+  ans$p_hat <- fit[[1]]
+  ans$T_bull_Intervals <- tbulls
+  ans$coefficients <- numeric()
+  ans$llk <- fit[[2]]
+  ans$iterations <- fit[[3]]
+  ans$par <- 'non-parametric'
+  ans$model = 'NA'
+  ans$var <- matrix(nrow = 0, ncol = 0)  
+  return(ans)
 }

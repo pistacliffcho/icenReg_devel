@@ -128,7 +128,7 @@ public:
     vector<double> dob_dp_both;
     vector<double> dob_dp_rightOnly;
 
-    
+	double run(int maxIter, double tol, bool useGA, bool useEM, int baselineUpdates);
     
     void numeric_dobs_dp(bool forGA);
     double cal_log_obs(double s1, double s2, double eta);
