@@ -3,8 +3,9 @@ UPDATES:
 
 v1.3.4
 fixed show() for summary class with no covariates
-switched to EMICM algorithm for univariate case
+added ic_np for fitting NPMLE specifically
 switched syntax from “final_llk” to “llk” for all models
+made plot() and lines() more user-friendly 
 
 v1.3.3 
 Fixed memory access issue reported by CRAN

@@ -38,6 +38,8 @@ double propOddsTrans(double s, double nu){
     return(ans);
 }
 
+double noTrans(double s, double nu){ return(s); }
+
 double transform_p_ph(double p, double nu){
 	if(p == 0 || p == 1) return(p);
     double log_s = log(1.0 - p);
@@ -50,6 +52,7 @@ double transform_p_po(double p, double nu){
     return(1.0 - s * (1/nu) / (s * 1/nu - s +1));
 }
 
+double transform_p_none(double p, double nu){return(p);}
 
 
 // BASELINE MODELS

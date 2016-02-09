@@ -35,7 +35,7 @@ data(miceData)
 logist_ph_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, 
                        data = miceData, dist = 'loglogistic')
 
-logist_po_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, 
+logist_po_fit <- ic_par(cbind(l, u) ~ grp, 
                        data = miceData, dist = 'loglogistic',
                        model = 'po')
 

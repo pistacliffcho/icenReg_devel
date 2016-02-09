@@ -85,6 +85,7 @@ getBS_coef <- function(sampDataEnv, callText = 'ic_ph', other_info){ #useGA, max
 
 
 expandX <- function(formula, data, fit){
+  if(inherits(fit, 'ic_np')) return(NULL)
 	tt <- terms(fit)
 	Terms <- delete.response(tt)
 	 m <- model.frame(Terms, data, na.action = na.pass, xlev = fit$xlevels)
@@ -108,6 +109,10 @@ removeSurvFromFormula <- function(formula, ind = 2){
 }
 
 expandY <- function(formula, data, fit){
+  if(inherits(fit, 'ic_np')){
+    if(ncol(data) != 2) stop('expandY expected an nx2 matrix for data')
+    return(data)
+  }
   if(is.null(data)) data <- fit$getRawData()
   newFormula <- formula
   newFormula[[3]] <- newFormula[[2]]
@@ -477,8 +482,8 @@ no_link <- function(s , nu){ s }
 get_link_fun <- function(fit){
 	if(fit$model == 'po') return(po_link)
 	if(fit$model == 'ph')	return(ph_link)
-  if(fit$model == 'NA') return(no_link)
-	stop('model type not recognized. Should be "ph" or "po"')
+  if(fit$model == 'none') return(no_link)
+	stop('model type not recognized. Should be "ph", "po" or "none"')
 }
 
 
@@ -640,6 +645,7 @@ getNumCovars <- function(object){
 regmod2int <- new.env()
 regmod2int[['ph']] <- as.integer(1)
 regmod2int[['po']] <- as.integer(2)
+regmod2int[['none']] <- as.integer(0)
 
 basemod2int <- new.env()
 basemod2int[['sp']] <- as.integer(0)
@@ -693,6 +699,7 @@ sampPars <- function(mean, var){
 }
 
 getBSParSample <- function(fit){
+  if(inherits(fit, 'ic_np')) return(NULL)
   nBS_samps <- nrow(fit$bsMat)
   if(is.null(nBS_samps) ){
     stop('no bootstrap samples generated so cannot sample parameter values')
@@ -702,7 +709,7 @@ getBSParSample <- function(fit){
 }
 
 setSamplablePars <- function(fit, coefs){
-  fit$coefficients <- coefs
+  if(!inherits(fit, 'ic_np')) fit$coefficients <- coefs
 }
 
 
@@ -738,4 +745,15 @@ getMaxLength <- function(thisList){
   n <- 0
   for(i in seq_along(thisList)) n <- max(c(n, length(thisList[[i]] ) ) )
   return(n)
+}
+
+addIfMissing <- function(val, name, list){
+  if(is.null(list[[name]])) list[[name]] <- val
+  return(list)
+}
+
+addListIfMissing <- function(listFrom, listInto){
+  listFromNames <- names(listFrom)
+  for(n in listFromNames) listInto <- addIfMissing(listFrom[[n]], n , listInto)
+  return(listInto)
 }

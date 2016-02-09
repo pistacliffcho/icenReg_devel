@@ -11,7 +11,7 @@
 }
 \description{
   Fits the non-parametric maximum likelihood estimator (NPMLE) for univariate interval censored data. This is a generalization of the Kaplan-Meier curves that allows for 
-interval censoring. 
+interval censoring. Also referred to as the Turnbull estimator.
 }
 
 \details{
@@ -29,7 +29,7 @@ interval censoring.
 \examples{
   data(IR_diabetes)
   
-  isMale <- IR_diabetes == "male"
+  isMale <- IR_diabetes$gender == "male"
   maleData <- IR_diabetes[isMale, c('left', 'right')]
   femaleData <- IR_diabetes[!isMale, c('left', 'right')]
   

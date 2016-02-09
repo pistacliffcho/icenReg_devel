@@ -49,7 +49,7 @@ par_fit <- setRefClass(Class = 'par_fit',
                                   'pca_hessian'
                                   ))
 
-surv_trans_models <- c('po', 'ph', 'NA')
+surv_trans_models <- c('po', 'ph', 'none')
 parametricFamilies <- c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic', 'generalgamma')
 
 for(mod in surv_trans_models){
@@ -77,7 +77,7 @@ setRefClass('icenRegSummary',
                 fullFit <<- fit
                 if(fit$model == 'ph') model <<- 'Cox PH'
                 if(fit$model == 'po') model <<- 'Proportional Odds'
-                if(fit$model == 'NA') model <<- 'Non-parametric'
+                if(fit$model == 'none') model <<- 'Non-parametric'
                 baseline <<- fit$par
                 colNames <- c('Estimate', 'Exp(Est)', 'Std.Error', 'z-value', 'p')
                 coefs <- fit$coefficients
@@ -106,13 +106,13 @@ setRefClass('icenRegSummary',
               show = function(){
                 printSE <- TRUE
                 sampSizeWarn <- FALSE
-                if(inherits(fit, 'ic_np')) printSE = FALSE
+                if(inherits(fullFit, 'ic_np')) printSE = FALSE
                 if(baseline == 'semi-parametric'){
                   if(other[['bs_samps']] <= 1) printSE <- FALSE
                   if(other[['bs_samps']] < 100) sampSizeWarn <- TRUE
                 }
                 cat("\nModel: ", model)
-                if(!inherits(fit, 'ic_np')){
+                if(!inherits(fullFit, 'ic_np')){
                   cat("\nBaseline: ", baseline, "\nCall: ")
                   print(call)
                 }
@@ -134,7 +134,7 @@ setRefClass('icenRegSummary',
                 if(is.character(printMat)) { cat(printMat)}
                 else{print(printMat)}
                 cat('\nfinal llk = ', llk, '\nIterations = ', iterations, '\n')
-                if(inherits(fit, 'sp_fit') & !inherits(fit, 'ic_np')) cat('Bootstrap Samples = ', other[['bs_samps']], '\n')
+                if(inherits(fullFit, 'sp_fit') & !inherits(fullFit, 'ic_np')) cat('Bootstrap Samples = ', other[['bs_samps']], '\n')
                 if(sampSizeWarn){
                   cat("WARNING: only ", other[['bs_samps']], " bootstrap samples used for standard errors. \nSuggest using more bootstrap samples for inference\n")
                 }

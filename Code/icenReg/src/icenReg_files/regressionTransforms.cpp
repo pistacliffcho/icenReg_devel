@@ -71,6 +71,10 @@ condProbCal::condProbCal(SEXP regType, SEXP baseType, SEXP bli){
         transformSurv = &propOddsTrans;
         transform_p  = &transform_p_po;
     }
+    else if(cRegType == 0){
+    	transformSurv = &noTrans;
+    	transform_p = &transform_p_none;
+    }
     else{
         Rprintf("warning: invalid regType selected. Setting to Cox PH\n");
         transformSurv = &propHazTrans;

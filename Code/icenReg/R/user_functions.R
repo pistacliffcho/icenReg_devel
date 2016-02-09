@@ -1,5 +1,5 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, 
-                  useGA = T, useEM = F, maxIter = 5000, baseUpdates = 5){
+                  useGA = T, maxIter = 5000, baseUpdates = 5){
   if(missing(data)) data <- environment(formula)
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -58,9 +58,9 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
   other_info <- list(useGA = useGA, maxIter = maxIter, 
                      baselineUpdates = baseUpdates, 
                      useFullHess = useFullHess, 
-                     useEM = useEM)  
+                     useEM = FALSE)  
 
-   	fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)
+  fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)
 	dataEnv <- list()
 	dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
 	if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- as.character(formula[[3]])
@@ -69,6 +69,8 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	bsMat <- numeric()
 	if(useMCores) `%mydo%` <- `%dopar%`
 	else          `%mydo%` <- `%do%`
+	i <- NULL  #this is only to trick R CMD check, 
+	           #as it does not recognize the foreach syntax
 	if(bs_samples > 0){
 	    bsMat <- foreach(i = seeds, .combine = 'rbind') %mydo%{
 	        set.seed(i)
@@ -166,31 +168,41 @@ getSCurves <- function(fit, newdata = NULL){
 }
 
 
-plot.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab = "time",
-                             colors = NULL, ...){
+plot.icenReg_fit <- function(x, y, fun = 'surv', 
+                             lgdLocation = 'topright', xlab = "time", ...){
 	if(inherits(x, 'impute_par_icph'))	stop('plot currently not supported for imputation model')
-	if(missing(y)) y <- list(...)$newdata	
+  argList <- list(...)
+  colors <- argList$col
+	if(missing(y)) y <- argList$newdata	
 	newdata <- y
   nRows <- 1
   if(!is.null(newdata)) nRows <- nrow(newdata)
   if(fun == 'surv'){ s_trans <- function(x){x}; yName = 'S(t)'}
-  else if(fun == 'cdf'){s_trans <- function(x){1-x}; yName = 'F(t)'}
+  else if(fun == 'cdf'){ s_trans <- function(x){1-x}; yName = 'F(t)' }
   else stop('"fun" option not recognized. Choices are "surv" or "cdf"')
+
+  addList <- list(xlab = xlab, ylab = yName)
+  argList <- addListIfMissing(addList, argList)
+  firstPlotList <- argList
+  firstPlotList[['type']] <- 'n'
+  firstPlotList[['x']] <- 1
+  firstPlotList[['y']] <- 1
   
+    
 	if(x$par == 'semi-parametric' | x$par == 'non-parametric'){
 		curveInfo <- getSCurves(x, y)
 		allx <- c(curveInfo$Tbull_ints[,1], curveInfo$Tbull_ints[,2])
 		dummyx <- range(allx, finite = TRUE)
 		dummyy <- c(0,1)
 	
-
-		plot(dummyx, dummyy, xlab = xlab, ylab = yName, ..., type = 'n')
+    do.call(plot, firstPlotList)
+    
 		x_l <- curveInfo$Tbull_ints[,1]
 		x_u <- curveInfo$Tbull_ints[,2]
 		k <- length(x_l)
 		ss <- curveInfo$S_curves
 		if(is.null(colors))  colors <- 1:length(ss)
-		
+		if(length(colors) == 1) colors <- rep(colors, length(ss)) 
 		for(i in 1:length(ss)){
 			lines(x_l, s_trans(ss[[i]]), col = colors[i], type = 's')
 			lines(x_u, s_trans(ss[[i]]), col = colors[i], type = 's')
@@ -205,8 +217,14 @@ plot.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab 
     ranges <- matrix(nrow = nRows, ncol = 2)
 		ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.05 )
     ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.95 )
-		plot(NA, xlim = range(as.numeric(ranges), finite = TRUE), ylim = c(0,1), xlab = xlab, ylab = yName)
-		ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.005 )
+    
+    addList <- list(xlab = xlab, ylab = yName, 
+                    xlim = range(as.numeric(ranges)), ylim = c(0,1))
+    argList <- addListIfMissing(addList, argList)
+    firstPlotList <- argList
+    do.call(plot, firstPlotList)
+
+    ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.005 )
 		ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.995 )
 		if(is.null(colors))  colors <- 1:nRows
 		
@@ -222,9 +240,64 @@ plot.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab 
 	}
 }
 
-lines.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab = "time",
+
+lines.icenReg_fit <- function(x, y, fun = 'surv', ...){
+  argList <- list(...)
+  colors <- argList$col
+  if(missing(y)) y <- argList$newdata	
+  newdata <- y
+  nRows <- 1
+  if(!is.null(newdata)) nRows <- nrow(newdata)
+  if(fun == 'surv'){ s_trans <- function(x){x}; yName = 'S(t)'}
+  else if(fun == 'cdf'){ s_trans <- function(x){1-x}; yName = 'F(t)' }
+  else stop('"fun" option not recognized. Choices are "surv" or "cdf"')
+  
+#  addList <- list(xlab = xlab, ylab = yName)
+#  argList <- addListIfMissing(addList, argList)
+
+  if(x$par == 'semi-parametric' | x$par == 'non-parametric'){
+    argList <- addIfMissing('s', 'type', argList)
+    curveInfo <- getSCurves(x, y)
+    allx <- c(curveInfo$Tbull_ints[,1], curveInfo$Tbull_ints[,2])
+    dummyx <- range(allx, finite = TRUE)
+    dummyy <- c(0,1)
+    x_l <- curveInfo$Tbull_ints[,1]
+    x_u <- curveInfo$Tbull_ints[,2]
+    k <- length(x_l)
+    ss <- curveInfo$S_curves
+    if(is.null(colors))  colors <- 1:length(ss)
+    if(length(colors) == 1) colors <- rep(colors, length(ss)) 
+    for(i in 1:length(ss)){
+      argList[['x']] <- x_l
+      argList[['y']] <- s_trans(ss[[i]])
+      argList[['col']] <- colors[i]
+      do.call(lines, argList)     
+      argList[['x']] <- x_u
+      do.call(lines, argList)     
+      argList[['x']] <- c(x_l[k], x_u[k])
+      argList[['y']] <- s_trans(c(ss[[i]][k], ss[[i]][k]))
+      do.call(lines, argList)
+    }
+  }
+  else if(inherits(x, 'par_fit')){
+    ranges <- matrix(nrow = nRows, ncol = 2)
+    ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.05 )
+    ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.95 )
+    if(is.null(colors))  colors <- 1:nRows
+    for(i in 1:nrow(ranges)){
+      grid = ranges[i,1] + 0:100/100 * (ranges[i,2] - ranges[i,1])
+      est.s <- 1 - getFitEsts(x, newdata = subsetData_ifNeeded(i, newdata), q = grid)
+      argList[['x']] <- grid
+      argList[['y']] <- s_trans(est.s)
+      argList[['col']] <- colors[i]
+      do.call(lines, argList)
+    }
+  }
+}
+
+
+OLD_lines.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab = "time",
                              colors = NULL, ...){
-  if(inherits(x, 'impute_par_icph'))	stop('lines currently not supported for imputation model')
   if(missing(y)) y <- list(...)$newdata	
   newdata <- y
   nRows <- 1
@@ -1081,7 +1154,7 @@ ic_np <- function(data, maxIter = 1000, tol = 10^-10){
   if(any(data[,1] > data[,2]) ) stop(paste0("data[,1] > data[,2].",
                                           "This is impossible for interval censored data") )
   storage.mode(data) <- "double"
-  mis <- icenReg:::findMaximalIntersections(data[,1], data[,2])
+  mis <- findMaximalIntersections(data[,1], data[,2])
   fit <- .Call("EMICM", mis$l_inds, mis$r_inds, as.integer(maxIter))
   tbulls <- rbind(mis$mi_l, mis$mi_r)
   ans <- new('ic_np')
@@ -1092,7 +1165,10 @@ ic_np <- function(data, maxIter = 1000, tol = 10^-10){
   ans$llk <- fit[[2]]
   ans$iterations <- fit[[3]]
   ans$par <- 'non-parametric'
-  ans$model = 'NA'
-  ans$var <- matrix(nrow = 0, ncol = 0)  
+  ans$model = 'none'
+  ans$var <- matrix(nrow = 0, ncol = 0) 
+  dataEnv <- new.env()
+  dataEnv[['data']] <- data
+  ans[['.dataEnv']] <- dataEnv
   return(ans)
 }
