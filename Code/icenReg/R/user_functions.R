@@ -152,18 +152,6 @@ getSCurves <- function(fit, newdata = NULL){
 	}
 	else{
 	  	stop('getSCurves only for semi-parametric model. Try getFitEsts')
-# 		x <- q
-# 		s_fun <- get_s_fun(fit)
-# 		ans <- list(x = x, S_curves = list())
-# 		s <- numeric()
-# 		for(j in seq_along(x)){
-# 			s[j] <- s_fun(x[j], fit$baseline)
-# 		}
-# 		for(i in length(etas)){
-# 			ans[['S_curves']][[grpNames[i] ]] <- transFxn(s, etas[i])
-# 		}	
-# 		class(ans) <- 'par_curves'
-# 		return(ans)
 	}
 }
 
@@ -354,6 +342,9 @@ OLD_lines.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', 
 
 summary.icenReg_fit <- function(object,...)
 	new('icenRegSummary', object)
+summary.ic_npList <- function(object, ...)
+  object
+
 	
 summaryOld.icenReg_fit <- function(object,...){
 	sigfigs = 4
@@ -1090,8 +1081,48 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
 plot.sp_curves <- function(x, sname = 'baseline', xRange = NULL, ...){
   if(is.null(xRange))
     xRange <- range(c(x[[1]][,1], x[[1]][,2]), finite = TRUE)
-  plot(NA, xlim = xRange, ylim = c(0,1), ...)
+  dotList <- list(...)
+  addList <- list(xlim = xRange, ylim = c(0,1), x = NA)
+  dotList <- addListIfMissing(addList, dotList)
+  do.call(plot, dotList)
   lines(x, sname = sname, ...)
+}
+
+lines.ic_npList <- function(x, fitNames = NULL, ...){
+  if(is.null(fitNames)){
+    fitNames <- names(x$scurves)
+    lines(x, fitNames, ...)
+  }
+  dotList <- list(...)
+  cols <- dotList$col
+
+  for(i in seq_along(fitNames)){
+    thisName <- fitNames[i]
+    dotList$col <- cols[i]
+    dotList$x <- x$scurves[[thisName]]
+    do.call(lines, dotList)
+  }
+}
+
+plot.ic_npList <- function(x, fitNames = NULL, lgdLocation = 'bottomleft', ... ){
+  addList <- list(xlim = x$xRange,
+                  ylim = c(0,1),
+                  xlab = 't', 
+                  ylab = 'S(t)', 
+                  x = NA)
+  dotList <- list(...)
+  dotList <- addListIfMissing(addList, dotList)
+  do.call(plot, dotList)  
+  grpNames <- names(x$fitList)
+  cols <- dotList$col
+  if(is.null(cols)) cols = 2:(length(grpNames) + 1)
+  if(length(cols) != length(grpNames)) 
+    stop('length of number of strata not equal to number of colors')
+  dotList$col <- cols
+  dotList$fitNames = fitNames
+  dotList$x <- x
+  do.call(lines, dotList)
+  legend(lgdLocation, legend = grpNames, col = cols, lty = 1)
 }
 
 lines.sp_curves <- function(x, sname = 'baseline',...){
@@ -1147,8 +1178,57 @@ pGeneralGamma <- function(q, mu, s, Q){
 }
 
 
+ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10){
+  if(is.null(formula)){ return(ic_npSINGLE(data, maxIter = maxIter, tol = tol)) }
+  if(!inherits(formula, 'formula')) {
+    #Covering when user ONLY provides data as first unlabeled argument
+    data <- formula
+    return(ic_npSINGLE(data, maxIter = maxIter, tol = tol))
+  }
+  
+  if(missing(data)) data <- environment(formula)
+  cl <- match.call()
+  mf <- match.call(expand.dots = FALSE)
+  m <- match(c("formula", "data", "subset", "na.action", "offset"), names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  mf <- eval(mf, parent.frame())
+  
+  mt <- attr(mf, "terms")
+  y <- model.response(mf, "numeric")
+  yMat <- as.matrix(y)[,1:2]
+  if(is(y, 'Surv')){
+    rightCens <- mf[,1][,3] == 0
+    yMat[rightCens,2] <- Inf
+    exact <- mf[,1][,3] == 1
+    yMat[exact, 2] = yMat[exact, 1]
+  }
+  storage.mode(yMat) <- 'double'
+  
+  
+  
+  formFactor <- formula[[3]]
+  if( length(formFactor) != 1 ){ 
+    stop('predictor must be either single factor OR 0 for ic_np')
+  }
+  if(formFactor == 0){ return(ic_npSINGLE(yMat, maxIter = maxIter, tol = tol)) }
+  thisFactor <- data[[ as.character(formFactor) ]]
+  if(!is.factor(thisFactor)){ stop('predictor must be factor') }
+  
+  theseLevels <- levels(thisFactor)
+  fitList <- list()
+  
+  for(thisLevel in theseLevels){
+    thisData <- yMat[thisFactor == thisLevel, ]
+    if(nrow(thisData) > 0)
+      fitList[[thisLevel]] <- ic_npSINGLE(thisData, maxIter = maxIter, tol = tol)
+  }
+  ans <- ic_npList(fitList)
+  return(ans)
+}
 
-ic_np <- function(data, maxIter = 1000, tol = 10^-10){
+ic_npSINGLE <- function(data,  maxIter = 1000, tol = 10^-10){
   data <- as.matrix(data)
   if(ncol(data) != 2) stop("data should be an nx2 matrix or data.frame")
   if(any(data[,1] > data[,2]) ) stop(paste0("data[,1] > data[,2].",

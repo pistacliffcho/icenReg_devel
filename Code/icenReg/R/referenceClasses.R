@@ -141,3 +141,33 @@ setRefClass('icenRegSummary',
               }
             )
 )
+
+
+ic_npList <- setRefClass(Class = 'ic_npList',
+                         fields = c('fitList', 'xRange', 'scurves', 'nGrp'),
+                         methods = list(
+                           initialize = function(fitList){
+                             fitList <<- fitList
+                             xVals <- c(Inf, -Inf)
+                             scList <- list()
+                             grpCounts <- numeric()
+                             for(fitName in names(fitList)){
+                               fit <- fitList[[fitName]]
+                               thisSC <- getSCurves(fit)
+                               scList[[fitName]] <- thisSC
+                               xVals <- range(c(thisSC$Tbull_ints, xVals), finite = TRUE )
+                            #   xVals[1] <- min( c(thisSC$Tbull_ints[1], xVals[1]) )
+                            #   xVals[2] <- max( c(tail(thisSC$Tbull_ints[,2], 1), xVals[2]) )
+                               grpCounts[fitName] <- nrow(getData(fit))
+                             }
+                             nGrp <<- grpCounts
+                             xRange <<- xVals
+                             scurves <<- scList
+                           },
+                           show = function(){
+                             cat("Stratified NPMLE for interval censored data")
+                             cat("\nGroup Counts:\n")
+                             print(nGrp)
+                           }
+                         )
+                         )
