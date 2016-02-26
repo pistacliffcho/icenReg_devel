@@ -1,7 +1,7 @@
 SAVE = FALSE
 CHECK = TRUE
 
-setwd('/Users/cliff/Desktop/icenReg_devel')
+setwd('~/Desktop/icenReg_devel')
 
 makeTestObjects <- function(){
   set.seed(1)
