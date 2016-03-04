@@ -34,7 +34,7 @@ interval censoring. Also referred to as the Turnbull estimator.
   femaleData <- IR_diabetes[!isMale, c('left', 'right')]
   
   maleFit <- ic_np(maleData)
-  femaleFit <- ic_np(maleData)
+  femaleFit <- ic_np(femaleData)
 }
 \author{
   Clifford Anderson-Bergman
