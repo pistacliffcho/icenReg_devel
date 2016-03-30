@@ -199,6 +199,7 @@ fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po',
 	
 	if(link == 'po') linkInd = as.integer(1)
 	else if (link == 'ph') linkInd = as.integer(2)
+	else if (link == 'aft') linkInd = as.integer(3)
 	else stop('link function not supported')
 	
 	hessian <- matrix(numeric(), nrow = (k_reg + k_base), ncol = (k_reg + k_base))
@@ -645,6 +646,11 @@ getNumCovars <- function(object){
 regmod2int <- new.env()
 regmod2int[['ph']] <- as.integer(1)
 regmod2int[['po']] <- as.integer(2)
+regmod2int[['aft']] <- as.integer(2) 
+# Above this is not a typo!
+# This is because aft models are handled fundamentially differently than 
+# po and ph models. So it actually is being given all 1's for etas to keep the machinery
+# built for po and ph in place, but not actually doing anything
 regmod2int[['none']] <- as.integer(0)
 
 basemod2int <- new.env()

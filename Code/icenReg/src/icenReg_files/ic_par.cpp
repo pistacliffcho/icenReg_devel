@@ -40,7 +40,6 @@ double IC_parOpt::calcLike_baseReady(){
 
 void IC_parOpt::update_dobs_detas(){
     double con0, con_l, con_h, thisEta, thisExpEta, this_d, this_sl, this_sr;
-//    double con_2l, con_2h;
     int w_ind = -1;
     int thisSize = uc.size();
     
@@ -54,11 +53,6 @@ void IC_parOpt::update_dobs_detas(){
         con0 = log(lnkFn->con_d(this_d, this_sl, exp(thisEta) ) ) * w[w_ind] ;
         con_h = log(lnkFn->con_d(this_d, this_sl, exp(thisEta + this_h) ) ) * w[w_ind] ;
         con_l = log(lnkFn->con_d(this_d, this_sl, exp(thisEta - this_h) ) ) * w[w_ind] ;
-
-    /*    con_2h = log(lnkFn->con_d(this_d, this_sl, exp(thisEta + 2 * this_h) ) ) * w[w_ind] ;
-        con_2l = log(lnkFn->con_d(this_d, this_sl, exp(thisEta - 2 * this_h) ) ) * w[w_ind] ;
-     
-        dobs_deta[w_ind] = (con_2l - 8 * con_l + 8 * con_h - con_2l)/(12 * this_h);     */
         dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
         d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
         
@@ -83,16 +77,6 @@ void IC_parOpt::update_dobs_detas(){
                     -lnkFn->con_s(this_sr, thisExpEta) ) * w[w_ind];
 
         thisExpEta = exp(thisEta + 2 * this_h);
-        
-/*        con_2h = log(lnkFn->con_s(this_sl, thisExpEta)
-                    -lnkFn->con_s(this_sr, thisExpEta) ) * w[w_ind];
-        
-        thisExpEta = exp(thisEta - 2 * this_h);
-        con_2l = log(lnkFn->con_s(this_sl, thisExpEta)
-                    -lnkFn->con_s(this_sr, thisExpEta) ) * w[w_ind];
-
-        
-        dobs_deta[w_ind] = (con_2l - 8 * con_l + 8 * con_h - con_2l)/(12 * this_h); */
         dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
         d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
         
@@ -102,35 +86,21 @@ void IC_parOpt::update_dobs_detas(){
         w_ind++;
         thisEta = eta[lc[i].nu];
         this_sl = s_v[lc[i].r];
-        con0 = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta) ) ) * w[w_ind];
-        
+        con0 = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta) ) ) * w[w_ind];        
         con_h = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta + this_h) ) ) * w[w_ind];
         con_l = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta - this_h) ) ) * w[w_ind];
-
-/*        con_2h = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta + 2 * this_h) ) ) * w[w_ind];
-        con_2l = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta - 2 * this_h) ) ) * w[w_ind];
-
-        
-        dobs_deta[w_ind] = (con_2l - 8 * con_l + 8 * con_h - con_2l)/(12 * this_h); */
         dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
         d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
 
     }
     thisSize = rc.size();
     for(int i = 0; i < thisSize; i++){
-        w_ind++;
-        
+        w_ind++;        
         thisEta = eta[rc[i].nu];
         this_sr = s_v[rc[i].l];
         con0 = log(lnkFn->con_s(this_sr, exp(thisEta) ) ) * w[w_ind];
         con_h = log(lnkFn->con_s(this_sr, exp(thisEta + this_h) ) ) * w[w_ind];
         con_l = log(lnkFn->con_s(this_sr, exp(thisEta - this_h) ) ) * w[w_ind];
-
-/*        con_2h = log(lnkFn->con_s(this_sr, exp(thisEta + 2 * this_h) ) ) * w[w_ind];
-        con_2l = log(lnkFn->con_s(this_sr, exp(thisEta - 2 * this_h) ) ) * w[w_ind];
-
-        
-        dobs_deta[w_ind] = (con_2l - 8 * con_l + 8 * con_h - con_2l)/(12 * this_h);     */
         dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
         d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
     }
@@ -514,6 +484,7 @@ IC_parOpt::IC_parOpt(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
     lnkFn = NULL;
     if(INTEGER(R_linkType)[0] == 1) {lnkFn = new propOdd;}
     else if(INTEGER(R_linkType)[0] == 2) {lnkFn = new propHaz;}
+    else if(INTEGER(R_linkType)[0] == 3) {lnkFn = new aft_linkFun;}
     else{Rprintf("warning: link type not supported!\n");}
     
     Rvec2eigen(R_s_t, s_t);
@@ -587,26 +558,39 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
             SEXP uncenInd, SEXP gicInd, SEXP lInd, SEXP rInd,
             SEXP parType, SEXP linkType,
             SEXP outHessian, SEXP R_w){
-    IC_parOpt optObj = IC_parOpt(R_s_t, R_d_t, covars, uncenInd, gicInd, lInd, rInd, parType, linkType, R_w);
-    if(optObj.blInf == NULL) return(R_NilValue);
-    if(optObj.lnkFn == NULL) return(R_NilValue);
+    IC_parOpt* optObj;
+    if(INTEGER(linkType)[0] == 1 || INTEGER(linkType)[0] == 2){
+    	optObj = new IC_parOpt(R_s_t, R_d_t, covars, uncenInd, gicInd, 
+    						   lInd, rInd, parType, linkType, R_w);
+    }
+    else if(INTEGER(linkType)[0] == 3){
+    	optObj = new IC_parOpt_aft(R_s_t, R_d_t, covars, uncenInd, gicInd, 
+    						   lInd, rInd, parType, linkType, R_w);
+    	
+    }
+    else{
+    	Rprintf("Warning: linkType not recognized.\n");
+    	return(R_NilValue);
+    }
+    if(optObj->blInf == NULL) return(R_NilValue);
+    if(optObj->lnkFn == NULL) return(R_NilValue);
     double lk_old = R_NegInf;
     int iter = 0;
     int maxIter = 1000;
     double tol = pow(10.0, -10.0);
-    double lk_new = optObj.calcLike_all();
+    double lk_new = optObj->calcLike_all();
 
     if(lk_new == R_NegInf){
-        int bk = optObj.b_pars.size();
+        int bk = optObj->b_pars.size();
         int tries = 0;
         double delta = 1;
         while(tries < 10 && lk_new == R_NegInf){
             tries++;
             for(int i = 0; i < bk; i++){
                 if(lk_new == R_NegInf){
-                    optObj.b_pars[i] = delta;
-                    lk_new = optObj.calcLike_all();
-                    if(lk_new == R_NegInf)   optObj.b_pars[i] = 0;
+                    optObj->b_pars[i] = delta;
+                    lk_new = optObj->calcLike_all();
+                    if(lk_new == R_NegInf)   optObj->b_pars[i] = 0;
                 }
             }
             delta *= 5;
@@ -614,16 +598,16 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
     }
     
     if(lk_new == R_NegInf){
-        int bk = optObj.b_pars.size();
+        int bk = optObj->b_pars.size();
         int tries = 0;
         double delta = -1;
         while(tries < 10 && lk_new == R_NegInf){
             tries++;
             for(int i = 0; i < bk; i++){
                 if(lk_new == R_NegInf){
-                    optObj.b_pars[i] = delta;
-                    lk_new = optObj.calcLike_all();
-                    if(lk_new == R_NegInf)   optObj.b_pars[i] = 0;
+                    optObj->b_pars[i] = delta;
+                    lk_new = optObj->calcLike_all();
+                    if(lk_new == R_NegInf)   optObj->b_pars[i] = 0;
                 }
             }
             delta *= 5;
@@ -635,26 +619,26 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
     }
 
     for(int i = 0; i < 5; i++){
-        optObj.NR_baseline_pars();
+        optObj->NR_baseline_pars();
 
     }
     while(iter < maxIter && lk_new - lk_old > tol){
         lk_old = lk_new;
         iter++;
-        optObj.NR_baseline_pars();
-        optObj.NR_reg_pars();
-        lk_new = optObj.calcLike_baseReady();
+        optObj->NR_baseline_pars();
+        optObj->NR_reg_pars();
+        lk_new = optObj->calcLike_baseReady();
         
     }
-    SEXP score = PROTECT(allocVector(REALSXP, optObj.betas.size() + optObj.b_pars.size() ) );
-    optObj.fillFullHessianAndScore(outHessian, score);
-    SEXP reg_est = PROTECT(allocVector(REALSXP, optObj.betas.size()));
-    SEXP base_est = PROTECT(allocVector(REALSXP, optObj.b_pars.size()));
+    SEXP score = PROTECT(allocVector(REALSXP, optObj->betas.size() + optObj->b_pars.size() ) );
+    optObj->fillFullHessianAndScore(outHessian, score);
+    SEXP reg_est = PROTECT(allocVector(REALSXP, optObj->betas.size()));
+    SEXP base_est = PROTECT(allocVector(REALSXP, optObj->b_pars.size()));
     SEXP final_llk = PROTECT(allocVector(REALSXP, 1));
     SEXP iters = PROTECT(allocVector(REALSXP, 1));
-    for(int i = 0; i < LENGTH(reg_est); i++)    REAL(reg_est)[i] = optObj.betas[i];
-    for(int i = 0; i < LENGTH(base_est); i++)   REAL(base_est)[i] = optObj.b_pars[i];
-    REAL(final_llk)[0] = optObj.calcLike_baseReady();
+    for(int i = 0; i < LENGTH(reg_est); i++)    REAL(reg_est)[i] = optObj->betas[i];
+    for(int i = 0; i < LENGTH(base_est); i++)   REAL(base_est)[i] = optObj->b_pars[i];
+    REAL(final_llk)[0] = optObj->calcLike_baseReady();
     REAL(iters)[0] = iter;
     
     SEXP ans = PROTECT(allocVector(VECSXP, 6));
@@ -667,36 +651,44 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
     UNPROTECT(6);
     
     if(INTEGER(parType)[0] == 1){
-        gammaInfo* deleteObj = static_cast<gammaInfo*>(optObj.blInf);
+        gammaInfo* deleteObj = static_cast<gammaInfo*>(optObj->blInf);
         delete deleteObj;
     }
     if(INTEGER(parType)[0] == 2){
-        weibullInfo* deleteObj = static_cast<weibullInfo*>(optObj.blInf);
+        weibullInfo* deleteObj = static_cast<weibullInfo*>(optObj->blInf);
         delete deleteObj;
     }
     if(INTEGER(parType)[0] == 3){
-        lnormInfo* deleteObj = static_cast<lnormInfo*>(optObj.blInf);
+        lnormInfo* deleteObj = static_cast<lnormInfo*>(optObj->blInf);
         delete deleteObj;
     }
     if(INTEGER(parType)[0] == 4){
-        expInfo* deleteObj = static_cast<expInfo*>(optObj.blInf);
+        expInfo* deleteObj = static_cast<expInfo*>(optObj->blInf);
         delete deleteObj;
     }
     if(INTEGER(parType)[0] == 5){
-        loglogisticInfo* deleteObj = static_cast<loglogisticInfo*>(optObj.blInf);
+        loglogisticInfo* deleteObj = static_cast<loglogisticInfo*>(optObj->blInf);
         delete deleteObj;
     }
     if(INTEGER(parType)[0] == 6){
-        genGammaInfo* deleteObj = static_cast<genGammaInfo*>(optObj.blInf);
+        genGammaInfo* deleteObj = static_cast<genGammaInfo*>(optObj->blInf);
         delete deleteObj;
     }
     if(INTEGER(linkType)[0] == 1){
-        propOdd* deleteObj = static_cast<propOdd*>(optObj.lnkFn);
+        propOdd* deleteObj = static_cast<propOdd*>(optObj->lnkFn);
         delete deleteObj;
+	    delete optObj;
     }
     if(INTEGER(linkType)[0] == 2){
-        propHaz* deleteObj = static_cast<propHaz*>(optObj.lnkFn);
+        propHaz* deleteObj = static_cast<propHaz*>(optObj->lnkFn);
         delete deleteObj;
+	    delete optObj;
+    }
+    if(INTEGER(linkType)[0] == 3){
+    	aft_linkFun* deleteLnkObj = static_cast<aft_linkFun*>(optObj->lnkFn);
+    	delete deleteLnkObj;
+    	IC_parOpt_aft* deleteObj = static_cast<IC_parOpt_aft*>(optObj);
+    	delete deleteObj;
     }
     return(ans);
 }

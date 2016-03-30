@@ -49,7 +49,7 @@ par_fit <- setRefClass(Class = 'par_fit',
                                   'pca_hessian'
                                   ))
 
-surv_trans_models <- c('po', 'ph', 'none')
+surv_trans_models <- c('po', 'ph', 'aft', 'none')
 parametricFamilies <- c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic', 'generalgamma')
 
 for(mod in surv_trans_models){
@@ -77,6 +77,7 @@ setRefClass('icenRegSummary',
                 fullFit <<- fit
                 if(fit$model == 'ph') model <<- 'Cox PH'
                 if(fit$model == 'po') model <<- 'Proportional Odds'
+                if(fit$model == 'aft') model <<- 'Accelerated Failure Time'
                 if(fit$model == 'none') model <<- 'Non-parametric'
                 baseline <<- fit$par
                 colNames <- c('Estimate', 'Exp(Est)', 'Std.Error', 'z-value', 'p')

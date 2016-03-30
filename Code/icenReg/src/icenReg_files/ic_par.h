@@ -16,14 +16,14 @@ public:
     virtual double con_d(double b_d, double b_s, double nu) =0;
     //Computes condtional density from baseline density, baseline S and nu
     
-    virtual double con_s_der(double b_s, double nu) = 0;
+/*    virtual double con_s_der(double b_s, double nu) = 0;
     //Computes derivative of conditional survival probability with respect to nu
     virtual double con_d_der(double b_d, double b_s, double nu) = 0;
     //Computes derviative of conditional density with respect to nu
     virtual double con_s_der2(double b_s, double nu) = 0;
     //Computes 2nd derivative of conditional survival probability with respect to nu
     virtual double con_d_der2(double b_d, double b_s, double nu) = 0;
-    //Computes 2nd derviative of conditional density with respect to nu
+    //Computes 2nd derviative of conditional density with respect to nu			*/
 };
 
 class propOdd : public linkFun{
@@ -34,7 +34,7 @@ public:
         double sqrt_denom = b_s * nu - b_s + 1;
         return( b_d * nu / (sqrt_denom * sqrt_denom));
     }
-    double con_d_der(double b_d, double b_s, double nu){
+/*    double con_d_der(double b_d, double b_s, double nu){
         double ans = -b_d * (b_s * nu + b_s - 1)/pow(b_s * (nu - 1) + 1, 3.0);
         return(ans);
     }
@@ -51,7 +51,7 @@ public:
         double num = 2 * b_s * b_s * ( b_s * (nu + 2) -2 );
         double denom = pow(b_s * (nu -1) + 1, 4.0);
         return(num/denom);
-    }
+    }				*/
     virtual ~propOdd(){};
 };
 
@@ -60,7 +60,7 @@ class propHaz : public linkFun{
 public:
     double con_s(double b_s, double nu) { return(pow(b_s, nu));}
     double con_d(double b_d, double b_s, double nu){return( b_d * nu * pow(b_s, nu -1));}
-    double con_d_der(double b_d, double b_s, double nu){
+/*    double con_d_der(double b_d, double b_s, double nu){
         double ans = b_d * pow(b_s, nu - 1);
         ans *= (nu * log(b_s) + 1);
         return(ans);
@@ -76,7 +76,7 @@ public:
     double con_d_der2(double b_d, double b_s, double nu){
         double logS = log(b_s);
         return(b_d * pow(b_s, nu - 1) * logS * (nu * logS + 2) );
-    }
+    }				*/
     virtual ~propHaz(){};
 };
 
@@ -230,9 +230,9 @@ public:
     vector<rinf> rc;
     // same as above, but for right censoring (i.e. indicator for left side of interval)
 
-    double calcLike_baseReady();
+    virtual double calcLike_baseReady();
     //calculates the likelihood. Assumes baseline probs are ready
-    void calculate_baseline_probs(){
+    virtual void calculate_baseline_probs(){
         blInf->update_baseline_vals(s_t,d_t,s_v, d_v,b_pars);};
     double calcLike_all(){
         calculate_baseline_probs();
@@ -244,7 +244,7 @@ public:
     void NR_reg_pars();
 
     void update_etas();
-    void update_dobs_detas();
+    virtual void update_dobs_detas();
     
     void calc_baseline_dervs();
     void numericCovar_dervs();
@@ -259,6 +259,8 @@ public:
     IC_parOpt(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
               SEXP R_uncenInd, SEXP R_gicInd, SEXP R_lInd, SEXP R_rInd,
               SEXP R_parType, SEXP R_linkType, SEXP R_w);
+    IC_parOpt(){}
+    virtual ~IC_parOpt(){}
 };
 
 extern "C" {

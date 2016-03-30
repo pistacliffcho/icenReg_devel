@@ -18,6 +18,8 @@
 using namespace std;
 
 #include "icenReg_files/basicUtilities.cpp"
+#include "icenReg_files/ic_par.h"
+#include "icenReg_files/ic_par_aft.h"
 #include "icenReg_files/ic_par.cpp"
 #include "icenReg_files/ic_sp_ch.cpp"
 #include "icenReg_files/bivariateNPMLE.cpp"
@@ -28,3 +30,4 @@ using namespace std;
 
 #include "icenReg_files/EMICM.h"
 #include "icenReg_files/EMICM.cpp"
+#include "icenReg_files/ic_par_aft.cpp"

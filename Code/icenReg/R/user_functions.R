@@ -847,6 +847,7 @@ getFitEsts <- function(fit, newdata, p, q){
   if(missing(newdata)) newdata <- NULL
   etas <- get_etas(fit, newdata)
   
+  
   if(missing(p))	p <- NULL
   if(missing(q))  q <- NULL
   if(!is.null(q)) {xs <- q; type = 'q'}
@@ -871,11 +872,28 @@ getFitEsts <- function(fit, newdata, p, q){
     baseMod <- fit$par
     baselineInfo <- fit$baseline
   }
-  if(type == 'q')
-    ans <- getSurvProbs(xs, etas, baselineInfo = baselineInfo, regMod = regMod, baseMod = baseMod)
-  else if(type == 'p')
-    ans <- getSurvTimes(xs, etas, baselineInfo = baselineInfo, regMod = regMod, baseMod = baseMod)
+  
+  if(fit$model == 'po' | fit$model == 'ph'){
+    surv_etas <- etas
+    scale_etas <- rep(1, length(etas)) 
+  }
+  
+  else if(fit$model == 'aft'){
+    scale_etas <- etas
+    surv_etas <- rep(1, length(etas)) 
+  }
+  else stop('model not recognized in getFitEsts')
+  
+  if(type == 'q'){
+    ans <- getSurvProbs(xs, surv_etas, baselineInfo = baselineInfo, regMod = regMod, baseMod = baseMod)
+    ans <- ans * scale_etas
+    return(ans)
+  }
+  else if(type == 'p'){
+    xs <- xs / scale_etas
+    ans <- getSurvTimes(xs, surv_etas, baselineInfo = baselineInfo, regMod = regMod, baseMod = baseMod)
   return(ans)
+  }
 }
 
 
