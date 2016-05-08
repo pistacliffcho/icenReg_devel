@@ -34,12 +34,15 @@ class aft_linkFun : public linkFun{
 class IC_parOpt_aft : public IC_parOpt{
 public:
 	double con_d(double base_t, double nu){
-		double con_t = base_t * nu;
-		double ans = blInf->base_d(con_t, b_pars) / nu;
+		double con_t = base_t / nu;
+		double ans = blInf->base_d(con_t, b_pars);
+		
+		ans = ans / nu; 
+		
 		return(ans);
 	}
 	double con_s(double base_t, double nu){
-		double con_t = base_t * nu;
+		double con_t = base_t / nu;
 		double ans = blInf->base_s(con_t, b_pars);
 		return(ans);
 	}

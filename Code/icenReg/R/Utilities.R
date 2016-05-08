@@ -19,7 +19,7 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){
   baselineUpdates <- other_info$baselineUpdates
   useFullHess <- other_info$useFullHess
   useEM <- other_info$useEM
-  recenterCovars = TRUE
+  recenterCovars <- other_info$recenterCovars
 	if(getNumCovars(covars) == 0)	recenterCovars <- FALSE
 	mi_info <- findMaximalIntersections(obsMat[,1], obsMat[,2])
 	k = length(mi_info[['mi_l']])

@@ -5,7 +5,7 @@ double IC_parOpt_aft::calcLike_baseReady(){
     int thisSize = uc.size();
     for(int i = 0; i < thisSize; i++){
         w_ind++;
-        ans += log(con_d(d_t[uc[i].d], expEta[uc[i].nu])) * w[w_ind] ;
+        ans += log(con_d(d_t[uc[i].d], expEta[uc[i].nu])) * w[w_ind];
     }
     thisSize = gic.size();
     for(int i = 0; i < thisSize; i++){

@@ -1,5 +1,6 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, 
                   useGA = T, maxIter = 5000, baseUpdates = 5){
+  recenterCovars = TRUE
   if(missing(data)) data <- environment(formula)
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
@@ -58,7 +59,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
   other_info <- list(useGA = useGA, maxIter = maxIter, 
                      baselineUpdates = baseUpdates, 
                      useFullHess = useFullHess, 
-                     useEM = FALSE)  
+                     useEM = FALSE, recenterCovars = recenterCovars)  
 
   fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)
 	dataEnv <- list()
@@ -114,12 +115,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
     fitInfo$terms <- mt
     fitInfo$xlevels <- .getXlevels(mt, mf)
     if(fitInfo$iterations == maxIter){
-      warning(paste0('Maximum iterations reached in ic_sp.', 
-              '\n\nCommon cause of problem is when many observations are uncensored in Cox-PH model',
-              '\nas this causes heavy numeric instability in gradient ascent step.', 
-              '\n(note:proportional odds model is more numerically stable).',
-              '\nICM step is still stable, so try increasing maxIter two fold and observe if', 
-              '\ndifference in final llk is less than 0.1. If not, increase maxIter until this occurs.'))
+      warning('Maximum iterations reached in ic_sp.')
     }
    return(fitInfo)
 }
@@ -182,7 +178,8 @@ plot.icenReg_fit <- function(x, y, fun = 'surv',
 		allx <- c(curveInfo$Tbull_ints[,1], curveInfo$Tbull_ints[,2])
 		dummyx <- range(allx, finite = TRUE)
 		dummyy <- c(0,1)
-	
+	  firstPlotList[['xlim']] = dummyx
+	  firstPlotList[['ylim']] = dummyy
     do.call(plot, firstPlotList)
     
 		x_l <- curveInfo$Tbull_ints[,1]
@@ -207,7 +204,7 @@ plot.icenReg_fit <- function(x, y, fun = 'surv',
     ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.95 )
     
     addList <- list(xlab = xlab, ylab = yName, 
-                    xlim = range(as.numeric(ranges)), ylim = c(0,1))
+                    xlim = range(as.numeric(ranges), finite = TRUE), ylim = c(0,1))
     argList <- addListIfMissing(addList, argList)
     firstPlotList <- argList
     do.call(plot, firstPlotList)
@@ -647,11 +644,19 @@ diag_covar <- function(object, varName,
 		if(k > 1) par(mfrow = c( ceiling(nV/k), k) )
 		for(vn in allVars){
 			useFactor <- length( unique((data[[vn]])) ) < 5
-			diag_covar(object, vn, factorSplit = useFactor, model = model, data = data, yType = yType, weights = weights, lgdLocation = lgdLocation)
+			diag_covar(object, vn, factorSplit = useFactor, model = model,
+			           data = data, yType = yType,
+			           weights = weights, lgdLocation = lgdLocation,
+			           col = col)
 			}
 		return(invisible(NULL))
 	}
 
+	if(model == 'aft'){
+	  stop('diag_covar not supported for aft model. This is because calculating
+	       the non-parametric aft model is quite difficult')
+	}
+	
 	if(model == 'ph')				s_trans <- function(x){ isOk <- x > 0 & x < 1
 															ans <- numeric()
 															ans[isOk] <- log(-log(x[isOk]) )
@@ -1000,6 +1005,10 @@ diag_baseline <- function(object, data, model = 'ph', weights = NULL,
 						  dists = c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic', 'generalgamma'),
 						  cols = NULL, lgdLocation = 'bottomleft',
 						  useMidCovars = T){
+  if(model == 'aft'){
+    stop('diag_baseline not supported for aft model. This is because calculating
+	       the non-parametric aft model is quite difficult')
+  }  
 	newdata = NULL
 	if(useMidCovars) newdata <- 'midValues'
 	formula <- getFormula(object)

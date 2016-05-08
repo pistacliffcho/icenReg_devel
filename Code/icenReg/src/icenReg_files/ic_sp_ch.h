@@ -146,6 +146,7 @@ public:
     
     vector<int> exchangeIndices;
     
+    
     void last_p_update();
     void vem();
     void exchange_p_opt(int i1, int i2);
@@ -155,9 +156,6 @@ public:
 
 void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj);
 //function for setting up a actSet_Abst class
-
-//void addDepNodes(vector<int> &intoVec, int l, int r, vector<node_info> &nf);
-//
 
 void cumhaz2p_hat(Eigen::VectorXd &ch, vector<double> &p);
 
@@ -196,12 +194,12 @@ public:
 	
 	void stablizeBCH(){
 		int k = baseCH.size();
-		double thisChange = baseCH[k-2];
+		double thisChange = baseCH[k-2] - 2.0;
 		intercept += thisChange;
 		for(int i = 1; i < (k-1); i++){
 			baseCH[i] -= thisChange;
 		}
-		update_etas();
+		update_etas();	
 	}
 	
 	

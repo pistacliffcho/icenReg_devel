@@ -140,11 +140,11 @@ void icm_Abst::gradientDescent_step(){
     prop_mean = prop_mean / act_sum;
     
     for(int i = 0; i < k; i++){
-        if(isActive[i]){ prop_p[i] = base_p_derv[i];}// - prop_mean;}
+        if(isActive[i]){ prop_p[i] = base_p_derv[i] - prop_mean;}
         else {prop_p[i] = 0.0;}
     }
     
-    prop_p[k-1] = -prop_mean * act_sum;
+//    prop_p[k-1] = -prop_mean * act_sum;
     
     makeUnitVector(prop_p);
     
@@ -185,13 +185,14 @@ void icm_Abst::gradientDescent_step(){
     if(iter % 2 ==0){ d1 = analytic_dd; }
     
     delta_val = -d1/d2;
-
+	
     if(!(delta_val > 0)){
         failedGA_counts++;
         baseCH = backupCH;
         new_llk = sum_llk();
         return;
     }
+
     
     if(ISNAN(delta_val)){
         failedGA_counts++;
@@ -232,6 +233,9 @@ void icm_Abst::gradientDescent_step(){
 		baseCH = backupCH;
 		new_llk = sum_llk();
 	}
+		
+//	Rprintf("change in llk in CGA step = %f\n", new_llk - org_llk);	
+		
 }
 
 

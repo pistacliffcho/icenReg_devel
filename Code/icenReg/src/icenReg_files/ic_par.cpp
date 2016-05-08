@@ -640,7 +640,7 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
     for(int i = 0; i < LENGTH(base_est); i++)   REAL(base_est)[i] = optObj->b_pars[i];
     REAL(final_llk)[0] = optObj->calcLike_baseReady();
     REAL(iters)[0] = iter;
-    
+        
     SEXP ans = PROTECT(allocVector(VECSXP, 6));
     SET_VECTOR_ELT(ans, 0, reg_est);
     SET_VECTOR_ELT(ans, 1, base_est);

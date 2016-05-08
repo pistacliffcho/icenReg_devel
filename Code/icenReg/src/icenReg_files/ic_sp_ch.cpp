@@ -233,7 +233,11 @@ void icm_Abst::icm_step(){
     int thisSize = d1.size();
     for(int i = 0; i < thisSize; i ++){
         if(d2[i] == R_NegInf){d2[i] = -almost_inf;}
-        if(ISNAN(d2[i]))    {Rprintf("warning: d2 isnan!\n"); return;}
+        if(ISNAN(d2[i]))    {
+        	Rprintf("warning: d2 isnan! parameter value = %f index  = %d Starting value = %f\n", baseCH[i], i, backupCH[i]); 
+        	baseCH = backupCH;
+        	return;
+        }
         if(d2[i] >= 0) {
 			//Rprintf("warning: invalid d2 in icm step. i = %d, d2 = %f. Re-adjusting icm step\n", i, d2[i]);
             int sum_neg = 0;
@@ -467,6 +471,7 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
     SET_VECTOR_ELT(ans, 4, R_score);
     
     UNPROTECT(6);
+
     
     if(INTEGER(fitType)[0] == 1){
         icm_ph* deleteObj = static_cast<icm_ph*>(optObj);
@@ -476,6 +481,7 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
         icm_po* deleteObj = static_cast<icm_po*>(optObj);
         delete deleteObj;
     }
+    
     
     return(ans);
 
@@ -496,7 +502,7 @@ double icm_Abst::run(int maxIter, double tol, bool useGD, bool useEM, int baseli
 			if(hasCovars){stablizeBCH();}
 			else if(useEM){ EM_step(); }			
             icm_step();
-            if(useGD){ gradientDescent_step(); }
+            if(useGD){ gradientDescent_step(); }        
         }
 			
 	    llk_new = sum_llk();
