@@ -20,7 +20,8 @@ If \code{newdata} is left blank, will provide estimates for original data set.
   
 There are several options for how to impute. \code{imputeType = 'median'} 
 imputes the median time, conditional on the response interval, covariates and 
-regression parameters at the MLE. \code{imputeType = 'fixedParSample'} takes a 
+regression parameters at the MLE. To get random imputations without accounting
+for error in the estimated parameters \code{imputeType ='fixedParSample'} takes a 
 random sample of the response variable, conditional on the response interval, 
 covariates and estimated parameters at the MLE. Finally, 
 \code{imputeType = 'fullSample'} first takes a random sample of the coefficients,

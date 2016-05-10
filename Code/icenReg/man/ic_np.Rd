@@ -2,9 +2,10 @@
 \alias{ic_np}
 \title{Non-Parametric Estimator for Interval Censored Data}
 \usage{
-  ic_np(data, maxIter = 1000, tol = 10^-10) 
+  ic_np(formula = NULL, data, maxIter = 1000, tol = 10^-10) 
 }
 \arguments{
+  \item{formula}{formula for stratification. If only one group, can be left blank and data must be entered as n x 2 matrix.}
   \item{data}{a n x 2 matrix or dataframe. See details.}
   \item{maxIter}{maximum iterations}
   \item{tol}{numeric tolerance}
@@ -24,17 +25,20 @@ interval censoring. Also referred to as the Turnbull estimator.
   Turnbull, B. (1976) The empricial distribution with arbitrarily grouped and censored data, \emph{Journal of the Royal Statistical Society B}, vol 38 p290-295
 
   Wellner, J. A., and Zhan, Y. (1997) A hybrid algorithm for computation of the maximum likelihood estimator from censored data, \emph{Journal of the  American Statistical Association}, Vol 92, pp945-959
+  
+  Anderson-Bergman, C. (preprint) An efficient implementation of the EMICM algorithm for the interval censored NPMLE
 }
 
 \examples{
   data(IR_diabetes)
+
+  fit <- ic_np(cbind(left, right) ~ gender,
+               data = IR_diabetes)  
+
+  # Stratifies by gender
+  # If only one group, okay to enter data as n x 2 matrix
   
-  isMale <- IR_diabetes$gender == "male"
-  maleData <- IR_diabetes[isMale, c('left', 'right')]
-  femaleData <- IR_diabetes[!isMale, c('left', 'right')]
-  
-  maleFit <- ic_np(maleData)
-  femaleFit <- ic_np(femaleData)
+  plot(fit, col = c('blue', 'orange') )
 }
 \author{
   Clifford Anderson-Bergman

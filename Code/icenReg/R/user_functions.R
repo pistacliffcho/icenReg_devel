@@ -139,6 +139,7 @@ getSCurves <- function(fit, newdata = NULL){
 		colnames(Tbull_intervals) <- c('lower', 'upper')
 		s <- 1 - c(0, cumsum(fit$p_hat))
 		ans <- list(Tbull_ints = Tbull_intervals, "S_curves" = list())
+		
 		for(i in 1:length(etas)){
 			eta <- etas[i]
 			ans[["S_curves"]][[grpNames[i] ]] <- transFxn(s, eta)
@@ -181,11 +182,14 @@ plot.icenReg_fit <- function(x, y, fun = 'surv',
 	  firstPlotList[['xlim']] = dummyx
 	  firstPlotList[['ylim']] = dummyy
     do.call(plot, firstPlotList)
-    
+
 		x_l <- curveInfo$Tbull_ints[,1]
 		x_u <- curveInfo$Tbull_ints[,2]
 		k <- length(x_l)
 		ss <- curveInfo$S_curves
+
+		do.call(plot, firstPlotList)
+		
 		if(is.null(colors))  colors <- 1:length(ss)
 		if(length(colors) == 1) colors <- rep(colors, length(ss)) 
 		for(i in 1:length(ss)){

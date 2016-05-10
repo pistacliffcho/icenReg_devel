@@ -88,7 +88,7 @@ expandX <- function(formula, data, fit){
   if(inherits(fit, 'ic_np')) return(NULL)
 	tt <- terms(fit)
 	Terms <- delete.response(tt)
-	 m <- model.frame(Terms, data, na.action = na.pass, xlev = fit$xlevels)
+	 m <- model.frame(Terms, as.data.frame(data), na.action = na.pass, xlev = fit$xlevels)
 	 x <- model.matrix(Terms, m)
 	 ans <- as.matrix(x[,-1])
 	 if(nrow(ans) != nrow(x)){
@@ -450,12 +450,12 @@ s_loglgst <- function(x, par){
 get_etas <- function(fit, newdata = NULL){
   if(fit$par == 'non-parametric'){ans <- 1; names(ans) <- 'baseline'; return(ans)}
 	if(is.null(newdata)){ans <- exp(-fit$baseOffset); names(ans) <- 'baseline'; return(ans)}
-	if(is.character(newdata)){
-		if(newdata == 'midValues')
-		ans <- 1
-		names(ans) <- 'Mean Covariate Values'
-		return(ans)
+	if(identical(newdata, 'midValues')){
+  	ans <- 1
+  	names(ans) <- 'Mean Covariate Values'
+  	return(ans)
 	}
+  if(identical(rownames(newdata), NULL) ) {rownames(newdata) <- as.character(1:nrow(newdata))}
 	grpNames <- rownames(newdata)
 	reducFormula <- fit$formula
 	reducFormula[[2]] <- NULL

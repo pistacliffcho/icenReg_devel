@@ -42,6 +42,8 @@
 Pan, W., (1999), Extending the iterative convex minorant algorithm to the Cox model for interval-censored data, \emph{Journal of Computational and Graphical Statistics}, Vol 8(1), pp109-120
 
 Wellner, J. A., and Zhan, Y. (1997) A hybrid algorithm for computation of the maximum likelihood estimator from censored data, \emph{Journal of the  American Statistical Association}, Vol 92, pp945-959
+
+Anderson-Bergman, C. (preprint) Revisiting the iterative convex minorant algorithm for interval censored survival regression models
 }
   
 \examples{

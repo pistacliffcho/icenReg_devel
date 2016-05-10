@@ -8,9 +8,10 @@ sped up ic_sp
 
 v1.3.4
 fixed show() for summary class with no covariates
-added ic_np for fitting NPMLE specifically
+added ic_np for fitting NPMLE specifically (*much* faster)
 switched syntax from “final_llk” to “llk” for all models
 made plot() and lines() more user-friendly 
+Switched to RcppEigen, rather than including static C++ library
 
 v1.3.3 
 Fixed memory access issue reported by CRAN
