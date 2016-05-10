@@ -146,6 +146,7 @@ public:
     
     vector<int> exchangeIndices;
     
+    void checkCH();
     
     void last_p_update();
     void vem();

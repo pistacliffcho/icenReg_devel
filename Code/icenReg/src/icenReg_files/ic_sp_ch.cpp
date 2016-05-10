@@ -178,11 +178,25 @@ void icm_Abst::numericBaseDervsOne(int raw_ind, vector<double> &dvec){
     baseCH[raw_ind] += h;
     double llk_st = par_llk(raw_ind);
     
+    if(llk_l == R_NegInf){
+    	llk_l = llk_st;
+    	baseCH[raw_ind] += h/2.0;
+    	llk_st = par_llk(raw_ind);
+    	baseCH[raw_ind] -= h/2.0;
+    }
+    
+    if(llk_h == R_NegInf){
+    	llk_h = llk_st;
+    	baseCH[raw_ind] -= h/2.0;
+    	llk_st = par_llk(raw_ind);
+    	baseCH[raw_ind] += h/2.0;
+    }
+    
     dvec[0] = (llk_h - llk_l)/(2*h);
     dvec[1] = (llk_h + llk_l - 2 * llk_st) / (h * h);
-    
-    if(dvec[1] == R_NegInf){
-        h = h/25.0;
+        
+    if(dvec[1] == R_NegInf || ISNAN(dvec[1]) ){
+        h = h/100.0;
         
         baseCH[raw_ind] += h;
         double llk_h = par_llk(raw_ind);
@@ -194,7 +208,7 @@ void icm_Abst::numericBaseDervsOne(int raw_ind, vector<double> &dvec){
         dvec[0] = (llk_h - llk_l)/(2*h);
         dvec[1] = (llk_h + llk_l - 2 * llk_st) / (h * h);
         
-        h *=25.0;
+        h *=100.0;
     }
 }
 
@@ -234,12 +248,11 @@ void icm_Abst::icm_step(){
     for(int i = 0; i < thisSize; i ++){
         if(d2[i] == R_NegInf){d2[i] = -almost_inf;}
         if(ISNAN(d2[i]))    {
-        	Rprintf("warning: d2 isnan! parameter value = %f index  = %d Starting value = %f\n", baseCH[i], i, backupCH[i]); 
+        	Rprintf("warning: d2 isnan! \n");
         	baseCH = backupCH;
         	return;
         }
         if(d2[i] >= 0) {
-			//Rprintf("warning: invalid d2 in icm step. i = %d, d2 = %f. Re-adjusting icm step\n", i, d2[i]);
             int sum_neg = 0;
             double sum_neg_d2s = 0.0;
             for(int j = 0; j < thisSize; j++){
@@ -263,10 +276,11 @@ void icm_Abst::icm_step(){
     for(int i = 0; i < thisSize; i++){x[i] = baseCH[i + 1];}
     vector<double> prop(d1.size());
     
-    
     pavaForOptim(d1, d2, x, prop);
     
     icm_addPar(prop);
+    checkCH();        
+
     double llk_new = sum_llk();
     mult_vec(-1.0, prop);
     int tries = 0;
@@ -274,6 +288,8 @@ void icm_Abst::icm_step(){
         tries++;
         mult_vec(0.5, prop);
         icm_addPar(prop);
+        checkCH();        
+
         llk_new = sum_llk();
     }
     if(llk_new < llk_st){
@@ -487,12 +503,21 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
 
 }
 
+void icm_Abst::checkCH(){
+	int k = baseCH.size();
+	for(int i = 1; i < k; i++){
+		if(baseCH[i] < baseCH[i-1]){
+			baseCH[i] = baseCH[i-1]; 
+		}
+	}
+}
 
 double icm_Abst::run(int maxIter, double tol, bool useGD, bool useEM, int baselineUpdates){
 	iter = 0;
 	bool metOnce = false;
 	double llk_old = R_NegInf;
 	double llk_new = sum_llk();
+
     while(iter < maxIter && (llk_new - llk_old) > tol){
         iter++;
         llk_old = llk_new;
@@ -502,7 +527,7 @@ double icm_Abst::run(int maxIter, double tol, bool useGD, bool useEM, int baseli
 			if(hasCovars){stablizeBCH();}
 			else if(useEM){ EM_step(); }			
             icm_step();
-            if(useGD){ gradientDescent_step(); }        
+            if(useGD){ gradientDescent_step(); }
         }
 			
 	    llk_new = sum_llk();
