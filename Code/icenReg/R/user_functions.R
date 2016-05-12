@@ -54,7 +54,9 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	if(any(is.na(weights) > 0) )		stop('NAs not allowed in weights')
 	if(any(weights < 0)	)				stop('negative weights not allowed')
 	
-	if(is.null(ncol(x)) ) recenterCovars = FALSE
+
+    
+	if(length(x) == 0) recenterCovars = FALSE
 	
   other_info <- list(useGA = useGA, maxIter = maxIter, 
                      baselineUpdates = baseUpdates, 
@@ -76,8 +78,10 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	    bsMat <- foreach(i = seeds, .combine = 'rbind') %mydo%{
 	        set.seed(i)
 	        sampDataEnv <- bs_sampleData(dataEnv, weights)
-			    getBS_coef(sampDataEnv, callText = callText,
+			    ans <- getBS_coef(sampDataEnv, callText = callText,
 				           other_info = other_info)
+			    rm(sampDataEnv)
+			    return(ans)
 	    	}
 	 }
 	    

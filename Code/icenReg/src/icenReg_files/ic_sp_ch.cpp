@@ -518,6 +518,7 @@ double icm_Abst::run(int maxIter, double tol, bool useGD, bool useEM, int baseli
 	double llk_old = R_NegInf;
 	double llk_new = sum_llk();
 
+
     while(iter < maxIter && (llk_new - llk_old) > tol){
         iter++;
         llk_old = llk_new;
@@ -527,7 +528,10 @@ double icm_Abst::run(int maxIter, double tol, bool useGD, bool useEM, int baseli
 			if(hasCovars){stablizeBCH();}
 			else if(useEM){ EM_step(); }			
             icm_step();
-            if(useGD){ gradientDescent_step(); }
+            if(useGD){ 
+//            	experimental_step();
+            	gradientDescent_step(); 
+            }
         }
 			
 	    llk_new = sum_llk();

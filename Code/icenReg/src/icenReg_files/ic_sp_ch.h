@@ -110,6 +110,8 @@ public:
     vector<double> d_cond_S_left;
     vector<double> d_cond_S_right;
     vector<double> base_p_derv;
+    vector<double> base_p_derv2;			// For computing 2nd derivative
+    vector<double> base_p_2ndDerv;
     vector<double> prop_p;
     double llk_from_p();
     double numeric_p_der(int i);
@@ -123,6 +125,7 @@ public:
     void calc_base_p_derv();
     double getMaxScaleSize( vector<double> &p, vector<double> &prop_p);
     void gradientDescent_step();
+    void experimental_step();
     void EM_step();
     
     vector<double> dob_dp_both;
@@ -131,6 +134,8 @@ public:
 	double run(int maxIter, double tol, bool useGA, bool useEM, int baselineUpdates);
     
     void numeric_dobs_dp(bool forGA);
+    void numeric_dobs2_d2p();
+    
     double cal_log_obs(double s1, double s2, double eta);
     
     vector<bool> usedVec;

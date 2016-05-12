@@ -106,6 +106,157 @@ void icm_Abst::EM_step(){
 		new_llk = llk_from_p();
 	}
 }
+
+void icm_Abst::numeric_dobs2_d2p(){
+        	
+    backupCH = baseCH;
+    baseCH_2_baseS();
+    baseS_2_baseP();
+    
+    double offSet = h * 0.00001;
+    int k = baseP.size();
+    for(int i = 0; i < k; i++){ baseP[i]+= offSet; }
+	baseP_2_baseS();
+    	
+    numeric_dobs_dp(true);
+    k = base_p_derv.size();
+    base_p_derv2.resize(k);
+    base_p_2ndDerv.resize(k);
+    for(int i = 0; i < k; i++){ base_p_derv2[i] = base_p_derv[i]; }
+    for(int i = 0; i < k; i++){ baseP[i]-= 2.0 * offSet; }
+    baseP_2_baseS();
+    numeric_dobs_dp(true);
+	for(int i = 0; i < k; i++){ base_p_2ndDerv[i] = (base_p_derv2[i] - base_p_derv[i]) / (2.0 * offSet); }
+	for(int i = 0; i < k; i++){ base_p_derv[i] = (base_p_derv2[i] + base_p_derv[i]) / 2.0; }
+
+
+    for(int i = 0; i < k; i++){ baseP[i]+= offSet; }
+	baseP_2_baseS();
+	
+}
+
+void icm_Abst::experimental_step(){
+    
+	if(failedGA_counts > 500){return;}
+	
+	double org_llk = sum_llk();
+	
+    backupCH = baseCH;
+    baseCH_2_baseS();
+    baseS_2_baseP();
+    	
+    numeric_dobs2_d2p();
+    int k = base_p_derv.size();
+    prop_p.resize(k);
+    double prop_mean = 0;
+    int act_sum = 0;
+    double new_llk;
+    
+    vector<bool> isActive(k);
+    for(int i = 0; i < k; i++){
+        if(baseP[i] > 0 && !ISNAN(base_p_derv[i]) && base_p_2ndDerv[i] < -0.001){
+            isActive[i] = true;
+            act_sum++;
+        }
+        else { isActive[i] = false; }
+    }
+    
+    for(int i = 0; i < k; i++){
+        if(isActive[i]){ prop_mean += -base_p_derv[i]/base_p_2ndDerv[i]; }
+    }
+    
+    
+    prop_mean = prop_mean / act_sum;
+    
+    for(int i = 0; i < k; i++){
+        if(isActive[i]){ prop_p[i] = -base_p_derv[i]/base_p_2ndDerv[i] - prop_mean;}
+        else {prop_p[i] = 0.0;}
+    }
+    
+    
+    makeUnitVector(prop_p);
+    
+    
+    double scale_max = getMaxScaleSize(baseP, prop_p);
+
+    
+    for(int i = 0; i < k; i++){ prop_p[i] *= -1.0; }
+    scale_max = min(scale_max, getMaxScaleSize(baseP, prop_p));
+    for(int i = 0; i < k; i++){ prop_p[i] *= -1.0; }
+    
+    double delta_val = scale_max/2.0;
+    
+    delta_val = min(delta_val, h);
+    delta_val = delta_val/10.0;
+    
+//    double analytic_dd = directional_derv(base_p_derv, prop_p);
+    
+    
+    if(delta_val == 0){
+        failedGA_counts++;
+        baseCH = backupCH;
+        new_llk = sum_llk();
+        Rprintf("Exit 1\n");
+        return;
+    }
+    
+    add_vec(delta_val, prop_p, baseP);
+    double llk_h = llk_from_p();
+    add_vec(-2.0 * delta_val, prop_p, baseP);
+    double llk_l = llk_from_p();
+    add_vec(delta_val, prop_p, baseP);
+    double llk_0 = llk_from_p();
+    
+	
+    double d1 = ( llk_h - llk_l ) / ( 2 * delta_val );
+    double d2 = (llk_h + llk_l - 2.0 * llk_0 ) / (delta_val * delta_val);
+        
+    delta_val = -d1/d2;
+	    
+    if(ISNAN(delta_val)){
+        failedGA_counts++;
+        baseCH= backupCH;
+        new_llk = sum_llk();
+        Rprintf("warning: delta_val is nan in GA step. llk_h = %f, llk_l = %f, llk_0 = %f, scale_max = %f\n", 
+    			llk_h, llk_l, llk_0, scale_max);
+        Rprintf("Exit 3\n");
+        return;
+    }
+    
+    scale_max = getMaxScaleSize(baseP, prop_p);
+    delta_val = min( delta_val, scale_max );
+    
+    add_vec(delta_val, prop_p, baseP);
+
+    new_llk = llk_from_p();
+    mult_vec(-1.0, prop_p);
+    int tries = 0;
+    
+    double this_delta = delta_val;
+    
+    while(tries < 5 && new_llk  < llk_0){
+        tries++;
+        this_delta = this_delta/2;
+        add_vec(this_delta, prop_p, baseP);
+        new_llk = llk_from_p();
+    }
+    if(new_llk < llk_0){
+        failedGA_counts++;
+        baseCH = backupCH;
+        new_llk = sum_llk(); //Should NOT be llk_from_p(), since we are resetting the CH
+        Rprintf("Exit 4\n");
+		return;
+    }
+	
+	if(org_llk > new_llk){
+		failedGA_counts++;
+		baseCH = backupCH;
+		new_llk = sum_llk();
+	}
+		
+}
+
+
 void icm_Abst::gradientDescent_step(){
     
 	if(failedGA_counts > 500){return;}
@@ -324,7 +475,7 @@ void icm_Abst::numeric_dobs_dp(bool forGA){
     }
     
     base_p_derv.resize(k);
-
+	
     int k_l, k_r;
     node_info* nd;
     for(int j = k-1; j >=0; j--){
@@ -339,12 +490,12 @@ void icm_Abst::numeric_dobs_dp(bool forGA){
         }
         for(int i = 0; i < k_r; i++){
             rind = nd->r[i];
-            base_p_derv[j] += dob_dp_rightOnly[rind];
+            base_p_derv[j] += dob_dp_rightOnly[rind] * w[rind];
         }
         for(int i = 0; i < k_l; i++){
             lind = nd->l[i];
-            base_p_derv[j] -= dob_dp_rightOnly[lind];
-            base_p_derv[j] += dob_dp_both[lind];
+            base_p_derv[j] -= dob_dp_rightOnly[lind] * w[lind];
+            base_p_derv[j] += dob_dp_both[lind] * w[lind];
         }
     }
 
