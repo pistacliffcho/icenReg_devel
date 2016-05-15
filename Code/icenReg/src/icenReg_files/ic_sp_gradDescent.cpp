@@ -295,10 +295,8 @@ void icm_Abst::gradientDescent_step(){
         else {prop_p[i] = 0.0;}
     }
     
-//    prop_p[k-1] = -prop_mean * act_sum;
     
     makeUnitVector(prop_p);
-    
     
     double scale_max = getMaxScaleSize(baseP, prop_p);
 

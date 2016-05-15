@@ -171,6 +171,8 @@ void icm_Abst::numericBaseDervsOne(int raw_ind, vector<double> &dvec){
     dvec[1] = 0;
     if(raw_ind <= 0 || raw_ind >= (baseCH.size()- 1)){Rprintf("warning: inappropriate choice of ind for numericBaseDervs ind = %d\n", raw_ind); return;}
     
+    h = h / 25.0;
+    
     baseCH[raw_ind] += h;
     double llk_h = par_llk(raw_ind);
     baseCH[raw_ind] -= 2*h;
@@ -210,6 +212,8 @@ void icm_Abst::numericBaseDervsOne(int raw_ind, vector<double> &dvec){
         
         h *=100.0;
     }
+    
+    h = h * 25.0;
 }
 
 void icm_Abst::numericBaseDervsAllAct(vector<double> &d1, vector<double> &d2){
@@ -295,7 +299,22 @@ void icm_Abst::icm_step(){
     if(llk_new < llk_st){
         baseCH = backupCH;
         llk_new = sum_llk();
+        
+        Rprintf("ICM failed at iteration %d", iter);
+        int numNAs = 0;
+        double sumAbsProp = 0;
+        for(int i = 0; i < thisSize; i++){
+            if(ISNAN(prop[i])){
+                numNAs++;
+            }
+            else{
+                sumAbsProp += abs(prop[i]);
+            }
+        }
+        Rprintf(" sum abs prop = %f number of NAs = %d\n", sumAbsProp , numNAs);
+        
         mult_vec(0, prop);
+
     }
     
     maxBaseChg = 0;
