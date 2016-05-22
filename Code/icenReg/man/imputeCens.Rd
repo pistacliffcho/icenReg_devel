@@ -4,7 +4,7 @@
 \usage{
 imputeCens(fit, newdata = NULL, 
            imputeType = "fullSample",
-          numImputes = 5)
+           numImputes = 5)
 }
 \arguments{
   \item{fit}{model fit with \code{ic_par} or \code{ic_sp}}

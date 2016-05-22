@@ -300,7 +300,6 @@ void icm_Abst::icm_step(){
         baseCH = backupCH;
         llk_new = sum_llk();
         
-        Rprintf("ICM failed at iteration %d", iter);
         int numNAs = 0;
         double sumAbsProp = 0;
         for(int i = 0; i < thisSize; i++){
@@ -311,8 +310,6 @@ void icm_Abst::icm_step(){
                 sumAbsProp += abs(prop[i]);
             }
         }
-        Rprintf(" sum abs prop = %f number of NAs = %d\n", sumAbsProp , numNAs);
-        
         mult_vec(0, prop);
 
     }

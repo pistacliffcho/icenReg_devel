@@ -9,7 +9,7 @@ ic_par(formula, data,
 \arguments{
   \item{formula}{regression formula. Response must be a \code{Surv} object of type \code{'interval2'} or \code{cbind}. See details.}
   \item{data}{dataset}
-  \item{model}{What type of model to fit. Current choices are "\code{ph}" (proportional hazards), "\code{po}" (proportional odds) or "\code{aft}" (accelerated failure time)"}
+  \item{model}{What type of model to fit. Current choices are "\code{ph}" (proportional hazards), "\code{po}" (proportional odds) or "\code{aft}" (accelerated failure time)}
   \item{dist}{What baseline parametric distribution to use. See details for current choices}
   \item{weights}{vector of case weights. Not standardized; see details}
 }

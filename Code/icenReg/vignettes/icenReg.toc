@@ -1,0 +1,14 @@
+\contentsline {section}{\numberline {1}Introduction}{1}
+\contentsline {subsection}{\numberline {1.1}Interval Censoring}{1}
+\contentsline {subsection}{\numberline {1.2}Classic Estimators}{2}
+\contentsline {subsection}{\numberline {1.3}Models fit with {\bf {icenReg}} }{4}
+\contentsline {subsection}{\numberline {1.4}Data Examples in {\bf {icenReg}} }{4}
+\contentsline {section}{\numberline {2}Fitting Models using {\bf {icenReg}} }{5}
+\contentsline {subsection}{\numberline {2.1}Non-parametric models}{5}
+\contentsline {subsection}{\numberline {2.2}Semi-parametric models}{6}
+\contentsline {subsection}{\numberline {2.3}Parametric Models}{8}
+\contentsline {section}{\numberline {3}Inspecting model fit}{9}
+\contentsline {subsection}{\numberline {3.1}Examining Baseline Distribution}{9}
+\contentsline {subsection}{\numberline {3.2}Examining Covariate Effect}{11}
+\contentsline {section}{\numberline {4}Appendix}{12}
+\contentsline {subsection}{\numberline {4.1}Parallel Bootstrapping}{12}

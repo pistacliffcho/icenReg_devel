@@ -192,8 +192,6 @@ plot.icenReg_fit <- function(x, y, fun = 'surv',
 		k <- length(x_l)
 		ss <- curveInfo$S_curves
 
-		do.call(plot, firstPlotList)
-		
 		if(is.null(colors))  colors <- 1:length(ss)
 		if(length(colors) == 1) colors <- rep(colors, length(ss)) 
 		for(i in 1:length(ss)){
@@ -213,8 +211,7 @@ plot.icenReg_fit <- function(x, y, fun = 'surv',
     
     addList <- list(xlab = xlab, ylab = yName, 
                     xlim = range(as.numeric(ranges), finite = TRUE), ylim = c(0,1))
-    argList <- addListIfMissing(addList, argList)
-    firstPlotList <- argList
+    firstPlotList<- addListIfMissing(addList, firstPlotList)
     do.call(plot, firstPlotList)
 
     ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.005 )

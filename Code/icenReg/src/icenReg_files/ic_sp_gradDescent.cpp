@@ -347,8 +347,6 @@ void icm_Abst::gradientDescent_step(){
         failedGA_counts++;
         baseCH= backupCH;
         new_llk = sum_llk();
-        Rprintf("warning: delta_val is nan in GA step. llk_h = %f, llk_l = %f, llk_0 = %f, scale_max = %f\n", 
-    			llk_h, llk_l, llk_0, scale_max);
         return;
     }
 

@@ -50,7 +50,7 @@ diag_covar(cbind(left, right) ~ gender,
 diag_covar(cbind(left, right) ~ gender, 
     data = IR_diabetes, model = 'ph')
     
-#Neither fit is perfect
+#Neither fit is perfect, but not terrible
 #Proportional odds looks better
 }
 \author{

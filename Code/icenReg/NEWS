@@ -5,6 +5,7 @@ v1.3.5
 Added parametric AFT models
 fixed bug in plot.icenRegFit regarding xlim and ylim for semiparamtric model
 sped up ic_sp
+added vignette
 
 v1.3.4
 fixed show() for summary class with no covariates
