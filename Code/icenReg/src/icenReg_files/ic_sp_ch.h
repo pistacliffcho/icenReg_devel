@@ -102,6 +102,7 @@ public:
     double maxBaseChg;      //Max change in baseline parameters during icm step
     double h;
     bool hasCovars;
+    bool updateCovars;
     
     bool startGD;
     vector<double> baseS;
@@ -131,7 +132,7 @@ public:
     vector<double> dob_dp_both;
     vector<double> dob_dp_rightOnly;
 
-	double run(int maxIter, double tol, bool useGA, bool useEM, int baselineUpdates);
+	double run(int maxIter, double tol, bool useGA, int baselineUpdates);
     
     void numeric_dobs_dp(bool forGA);
     void numeric_dobs2_d2p();
@@ -258,9 +259,10 @@ public:
 };
 
 extern "C" {
-    SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
-                  SEXP R_w, SEXP R_use_GD, SEXP R_maxiter,
-                SEXP R_baselineUpdates, SEXP R_useFullHess, SEXP R_useEMStep);
+SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
+ 			  SEXP R_w, SEXP R_use_GD, SEXP R_maxiter,
+ 			  SEXP R_baselineUpdates, SEXP R_useFullHess, SEXP R_updateCovars,
+ 			  SEXP R_initialRegVals);
     SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals);
 }
 #endif /* defined(____ic_sp_cm__) */

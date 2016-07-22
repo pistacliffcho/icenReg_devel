@@ -23,6 +23,8 @@ export(diag_baseline)
 export(imputeCens)
 export(ic_par)
 export(ic_np)
+export(makeCtrls_icsp)
+#export(icqqplot)
 #export(icenReg_cv)
 #export(abs_inv)
 

@@ -1,5 +1,11 @@
 ###			SEMIPARAMETRIC UTILITIES
 
+adjustIntervals <- function(B = c(0,1), yMat, eps = 10^-15){
+  isCensored <- yMat[,2] - yMat[,1] > (2 * eps)
+  if(B[1] == 0) yMat[isCensored,1] = yMat[isCensored,1] + eps
+  if(B[2] == 0) yMat[isCensored,2] = yMat[isCensored,2] - eps
+  return(yMat)
+}
 
 findMaximalIntersections <- function(lower, upper){
 	allVals <- sort(unique(c(lower,upper)) )
@@ -18,15 +24,13 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){
   maxIter <- other_info$maxIter
   baselineUpdates <- other_info$baselineUpdates
   useFullHess <- other_info$useFullHess
-  useEM <- other_info$useEM
+  updateCovars <- other_info$updateCovars
   recenterCovars <- other_info$recenterCovars
+  regStart <- other_info$regStart
 	if(getNumCovars(covars) == 0)	recenterCovars <- FALSE
 	mi_info <- findMaximalIntersections(obsMat[,1], obsMat[,2])
 	k = length(mi_info[['mi_l']])
 	covars <- as.matrix(covars)
-	if(getNumCovars(covars) > 0 & useEM == TRUE){
-	  warning('note: EM step is only applicable with no covariates. The EM step will be skipped')
-	}
 	if(callText == 'ic_ph'){fitType = as.integer(1)}
 	else if(callText == 'ic_po'){fitType = as.integer(2)}
 	else {stop('callText not recognized in fit_ICPH')}
@@ -34,11 +38,13 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){
 	if(recenterCovars){
 		pca_info <- prcomp(covars, scale. = TRUE)
 		covars <- as.matrix(pca_info$x)
+		regStart <- solve(pca_info$rotation, (regStart * pca_info$scale) )
 	}
 	
 	c_ans <- .Call('ic_sp_ch', mi_info$l_inds, mi_info$r_inds, covars, fitType, as.numeric(weights), useGA, 
 	               as.integer(maxIter), as.integer(baselineUpdates),
-	               as.logical(useFullHess), as.logical(useEM)) 
+	               as.logical(useFullHess), as.logical(updateCovars),
+	               as.double(regStart))  
 	names(c_ans) <- c('p_hat', 'coefficients', 'llk', 'iterations', 'score')
 	myFit <- new(callText)
 	myFit$p_hat <- c_ans$p_hat
@@ -57,7 +63,6 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){
 	}
 	return(myFit)
 }
-
 
 
 
@@ -753,6 +758,8 @@ getMaxLength <- function(thisList){
   return(n)
 }
 
+
+### PREPROCESSING TOOLS
 addIfMissing <- function(val, name, list){
   if(is.null(list[[name]])) list[[name]] <- val
   return(list)
@@ -763,3 +770,53 @@ addListIfMissing <- function(listFrom, listInto){
   for(n in listFromNames) listInto <- addIfMissing(listFrom[[n]], n , listInto)
   return(listInto)
 }
+
+
+makeIntervals <- function(y, mf){
+  yMat <- as.matrix(y)[,1:2]
+  if(is(y, 'Surv')){
+    rightCens <- mf[,1][,3] == 0
+    yMat[rightCens,2] <- Inf
+    exact <- mf[,1][,3] == 1
+    yMat[exact, 2] = yMat[exact, 1]
+  }
+  storage.mode(yMat) <- 'double'
+  return(yMat)
+}
+
+checkWeights <- function(weights, yMat){
+  if(is.null(weights)) 				weights = rep(1, nrow(yMat))
+  if(length(weights) != nrow(yMat))	stop('weights improper length')
+  if(any(is.na(weights) > 0) )		stop('NAs not allowed in weights')
+  if(any(weights < 0)	)				stop('negative weights not allowed')
+  return(weights)
+}
+
+checkMatrix <- function(x){
+  testMat <- cbind(x, 1)
+  invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)
+  if(is(invertResult, 'try-error'))
+    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')
+}
+
+makeQQFit <- function(fit){
+  if(!is(fit, 'par_fit')){stop("icenReg's QQ plots only for models fit by ic_par")}
+  thisData <- fit$getRawData()
+  if(fit$model == 'aft'){
+    theseEtas <- get_etas(fit, thisData)
+    baseData <- getResponse(fit)
+    baseData[,1] <- baseData[,1] / theseEtas
+    baseData[,2] <- baseData[,2] / theseEtas
+    spfit <- ic_np(baseData)
+  }
+  else{
+    thisFormula <- fit$formula
+    thisModel <- fit$model
+    theseRegPars <- fit$reg_pars
+    theseControls <- makeCtrls_icsp(regStart = theseRegPars)
+    theseControls$updateReg = F
+    spfit <- ic_sp(formula = thisFormula, model = thisModel, data = thisData, controls = theseControls)
+  }
+  return(spfit)
+}
+

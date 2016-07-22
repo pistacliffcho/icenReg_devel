@@ -2,13 +2,14 @@
 \alias{ic_np}
 \title{Non-Parametric Estimator for Interval Censored Data}
 \usage{
-  ic_np(formula = NULL, data, maxIter = 1000, tol = 10^-10) 
+  ic_np(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,1))  
 }
 \arguments{
   \item{formula}{formula for stratification. If only one group, can be left blank and data must be entered as n x 2 matrix.}
   \item{data}{a n x 2 matrix or dataframe. See details.}
   \item{maxIter}{maximum iterations}
   \item{tol}{numeric tolerance}
+  \item{B}{Should intervals be open or closed? See details.}
 }
 \description{
   Fits the non-parametric maximum likelihood estimator (NPMLE) for univariate interval censored data. This is a generalization of the Kaplan-Meier curves that allows for 
@@ -17,6 +18,8 @@ interval censoring. Also referred to as the Turnbull estimator.
 
 \details{
   \code{data} must be an n x 2 matrix or data.frame containing two columns of data representing left and right sides of the censoring interval, denoted L and R. This allows for left censored (L == 0), right censored (R == inf), uncensored (L == R) along with general interval censored observations. 
+
+  The argument \code{B} determines whether the intervals should be open or closed, i.e. \code{B = c(0,1)} implies that the event occurs within the interval \code{(l,u]}. The exception is that if \code{l == u}, it is assumed that the event is uncensored, regardless of \code{B}.
   
   The NPMLE is fit using an efficient implementation of the EMICM algorithm. 
 } 

@@ -6,8 +6,8 @@
 \title{Semi-Parametric models for Interval Censored Data}
 \usage{
   ic_sp(formula, data, model = 'ph', weights = NULL,
-        bs_samples = 0, useMCores = F, 
-        useGA = T, maxIter = 5000, baseUpdates = 5) 
+        bs_samples = 0, useMCores = F, B = c(0,1),
+        controls = makeCtrls_icsp()) 
 }
 \arguments{
   \item{formula}{regression formula. Response must be a \code{Surv} object of type \code{'interval2'}or \code{cbind}. See details.}
@@ -16,9 +16,11 @@
    \item{weights}{Vector of case weights. Not standardized; see details}
   \item{bs_samples}{Number of bootstrap samples used for estimation of standard errors}
   \item{useMCores}{Should multiple cores be used for bootstrap sample? Does not register cluster (see example)}
-  \item{useGA}{Should a gradient ascent step be used? See details}
-  \item{maxIter}{Maximum iterations}
-  \item{baseUpdates}{number of baseline updates (ICM + GA) per iteration}
+  \item{B}{Should intervals be open or closed? See details.}
+  \item{controls}{Advanced control options}
+%  \item{useGA}{Should a gradient ascent step be used? See details}
+%  \item{maxIter}{Maximum iterations}
+%  \item{baseUpdates}{number of baseline updates (ICM + GA) per iteration}
 }
 \description{
  	Fits a semi-parametric model for interval censored data. Can fit either a Cox-PH model or a proportional odds model.  
@@ -30,6 +32,8 @@
 \details{
 
 	Response variable should either be of the form \code{cbind(l, u)} or \code{Surv(l, u, type = 'interval2')}, where \code{l} and \code{u} are the lower and upper ends of the interval known to contain the event of interest. Uncensored data can be included by setting \code{l == u}, right censored data can be included by setting \code{u == Inf} or \code{u == NA} and left censored data can be included by setting \code{l == 0}.
+	
+	The argument \code{B} determines whether the intervals should be open or closed, i.e. \code{B = c(0,1)} implies that the event occurs within the interval \code{(l,u]}. The exception is that if \code{l == u}, it is assumed that the event is uncensored, regardless of \code{B}. 
 	
 	In regards to weights, they are not standardized. This means that if weight[i] = 2, this is the equivalent to having two observations with the same values as subject i. 
 

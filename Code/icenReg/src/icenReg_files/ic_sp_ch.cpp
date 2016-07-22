@@ -84,7 +84,8 @@ void icm_Abst::icm_addPar(vector<double> &delta){
 
 
 /*      INITIALIZATION TOOLS    */
-void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj){
+void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, 
+				SEXP R_RegPars, icm_Abst* icm_obj){
     icm_obj->h = 0.0001;
     icm_obj->almost_inf = 1.0/icm_obj->h;
     int n = LENGTH(Rlind);
@@ -111,17 +112,14 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     }
     icm_obj->reg_d1.resize(reg_k);
     icm_obj->reg_d2.resize(reg_k, reg_k);
-//    icm_obj->reg_d2.resize(reg_k);
     icm_obj->reg_par.resize(reg_k);
-    for(int i = 0; i < reg_k; i++){ icm_obj->reg_par[i] = 0; }
-    
+    double* regParPtr = REAL(R_RegPars);
+    for(int i = 0; i < reg_k; i++){ icm_obj->reg_par[i] = regParPtr[i]; }
     
     int maxInd = 0;
     for(int i = 0; i < n; i++){
         maxInd = max(maxInd, INTEGER(Rrind)[i]);
     }
-
-    
 
     icm_obj->baseCH.resize(maxInd + 2);
     for(int i = 0; i <= maxInd; i++){ icm_obj->baseCH[i] = R_NegInf; }
@@ -132,7 +130,6 @@ void setup_icm(SEXP Rlind, SEXP Rrind, SEXP RCovars, SEXP R_w, icm_Abst* icm_obj
     int this_l, this_r;
     icm_obj->obs_inf.resize(n);
     icm_obj->node_inf.resize(maxInd + 2);
-    
     
     for(int i = 0; i < n; i++){
         this_l = INTEGER(Rlind)[i];
@@ -450,10 +447,10 @@ void icm_Abst::covar_nr_step(){
 /*      CALLING ALGORITHM FROM R     */
 SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
  			  SEXP R_w, SEXP R_use_GD, SEXP R_maxiter,
- 			  SEXP R_baselineUpdates, SEXP R_useFullHess, SEXP R_useEMStep){
+ 			  SEXP R_baselineUpdates, SEXP R_useFullHess, SEXP R_updateCovars,
+ 			  SEXP R_initialRegVals){
     icm_Abst* optObj;
     bool useGD = LOGICAL(R_use_GD)[0] == TRUE;
-    bool useEMStep = LOGICAL(R_useEMStep)[0] == TRUE;
 	
     if(INTEGER(fitType)[0] == 1){
         optObj = new icm_ph;
@@ -462,8 +459,8 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
         optObj = new icm_po;
     }
     else { Rprintf("fit type not supported\n");return(R_NilValue);}
-
-    setup_icm(Rlind, Rrind, Rcovars, R_w, optObj);
+    optObj->updateCovars = LOGICAL(R_updateCovars)[0] == TRUE;
+    setup_icm(Rlind, Rrind, Rcovars, R_w, R_initialRegVals, optObj);
     
     optObj->useFullHess = LOGICAL(R_useFullHess)[0] == TRUE;
     
@@ -472,7 +469,7 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
     int maxIter = INTEGER(R_maxiter)[0];
     int baselineUpdates = INTEGER(R_baselineUpdates)[0];
     
-    double llk_new = optObj->run(maxIter, tol, useGD, useEMStep, baselineUpdates);
+    double llk_new = optObj->run(maxIter, tol, useGD, baselineUpdates);
     
     vector<double> p_hat;
 	
@@ -528,26 +525,35 @@ void icm_Abst::checkCH(){
 	}
 }
 
-double icm_Abst::run(int maxIter, double tol, bool useGD, bool useEM, int baselineUpdates){
+double icm_Abst::run(int maxIter, double tol, bool useGD, int baselineUpdates){
 	iter = 0;
 	bool metOnce = false;
 	double llk_old = R_NegInf;
 	double llk_new = sum_llk();
 
-
+	bool regNon0 = false;
+	int reg_k = reg_par.size();
+	for(int i = 0; i < reg_k; i++){
+		if(reg_par[i] != 0 ){ regNon0 = true; } 
+	}
+	
+	if(regNon0){
+		if(hasCovars){stablizeBCH();}
+		if(useGD){ gradientDescent_step();}
+		icm_step();
+		if(useGD){ gradientDescent_step();}		
+		icm_step();
+	}
+	
     while(iter < maxIter && (llk_new - llk_old) > tol){
         iter++;
         llk_old = llk_new;
-        if(hasCovars){ covar_nr_step(); }
+        if(hasCovars && updateCovars){ covar_nr_step(); }
 
         for(int i = 0; i < baselineUpdates; i++)  {
 			if(hasCovars){stablizeBCH();}
-			else if(useEM){ EM_step(); }			
             icm_step();
-            if(useGD){ 
-//            	experimental_step();
-            	gradientDescent_step(); 
-            }
+            if(useGD){ gradientDescent_step(); }
         }
 			
 	    llk_new = sum_llk();

@@ -1,67 +1,56 @@
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, 
-                  useGA = T, maxIter = 5000, baseUpdates = 5){
+                  B = c(0,1), 
+                  controls = makeCtrls_icsp() ){
   recenterCovars = TRUE
+  useFullHess = FALSE  
   if(missing(data)) data <- environment(formula)
 	cl <- match.call()
 	mf <- match.call(expand.dots = FALSE)
-    m <- match(c("formula", "data", "subset", "na.action", "offset"), names(mf), 0L)
+  m <- match(c("formula", "data", "subset", "na.action", "offset"), names(mf), 0L)
 	mf <- mf[c(1L, m)]
-    mf$drop.unused.levels <- TRUE
-    mf[[1L]] <- quote(stats::model.frame)
-    mf <- eval(mf, parent.frame())
-    
-    mt <- attr(mf, "terms")
-    y <- model.response(mf, "numeric")
-    x <- model.matrix(mt, mf, contrasts)
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  mf <- eval(mf, parent.frame())
+  mt <- attr(mf, "terms")
+  y <- model.response(mf, "numeric")
+  x <- model.matrix(mt, mf, contrasts)
 	if(is.matrix(x))	xNames <- colnames(x)
-    else				xNames <- as.character(formula[[3]])
-	if('(Intercept)' %in% colnames(x)){	
-		ind = which(colnames(x) == '(Intercept)')
-		x <- x[,-ind]
-		xNames <- xNames[-ind]
-	}
-	
-  useFullHess = FALSE  
-    
-    
-	if(length(xNames) == 0 & bs_samples > 0){
+  else				      xNames <- as.character(formula[[3]])
+  if('(Intercept)' %in% colnames(x)){	
+    ind = which(colnames(x) == '(Intercept)')
+    x <- x[,-ind]
+    xNames <- xNames[-ind]
+  }
+  if(length(xNames) == 0 & bs_samples > 0){
 		 cat('no covariates included, so bootstrapping is not useful. Setting bs_samples = 0')
 		 bs_samples = 0
 	}
-	
-  yMat <- as.matrix(y)[,1:2]
-  if(is(y, 'Surv')){
-    rightCens <- mf[,1][,3] == 0
-  	yMat[rightCens,2] <- Inf
-  	exact <- mf[,1][,3] == 1
-  	yMat[exact, 2] = yMat[exact, 1]
-  }
-	storage.mode(yMat) <- 'double'
-    
-    if(sum(is.na(mf)) > 0)
-    	stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")
+  yMat <- makeIntervals(y, mf)
+  yMat <- adjustIntervals(B, yMat)
+  if(sum(is.na(mf)) > 0)
+    stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")
         
-    testMat <- cbind(x, 1)
-    invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)
-    if(is(invertResult, 'try-error'))
-	    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')
-	if(model == 'ph')	callText = 'ic_ph'
+  checkMatrix(x)
+  
+  if(model == 'ph')	callText = 'ic_ph'
 	else if(model == 'po')	callText = 'ic_po'
 	else stop('invalid choice of model. Current optios are "ph" (cox ph) or "po" (proportional odds)')
 	
-	if(is.null(weights)) 				weights = rep(1, nrow(yMat))
-	if(length(weights) != nrow(yMat))	stop('weights improper length')
-	if(any(is.na(weights) > 0) )		stop('NAs not allowed in weights')
-	if(any(weights < 0)	)				stop('negative weights not allowed')
-	
-
-    
+  weights <- checkWeights(weights, yMat)	
 	if(length(x) == 0) recenterCovars = FALSE
 	
-  other_info <- list(useGA = useGA, maxIter = maxIter, 
-                     baselineUpdates = baseUpdates, 
+  if(!is.null(controls$regStart)) regStart <- controls$regStart
+  else                            regStart <- rep(0, length(xNames)) 
+  if(length(regStart) != length(xNames)){
+    stop("length of provided regression parameters wrong length")
+  }
+    
+  other_info <- list(useGA = controls$useGA, maxIter = controls$maxIter, 
+                     baselineUpdates = controls$baseUpdates, 
                      useFullHess = useFullHess, 
-                     useEM = FALSE, recenterCovars = recenterCovars)  
+                     updateCovars = controls$updateReg,
+                     recenterCovars = recenterCovars, 
+                     regStart = regStart)  
 
   fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)
 	dataEnv <- list()
@@ -99,12 +88,9 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
 	    		bsMat <- bsMat[!incompleteIndicator,]
 	    	}
 	      covar <- cov(bsMat)
-        est_bias <- colMeans(bsMat) - fitInfo$coefficients 
-        fitInfo$coef_bc <- fitInfo$coefficients - est_bias
     }else{ 
         bsMat <- NULL
         covar <- NULL
-        coef_bc <- NULL
     }
     names(fitInfo$coefficients) <- xNames
     fitInfo$bsMat <- bsMat
@@ -118,12 +104,19 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
     fitInfo$reg_pars <- fitInfo$coefficients
     fitInfo$terms <- mt
     fitInfo$xlevels <- .getXlevels(mt, mf)
-    if(fitInfo$iterations == maxIter){
+    if(fitInfo$iterations == controls$maxIter){
       warning('Maximum iterations reached in ic_sp.')
     }
    return(fitInfo)
 }
 
+makeCtrls_icsp <- function(useGA = T, maxIter = 10000, baseUpdates = 5,
+               regStart = NULL){
+  ans <- list(useGA = useGA, maxIter = maxIter, 
+              baseUpdates = baseUpdates, 
+              regStart = regStart, updateReg = TRUE)
+  return(ans)
+}
 
 vcov.icenReg_fit <- function(object,...) object$var
 
@@ -883,7 +876,7 @@ getFitEsts <- function(fit, newdata, p, q){
     baselineInfo <- fit$baseline
   }
   
-  if(fit$model == 'po' | fit$model == 'ph'){
+  if(fit$model == 'po' | fit$model == 'ph' | fit$model == 'none'){
     surv_etas <- etas
     scale_etas <- rep(1, length(etas)) 
   }
@@ -1210,12 +1203,12 @@ pGeneralGamma <- function(q, mu, s, Q){
 }
 
 
-ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10){
-  if(is.null(formula)){ return(ic_npSINGLE(data, maxIter = maxIter, tol = tol)) }
+ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,1)){
+  if(is.null(formula)){ return(ic_npSINGLE(data, maxIter = maxIter, tol = tol, B = B)) }
   if(!inherits(formula, 'formula')) {
     #Covering when user ONLY provides data as first unlabeled argument
     data <- formula
-    return(ic_npSINGLE(data, maxIter = maxIter, tol = tol))
+    return(ic_npSINGLE(data, maxIter = maxIter, tol = tol, B = B))
   }
   
   if(missing(data)) data <- environment(formula)
@@ -1237,14 +1230,14 @@ ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10){
     yMat[exact, 2] = yMat[exact, 1]
   }
   storage.mode(yMat) <- 'double'
-  
+#  yMat <- adjustIntervals(B, yMat)
   
   
   formFactor <- formula[[3]]
   if( length(formFactor) != 1 ){ 
     stop('predictor must be either single factor OR 0 for ic_np')
   }
-  if(formFactor == 0){ return(ic_npSINGLE(yMat, maxIter = maxIter, tol = tol)) }
+  if(formFactor == 0){ return(ic_npSINGLE(yMat, maxIter = maxIter, tol = tol, B = B)) }
   thisFactor <- data[[ as.character(formFactor) ]]
   if(!is.factor(thisFactor)){ stop('predictor must be factor') }
   
@@ -1254,18 +1247,19 @@ ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10){
   for(thisLevel in theseLevels){
     thisData <- yMat[thisFactor == thisLevel, ]
     if(nrow(thisData) > 0)
-      fitList[[thisLevel]] <- ic_npSINGLE(thisData, maxIter = maxIter, tol = tol)
+      fitList[[thisLevel]] <- ic_npSINGLE(thisData, maxIter = maxIter, tol = tol, B = B)
   }
   ans <- ic_npList(fitList)
   return(ans)
 }
 
-ic_npSINGLE <- function(data,  maxIter = 1000, tol = 10^-10){
+ic_npSINGLE <- function(data,  maxIter = 1000, tol = 10^-10, B){
   data <- as.matrix(data)
   if(ncol(data) != 2) stop("data should be an nx2 matrix or data.frame")
   if(any(data[,1] > data[,2]) ) stop(paste0("data[,1] > data[,2].",
                                           "This is impossible for interval censored data") )
   storage.mode(data) <- "double"
+  data <- adjustIntervals(B, data)
   mis <- findMaximalIntersections(data[,1], data[,2])
   fit <- .Call("EMICM", mis$l_inds, mis$r_inds, as.integer(maxIter))
   tbulls <- rbind(mis$mi_l, mis$mi_r)
@@ -1283,4 +1277,20 @@ ic_npSINGLE <- function(data,  maxIter = 1000, tol = 10^-10){
   dataEnv[['data']] <- data
   ans[['.dataEnv']] <- dataEnv
   return(ans)
+}
+
+icqqplot <- function(par_fit){
+ spfit <- makeQQFit(par_fit)
+ baseSCurves <- getSCurves(spfit)
+ baseS <- baseSCurves$S_curves$baseline
+ baseUpper <- baseSCurves$Tbull_ints[,2]
+ baseLower <- baseSCurves$Tbull_ints[,1]
+ 
+ parUpperS <- 1 - getFitEsts(fit = par_fit, q = baseUpper)
+ parLowerS <- 1 - getFitEsts(fit = par_fit, q = baseLower)
+ 
+ plot(baseS, parUpperS, xlim = c(0,1), ylim = c(0,1), main = 'QQ Plot', xlab = c('Unconstrained Baseline Survival'),
+      ylab = 'Parametric Survival', type = 's')
+ lines(baseS, parLowerS, type = 's')
+ lines(c(0,1), c(0,1), col = 'red')
 }
