@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  21 MAY 2016 22:13
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  21 AUG 2016 19:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -300,25 +300,25 @@ File: t1aer.fd 1997/11/16 Font definitions for T1/aer.
 )))) (./icenReg.aux)
 \openout1 = `icenReg.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 20.
-LaTeX Font Info:    ... okay on input line 20.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 20.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 20.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 22.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 22.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 20.
+LaTeX Font Info:    ... okay on input line 22.
 
 (/usr/local/texlive/2015/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -382,12 +382,12 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 (./icenReg-concordance.tex)
-LaTeX Font Info:    Try loading font information for U+msa on input line 25.
+LaTeX Font Info:    Try loading font information for U+msa on input line 27.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 25.
+LaTeX Font Info:    Try loading font information for U+msb on input line 27.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -404,55 +404,55 @@ LaTeX Font Info:    Try loading font information for T1+aett on input line 43.
 File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
 )
 [2] [3]
-LaTeX Font Info:    Try loading font information for TS1+aer on input line 95.
+LaTeX Font Info:    Try loading font information for TS1+aer on input line 98.
 
 (/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/ts1aer.fd
 File: ts1aer.fd 
 )
 LaTeX Font Info:    Font shape `TS1/aer/m/n' in size <10> not available
-(Font)              Font shape `TS1/cmr/m/n' tried instead on input line 95.
+(Font)              Font shape `TS1/cmr/m/n' tried instead on input line 98.
 
 [4]
-LaTeX Font Info:    Try loading font information for TS1+aett on input line 181
+LaTeX Font Info:    Try loading font information for TS1+aett on input line 186
 .
  (/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/ts1aett.fd
 File: ts1aett.fd 
 )
-LaTeX Font Info:    Try loading font information for TS1+cmtt on input line 181
+LaTeX Font Info:    Try loading font information for TS1+cmtt on input line 186
 .
  (/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1cmtt.fd
 File: ts1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `TS1/aett/m/sl' in size <10> not available
-(Font)              Font shape `TS1/cmtt/m/sl' tried instead on input line 181.
+(Font)              Font shape `TS1/cmtt/m/sl' tried instead on input line 186.
 
 
 <icenReg-005.pdf, id=29, 397.485pt x 397.485pt>
 File: icenReg-005.pdf Graphic file (type pdf)
  <use icenReg-005.pdf>
-Package pdftex.def Info: icenReg-005.pdf used on input line 193.
+Package pdftex.def Info: icenReg-005.pdf used on input line 198.
 (pdftex.def)             Requested size: 276.00105pt x 276.00563pt.
  [5]
 [6 <./icenReg-005.pdf>] [7] <icenReg-009.pdf, id=47, 397.485pt x 397.485pt>
 File: icenReg-009.pdf Graphic file (type pdf)
 
 <use icenReg-009.pdf>
-Package pdftex.def Info: icenReg-009.pdf used on input line 278.
+Package pdftex.def Info: icenReg-009.pdf used on input line 283.
 (pdftex.def)             Requested size: 276.00105pt x 276.00563pt.
  [8 <./icenReg-009.pdf>]
 <icenReg-012.pdf, id=56, 397.485pt x 397.485pt>
 File: icenReg-012.pdf Graphic file (type pdf)
  <use icenReg-012.pdf>
-Package pdftex.def Info: icenReg-012.pdf used on input line 325.
+Package pdftex.def Info: icenReg-012.pdf used on input line 330.
 (pdftex.def)             Requested size: 276.00105pt x 276.00563pt.
  [9 <./icenReg-012.pdf>] <icenReg-013.pdf, id=65, 397.485pt x 397.485pt>
 File: icenReg-013.pdf Graphic file (type pdf)
 
 <use icenReg-013.pdf>
-Package pdftex.def Info: icenReg-013.pdf used on input line 352.
+Package pdftex.def Info: icenReg-013.pdf used on input line 357.
 (pdftex.def)             Requested size: 276.00105pt x 276.00563pt.
  [10 <./icenReg-013.pdf>]
-Overfull \hbox (0.13646pt too wide) in paragraph at lines 369--370
+Overfull \hbox (0.13646pt too wide) in paragraph at lines 374--375
 \T1/aer/m/n/10 ric fam-ily of the base-line dis-tri-bu-tion, both fully-paramet
 ric and semi-parametric
  []
@@ -460,23 +460,23 @@ ric and semi-parametric
 <icenReg-016.pdf, id=74, 361.35pt x 361.35pt>
 File: icenReg-016.pdf Graphic file (type pdf)
  <use icenReg-016.pdf>
-Package pdftex.def Info: icenReg-016.pdf used on input line 397.
+Package pdftex.def Info: icenReg-016.pdf used on input line 402.
 (pdftex.def)             Requested size: 234.60257pt x 234.60454pt.
 
 <icenReg-017.pdf, id=75, 289.08pt x 289.08pt>
 File: icenReg-017.pdf Graphic file (type pdf)
  <use icenReg-017.pdf>
-Package pdftex.def Info: icenReg-017.pdf used on input line 398.
+Package pdftex.def Info: icenReg-017.pdf used on input line 403.
 (pdftex.def)             Requested size: 234.60257pt x 234.60342pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 397--399
+Underfull \hbox (badness 10000) in paragraph at lines 402--404
 [][]
  []
 
 [11] [12 <./icenReg-016.pdf> <./icenReg-017.pdf>] [13] (./icenReg.aux) ) 
 Here is how much of TeX's memory you used:
  4326 strings out of 493089
- 59127 string characters out of 6134842
+ 59091 string characters out of 6134842
  116812 words of memory out of 5000000
  7653 multiletter control sequences out of 15000+600000
  39582 words of font info for 90 fonts, out of 8000000 for 9000
@@ -499,7 +499,7 @@ ve/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive
 texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2015/t
 exmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2015/tex
 mf-dist/fonts/type1/public/cm-super/sfst1000.pfb>
-Output written on icenReg.pdf (13 pages, 235411 bytes).
+Output written on icenReg.pdf (13 pages, 234562 bytes).
 PDF statistics:
  148 PDF objects out of 1000 (max. 8388607)
  103 compressed objects within 2 object streams

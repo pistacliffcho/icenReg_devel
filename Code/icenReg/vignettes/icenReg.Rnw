@@ -39,7 +39,7 @@ Interval censoring occurs when a response is known only up to an interval. A cla
   
 Often interval censoring is ignored in analysis. For example, age is usually reported only up to the year, rather than as a continuous variable; when a subject reports that their age is 33, the information we have is really that their age is in the interval [33,34). In the case that these intervals are very short relative to the question of interest, such as with reported age when the scientific quesiton is about age of onset of type II diabetes, the bias introduced by ignoring the interval censoring may besmall enough to be safely ignored. However, in the case that the width of intervals is non-trivial, statistical methods that account for this should be used for reliable analysis. 
   
-Standard notation for interval censoring is that each observation contains a response interval $[l_i,r_i]$ such that the true event time is known to have occurred within. Note that this allows for uncensored observations ($l_i = r_i$), right censored($r_i = \infty$), left censored ($l_i = 0$) or none of the above ($0 < l_i < r_i < \infty$). 
+Standard notation for interval censoring is that each subject has a true event time $t_i$ which is potentially unobserved. Rather, we observe a response interval $l_i,r_i$ such that the true event time is known to have occurred within. Default behavior is to assume this an half open, half closed interval, i.e. $t_i \in (l_i, r_i]$. Whether the boundaries of the interval are included or not can be controled by the option \texttt{B} in the model fitting functions. An exception to this notation is that $(t_i, t_i]$ always implies that event $i$ is uncensored with event time at $t_i$, despite this being an undefined interval. This allows for uncensored observations ($l_i = r_i$), right censored($r_i = \infty$), left censored ($l_i = 0$) or none of the above ($0 < l_i < r_i < \infty$). 
   
 In {\bf icenReg}, the response value is allowed to be interval censored. If our data contains the values \texttt{L} and \texttt{R}, representing the left and right sides of the response interval, we can pass our response to a regression model using either
   
@@ -48,13 +48,14 @@ cbind(L, R)
 Surv(L, R, type = "interval2")
 \end{verbatim}
   
-It is worth nothing that other R packages, specifically for non-parametric estimation, allow you to declare whether the response intervals are open, closed or a combination of partially opened, for example $[l_i, r_i)$. In {\bf icenReg}, it is always assumedthat the intervals are closed. 
-  
+
 \subsection{Classic Estimators}
   
 The topic of interval censoring began in the field of survival analysis. Although it is now considered in other fields of study (such as tobit regression), at this time {\bf{icenReg}} focusses on survival models. 
 
-One of the earliest models is the Non-Parametric Maximum Likelihood Estimator (NPMLE), also referred to as Turnbull's Estimator. This is a generalization of the Kaplan Meier curves (which is a generalization of the empirical distribution function) that allows for interval censoring. Unlike the Kaplan Meier curves, the solution is not in closed form and several algorithms have been proposed for efficient computation. A special topic regarding the NPMLE is the bivariate NPMLE; this is for the special case of two interval censored outcomes, in which the researcher wants a non-parametric estimator of the joint distribution. This is especially computationally intense as the number of parameters can be up to $n^2$. 
+One of the earliest models is the Non-Parametric Maximum Likelihood Estimator (NPMLE), also referred to as Turnbull's Estimator. This is a generalization of the Kaplan Meier curves (which is a generalization of the empirical distribution function) that allows for interval censoring. Unlike the Kaplan Meier curves, the solution is not in closed form and several algorithms have been proposed for efficient computation. 
+
+%A special topic regarding the NPMLE is the bivariate NPMLE; this is for the special case of two interval censored outcomes, in which the researcher wants a non-parametric estimator of the joint distribution. This is especially computationally intense as the number of parameters can be up to $n^2$. 
   
 Semi-parametric models exist in the literature as well; two classic regression models fit by {\bf icenReg} are the Cox-PH model and the proportional odds model. The well known Cox-PH, or proportional hazards regression model, has the property that
   
@@ -143,11 +144,13 @@ The package includes 3 sources of example data: one function that simulates data
   
 \section{Fitting Models using {\bf{icenReg}} }
   
-An important note about {\bf icenReg} is that in all models, it is assumed that the response interval is {\bf closed}, i.e. the event is known to have occurred within $[t_1, t_2]$, compared with $[t_1, t_2)$, $(t_1, t_2)$, etc. This is of no consequence for fully parametric models, but does mean the solutions may differ somewhat in comparison with semi- and non-parametric models that allow different configurations of open and closed response intervals. 
+%An important note about {\bf icenReg} is that in all models, it is assumed that the response interval is {\bf closed}, i.e. the event is known to have occurred within $[t_1, t_2]$, compared with $[t_1, t_2)$, $(t_1, t_2)$, etc. This is of no consequence for fully parametric models, but does mean the solutions may differ somewhat in comparison with semi- and non-parametric models that allow different configurations of open and closed response intervals. 
   
 \subsection{Non-parametric models}
   
-The non-parametric maximum likelihood estimator can be using \texttt{ic\_np}. If the data set is relatively small and the user is interested in non-parametric tests, such as the log-rank statistic, we actually advise using the {\bf interval} package, as this provides several testing functions. However, {\bf icenReg} is several fold faster than {\bf interval}, so if large datasets are used (i.e. n > 1,000), the user may have no choice but to use {\bf icenReg}. In discussions with the author of {\bf interval}, it was indicated that a user could build a wrapper around \texttt{ic\_np} to be used in {\bf interval}'s logrank tests, but this has not been done yet. 
+The non-parametric maximum likelihood estimator can be using \texttt{ic\_np}. If the data set is relatively small and the user is interested in non-parametric tests, such as the log-rank statistic, we actually advise using the {\bf interval} package, as this provides several testing functions. However, {\bf icenReg} is several fold faster than {\bf interval}, so if large datasets are used (i.e. n > 1,000), the user may have no choice but to use {\bf icenReg} to fit the NPMLE. And while hypothesis testing is not currently available for the NPMLE, these fits can still provide visual diagnostics for semi-parametric and fully parametric models. 
+
+%In discussions with the author of {\bf interval}, it was indicated that a user could build a wrapper around \texttt{ic\_np} to be used in {\bf interval}'s logrank tests, but this has not been done yet. 
 
   
 To fit an NPMLE model for interval censored data, we will consider the \texttt{miceData} provided in {\bf icenReg}. This dataset contains three variables: \texttt{l, u} and \texttt{grp}. \texttt{l} and \texttt{u} represent the left and right side of the interval containing the event time (note: data is current status) and \texttt{grp} is a group indicator with two categories.
@@ -182,9 +185,9 @@ plot(np_fit, col = c('blue', 'orange'),
 @
 
 
-Looking at the plots, we can see a unique feature about the NPMLE for interval censored data. That is, there are \emph{two} lines used to represent the survival curve. This is because with interval censored data, the NPMLE is not always unique (in fact, it usually is not); any curve that lies between the two lines has the same likelihood. For example, any curve that lies between the two blues lines maximizes the likelihoodassociated with \texttt{"ge"} group of mice. 
+Looking at the plots, we can see a unique feature about the NPMLE for interval censored data. That is, there are \emph{two} lines used to represent the survival curve. This is because with interval censored data, the NPMLE is not always unique (in fact, it usually is not); any curve that lies between the two lines has the same likelihood. For example, any curve that lies between the two blues lines maximizes the likelihood associated with \texttt{"ge"} group of mice. 
 
-Formal statistical tests using the NPMLE are not currently supported by {\bf icenReg}. We recommend using the {\bf interval} package for this. 
+%Formal statistical tests using the NPMLE are not currently supported by {\bf icenReg}. We recommend using the {\bf interval} package for this. 
 
 \subsection{Semi-parametric models}
 
