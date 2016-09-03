@@ -10,6 +10,7 @@
 #' @param dist       The baseline distrubtion \code{q} function
 #' @param paramList  A list of parameters to be passed to the baseline
 #' distribution function 
+#' @noRd
 simEventTime <- function(linPred = 0, model = 'ph', 
                          dist = qweibull, 
                          paramList = list(shape = 1, scale = 1)){

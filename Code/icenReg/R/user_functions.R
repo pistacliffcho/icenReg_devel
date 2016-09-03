@@ -1,3 +1,91 @@
+#' Semi-Parametric models for Interval Censored Data
+#' 
+#' @param formula regression formula. Response must be a \code{Surv} object of type \code{'interval2'}or \code{cbind}. See details.
+#' @param data dataset
+#' @param model What type of model to fit. Current choices are "\code{ph}" (Cox PH) or "\code{po}" (proportional odds)
+#' @param weights Vector of case weights. Not standardized; see details
+#' @param bs_samples Number of bootstrap samples used for estimation of standard errors 
+#' @param useMCores Should multiple cores be used for bootstrap sample? Does not register cluster (see example)
+#' @param B Should intervals be open or closed? See details.
+#' @param controls Advanced control options 
+#' 
+#' @description  	Fits a semi-parametric model for interval censored data. 
+#' Can fit either a Cox-PH model or a proportional odds model.  
+#'
+#' The covariance matrix for the regression coefficients is estimated via bootstrapping. 
+#' For large datasets, this can become slow so parallel processing can be used to take advantage of multiple cores via the \code{foreach} package. 
+#'
+#'@details
+#'	Response variable should either be of the form \code{cbind(l, u)} or 
+#'	\code{Surv(l, u, type = 'interval2')}, where \code{l} and \code{u} are the lower 
+#'	and upper ends of the interval known to contain the event of interest. 
+#'	Uncensored data can be included by setting \code{l == u}, right censored data 
+#'	can be included by setting \code{u == Inf} or \code{u == NA} and left censored 
+#'	data can be included by setting \code{l == 0}.
+#'
+#' The argument \code{B} determines whether the intervals should be open or closed, 
+#' i.e. \code{B = c(0,1)} implies that the event occurs within the interval \code{(l,u]}.
+#'  The exception is that if \code{l == u}, it is assumed that the event is uncensored, 
+#'  regardless of \code{B}. 
+#'
+#' In regards to weights, they are not standardized. 
+#' This means that if weight[i] = 2, this is the equivalent to having two 
+#' observations with the same values as subject i. 
+#'
+#' The algorithm used is inspired by the extended ICM algorithm from Wei Pan 1999.
+#' However, it uses a conditional Newton Raphson step (for the regression parameters) 
+#' and an ICM step (for the baseline survival parameters), rather than one single
+#' ICM step (for both sets). In addition, a gradient ascent can also be used
+#' to update the baseline parameters. This step is necessary if the
+#' data contains many uncensored observations, very similar to how 
+#' the EM algorithm greatly accelerates the ICM algorithm for the NPMLE 
+#' (gradient ascent is used rather than the EM, as the M step is not 
+#' in closed form for semi-parametric models). 
+#'
+#' Earlier versions of icenReg used an active set algorithm, which was not
+#'  as fast for large datasets.
+#'
+#' @examples
+#' set.seed(1)
+#'
+#' sim_data <- simIC_weib(n = 500, inspections = 5, inspectLength = 1)
+#' ph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, 
+#'                 data = sim_data)	
+#' # Default fits a Cox-PH model
+#' 
+#' summary(ph_fit)		
+#' # Regression estimates close to true 0.5 and -0.5 values
+#'
+#'
+#' new_data <- data.frame(x1 = c(0,1), x2 = c(1, 1) )
+#' rownames(new_data) <- c('group 1', 'group 2')
+#' plot(ph_fit, new_data)
+#' # plotting the estimated survival curves
+#' 
+#' po_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, 
+#'                 data = sim_data, model = 'po')
+#' # fits a proportional odds model
+#' 
+#' summary(po_fit)
+#'
+#' # Not run: how to set up multiple cores
+#' # library(doParallel)
+#' # myCluster <- makeCluster(2) 
+#' # registerDoParallel(myCluster)
+#' # fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2,
+#' #              data = sim_data, useMCores = TRUE
+#' #              bs_samples = 500)
+#' # stopCluster(myCluster)
+#'
+#'
+#' @author Clifford Anderson-Bergman
+#' @references 
+#' Pan, W., (1999), Extending the iterative convex minorant algorithm to the Cox model for interval-censored data, \emph{Journal of Computational and Graphical Statistics}, Vol 8(1), pp109-120
+#'
+#' Wellner, J. A., and Zhan, Y. (1997) A hybrid algorithm for computation of the maximum likelihood estimator from censored data, \emph{Journal of the  American Statistical Association}, Vol 92, pp945-959
+#' 
+#' Anderson-Bergman, C. (preprint) Revisiting the iterative convex minorant algorithm for interval censored survival regression models
+#' @export
 ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, 
                   B = c(0,1), 
                   controls = makeCtrls_icsp() ){
@@ -110,6 +198,27 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
    return(fitInfo)
 }
 
+#' Control Parameters for ic_sp
+#' 
+#' @param useGA Should constrained gradient ascent step be used?
+#' @param maxIter Maximum iterations
+#' @param baseUpdates number of baseline updates (ICM + GA) per iteration
+#' @param regStart Initial values for regression parameters
+#'
+#'  @description
+#' Creates the control options for the \code{ic_sp} function. 
+#' Defaults not intended to be changed for use in standard analyses.    
+#'
+#' @details 
+#' The constrained gradient step, actived by \code{useGA = T}, 
+#' is a step that was added to improve the convergence in a special case. 
+#' The option to turn it off is only in place to help demonstrate it's utility. 
+#'
+#'  \code{regStart} also for seeding of initial value of regression parameters. Intended for use in ``warm start" for bootstrap samples 
+#'  and providing fixed regression parameters when calculating fit in qq-plots. 
+#'  
+#' @author Clifford Anderson-Bergman
+#' @export
 makeCtrls_icsp <- function(useGA = T, maxIter = 10000, baseUpdates = 5,
                regStart = NULL){
   ans <- list(useGA = useGA, maxIter = maxIter, 
@@ -120,7 +229,30 @@ makeCtrls_icsp <- function(useGA = T, maxIter = 10000, baseUpdates = 5,
 
 vcov.icenReg_fit <- function(object,...) object$var
 
-
+#' Get Estimated Survival Curves from Semi-parametric Model for Interval Censored Data
+#' 
+#' @param fit model fit with \code{ic_sp} 
+#' @param newdata data.frame containing covariates for which the survival curve will be fit to. 
+#' Rownames from \code{newdata} will be used to name survival curve. 
+#' If left blank, baseline covariates will be used
+#' 
+#' @description
+#' Extracts the estimated survival curve(s) from an ic_sp or ic_np model for interval censored data. 
+#' 
+#' @details
+#' Output will be a list with two elements: the first item will be \code{$Tbull_ints}, 
+#' which is the Turnbull intervals. 
+#' This is a k x 2 matrix, with the first column being the beginning of the 
+#' Turnbull interval and the second being the end. 
+#' This is necessary due to the \emph{representational non-uniqueness};
+#' any survival curve that lies between the survival curves created from the
+#' upper and lower limits of the Turnbull intervals will have equal likelihood. 
+#' See example for proper display of this. The second item is \code{$S_curves}, 
+#' or the estimated survival probability at each Turnbull interval for individuals 
+#' with the covariates provided in \code{newdata}. Note that multiple rows may 
+#' be provided to newdata, which will result in multiple S_curves. 
+#' @author Clifford Anderson-Bergman
+#' @export
 getSCurves <- function(fit, newdata = NULL){
 	if(inherits(fit, 'impute_par_icph'))	stop('getSCurves currently not supported for imputation model')
 	if(inherits(fit, 'ic_par'))				stop('getSCurves does not support ic_par objects. Use getFitEsts() instead. See ?getFitEsts')
@@ -279,235 +411,55 @@ lines.icenReg_fit <- function(x, y, fun = 'surv', ...){
 }
 
 
-OLD_lines.icenReg_fit <- function(x, y, fun = 'surv', lgdLocation = 'topright', xlab = "time",
-                             colors = NULL, ...){
-  if(missing(y)) y <- list(...)$newdata	
-  newdata <- y
-  nRows <- 1
-  if(!is.null(newdata)) nRows <- nrow(newdata)
-  if(fun == 'surv'){ s_trans <- function(x){x}; yName = 'S(t)'}
-  else if(fun == 'cdf'){s_trans <- function(x){1-x}; yName = 'F(t)'}
-  else stop('"fun" option not recognized. Choices are "surv" or "cdf"')
-  
-  if(x$par == 'semi-parametric'){
-    curveInfo <- getSCurves(x, y)
-    allx <- c(curveInfo$Tbull_ints[,1], curveInfo$Tbull_ints[,2])
-    dummyx <- range(allx, finite = TRUE)
-    dummyy <- c(0,1)
-    
-#    plot(dummyx, dummyy, xlab = xlab, ylab = yName, ..., type = 'n')
-    x_l <- curveInfo$Tbull_ints[,1]
-    x_u <- curveInfo$Tbull_ints[,2]
-    k <- length(x_l)
-    ss <- curveInfo$S_curves
-    if(is.null(colors))  colors <- 1:length(ss)
-    
-    for(i in 1:length(ss)){
-      lines(x_l, s_trans(ss[[i]]), col = colors[i], type = 's')
-      lines(x_u, s_trans(ss[[i]]), col = colors[i], type = 's')
-      lines(c(x_l[k], x_u[k]), s_trans(c(ss[[i]][k], ss[[i]][k])), col = colors[i])
-    }
-    if(length(ss) > 1){
-      grpNames <- names(ss)
-      legend(lgdLocation, legend = grpNames, lwd = rep(1, length(grpNames) ), col = colors)
-    }
-  }
-  else if(inherits(x, 'par_fit')){
-    ranges <- matrix(nrow = nRows, ncol = 2)
-    ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.05 )
-    ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.95 )
-  #  plot(NA, xlim = range(as.numeric(ranges), finite = TRUE), ylim = c(0,1), xlab = xlab, ylab = yName)
-    ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.005 )
-    ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.995 )
-    if(is.null(colors))  colors <- 1:nRows
-    
-    for(i in 1:nrow(ranges)){
-      grid = ranges[i,1] + 0:100/100 * (ranges[i,2] - ranges[i,1])
-      est.s <- 1 - getFitEsts(x, newdata = subsetData_ifNeeded(i, newdata), q = grid)
-      lines(grid, s_trans(est.s), col = colors[i])
-    }
-    if(nrow(ranges) > 1){
-      grpNames <- rownames(newdata)
-      legend(lgdLocation, legend = grpNames, lwd = rep(1, length(grpNames) ), col = 1:ncol(ranges))
-    }
-  }
-}
-
-
-
 summary.icenReg_fit <- function(object,...)
 	new('icenRegSummary', object)
 summary.ic_npList <- function(object, ...)
   object
 
 	
-summaryOld.icenReg_fit <- function(object,...){
-	sigfigs = 4
-	fit <- object
-	if(inherits(fit, 'impute_par_icph')) cat('\nMultiple Imputations Cox PH model for interval censored data\n')
-	else{
-		fullModelName <- if(fit$model == 'ph') "Cox PH" else "Proportional Odds"
-		baseline = fit$par
-		fitDisc <- paste0("\nModel: ", fullModelName, "\nBaseline: ",  baseline, "\n")
-		cat(fitDisc)
-	}
-	if(!is.null(fit$var)){
-		colNames <- c('Estimate', 'Exp(Est)', 'Std. Error', 'z-value', 'p')
-		coefs <- fit$coefficients
-		output <- matrix(nrow = length(coefs), ncol = length(colNames))
-		se <- sqrt(diag(fit$var))
-		for(i in seq_along(coefs)){
-			output[i, 1] <- coefs[i]
-			output[i, 2] <- exp(coefs[i])
-			output[i, 3] <- se[i]
-			output[i, 4] <- coefs[i]/se[i]
-			output[i, 5] <- 2*(1 - pnorm(abs(output[i,4])))
-		}
-		colnames(output) <- colNames
-		rownames(output) <- names(coefs)
-		output <- signif(output, sigfigs)
-		cat("Call = \n")
-		print(fit$call)
-		cat('\n')
-		print(output)
-		if(inherits(fit, 'ic_ph') | inherits(fit, 'ic_po')){
-			cat('\nfinal llk = ', fit$llk, '\n')
-			cat('Iterations = ', fit$iterations, '\n')
-			cat('Bootstrap samples = ', nrow(fit$bsMat), '\n')
-			if(nrow(fit$bsMat) < 100)
-				cat('CAUTION: recommend more bootstrap samples for inference!\n')
-		}
-		
-		if(inherits(fit, 'impute_par_icph')){
-			cat('\nnumber of imputations = ', nrow(fit$imp_coef), '\n')
-		}
-		if(inherits(fit, 'par_fit')){
-			cat('\nfinal llk = ', fit$llk, '\n')
-			cat('Iterations = ', fit$iterations,'\n')
-		}
-	}
-	else{
-		colNames <- c('Estimate', 'Exp(Est)')
-		coefs <- fit$coefficients
-		output <- matrix(nrow = length(coefs), ncol = length(colNames))
-		se <- sqrt(diag(fit$var))
-		for(i in seq_along(coefs)){
-			output[i, 1] <- coefs[i]
-			output[i, 2] <- exp(coefs[i])
-			}
-		colnames(output) <- colNames
-		rownames(output) <- names(coefs)
-		output <- signif(output, sigfigs)
-		cat("Call = \n")
-		print(fit$call)
-		print(output)
-		cat('final llk = ', fit$llk, '\n')
-		cat('Iterations = ', fit$iterations, '\n')	
-		cat('Standard Errors not available. To get standard errors, rerun ic_ph with "bs_samples" > 0 (suggested at least 1000)')
-	}
-}
-
-
-
-
-
-
-# Multiple Imputations Regression Models
-
-impute_ic_ph <- function(formula, data, imps = 100, eta = 10^-10, rightCenVal = 10000, seed = NULL, useMCores = FALSE){
-	cl <- match.call()
-	mf <- match.call(expand.dots = FALSE)
-    m <- match(c("formula", "data", "subset", "weights", "na.action", 
-        "offset"), names(mf), 0L)
-    mf <- mf[c(1L, m)]
-    mf$drop.unused.levels <- TRUE
-    mf[[1L]] <- quote(stats::model.frame)
-    mf <- eval(mf, parent.frame())
-    
-    mt <- attr(mf, "terms")
-    y <- model.response(mf, "numeric")
-    
-    if (is.empty.model(mt)){
-    	stop('no covariates included. Try using computeMLE in MLECens package')
-    }
-     x <- model.matrix(mt, mf, contrasts)
-	if('(Intercept)' %in% colnames(x)){	
-		ind = which(colnames(x) == '(Intercept)')
-		x <- x[,-ind]
-	}
-	if(!is(y, 'Surv'))	stop('response must be a "Surv" item with type = "interval2"')
-	
-    yMat <- as.matrix(y)[,1:2]
-    rightCens <- mf[,1][,3] == 0
-	yMat[rightCens,2] <- Inf
-	exact <- mf[,1][,3] == 1
-	yMat[exact, 2] = yMat[exact, 1]
-	storage.mode(yMat) <- 'double'
-		
-	param_y <- mf[[1]]
-	l_e0 <- param_y[,1] < eta
-	r_e0 <- param_y[,2] < eta
-	param_y[l_e0,1] <- eta
-	param_y[r_e0,2] <- eta
-	param_data  <- data.frame(mf[,-1])
-	param_formula <- formula
-	param_formula[[2]] <- as.name('param_y')
-	paramFit <- fullParamFit_exp(param_formula, mf, param_y, rightCenVal)
-	
-	
-	fits_from_imputes <- list()
-	obs_l <- yMat[,1]
-	obs_r <- yMat[,2]
-	use_n <- length(obs_l)
-	one_vec <- rep(1, use_n)
-	
-	coxphFormula <- formula
-	coxphFormula[[2]][[2]] <- as.name('sim_y')
-	coxphFormula[[2]][[3]] <- as.name('one_vec')
-	coxphFormula[[2]][[4]] <- 'right'
-	
-	mf_forImputes <- mf
-	mf_forImputes <- data.frame(mf_forImputes)
-	mf_forImputes[['one_vec']] <- one_vec
-
-	if(!is.numeric(seed))
-		seed <- round( runif(1, max = 10000000) )
-
-	if(!useMCores){
-		set.seed(seed)
-		for(i in 1:imps){
-			sampPars <- simPars_fromFit(paramFit)
-			sim_y <- imputeCensoredData_exp(obs_l, obs_r, sampPars, maxVal = rightCenVal)
-			mf_forImputes[['sim_y']] <- sim_y		
-			fits_from_imputes[[i]] <- coxph(coxphFormula, data = mf_forImputes)
-		}
-	}
-	
-	if(useMCores){
-		fits_from_imputes <- foreach(i = 1:imps) %dopar%{
-			set.seed(i + seed)
-			sampPars <- simPars_fromFit(paramFit)
-			sim_y <- imputeCensoredData_exp(obs_l, obs_r, sampPars, maxVal = rightCenVal)
-			mf_forImputes[['sim_y']] <- sim_y
-			return(coxph(coxphFormula, data = mf_forImputes) ) 
-		}
-	}
-	
-	k <- length(paramFit$coefficients)
-	coef <- numeric()
-	ave_var <- matrix(0, nrow = k-1, ncol = k-1)
-	for(i in 1:imps){
-		thisFit <- fits_from_imputes[[i]]
-		coef <- rbind(coef, thisFit$coefficients)
-		ave_var <- ave_var + thisFit$var/imps	
-	}
-	var <- ave_var + cov(coef)
-	mean_coef <- colMeans(coef)
-	fit <- list(coefficients = mean_coef, var = var, imp_coef = coef, average_imp_covariace = ave_var, call = cl, formula = formula)
-    class(fit) <- c('icenReg_fit', 'impute_par_icph')
-	return(fit)
-}
-
+#' Simulates interval censored data from regression model with a Weibull baseline
+#' 
+#' @param n Number of samples simulated
+#' @param b1 Value of first regression coefficient
+#' @param b2 Value of second regression coefficient
+#' @param model Type of regression model. Options are 'po' (prop. odds) and 'ph' (Cox PH)
+#' @param shape shape parameter of baseline distribution
+#' @param scale scale parameter of baseline distribution
+#' @param inspections number of inspections times of censoring process
+#' @param inspectLength max length of inspection interval
+#' @param rndDigits number of digits to which the inspection time is rounded to, 
+#' creating a discrete inspection time. If \code{rndDigits = NULL}, the inspection time is not rounded, 
+#' resulting in a continuous inspection time
+#' @param prob_cen probability event being censored. If event is uncensored, l == u
+#'
+#' @description
+#' Simulates interval censored data from a regression model with a weibull baseline distribution. Used for demonstration
+#' @details 
+#' Exact event times are simulated according to regression model: covariate \code{x1} 
+#' is distributed \code{rnorm(n)} and covariate \code{x2} is distributed
+#' \code{1 - 2 * rbinom(n, 1, 0.5)}. Event times are then censored with a 
+#' case II interval censoring mechanism with \code{inspections} different inspection times. 
+#' Time between inspections is distributed as \code{runif(min = 0, max = inspectLength)}. 
+#' Note that the user should be careful in simulation studies not to simulate data 
+#' where nearly all the data is right censored (or more over, all the data with x2 = 1 or -1) 
+#' or this can result in degenerate solutions!
+#' 
+#' @examples 
+#' set.seed(1)
+#' sim_data <- simIC_weib(n = 500, b1 = .3, b2 = -.3, model = 'ph', 
+#'                       shape = 2, scale = 2, inspections = 6, 
+#'                       inspectLength = 1)
+#' #simulates data from a cox-ph with beta weibull distribution.
+#'
+#' diag_covar(Surv(l, u, type = 'interval2') ~ x1 + x2, 
+#'            data = sim_data, model = 'po')
+#' diag_covar(Surv(l, u, type = 'interval2') ~ x1 + x2,
+#'            data = sim_data, model = 'ph')
+#'
+#' #'ph' fit looks better than 'po'; the difference between the transformed survival
+#' #function looks more constant
+#' @author Clifford Anderson-Bergman
+#' @export
 simIC_weib <- function(n = 100, b1 = 0.5, b2 = -0.5, model = 'ph', 
 					   shape = 2, scale = 2, 
 					   inspections = 2, inspectLength = 2.5,
@@ -612,7 +564,60 @@ simICPO_beta <- function(n = 100, b1 = 1, b2 = -1, inspections = 1, shape1 = 2, 
 
 
 
-
+#' Evaluate covariate effect for regression model
+#' 
+#' @param object      Either a formula or a model fit with \code{ic_sp} or \code{ic_par}
+#' @param varName     Covariate to split data on. If left blank, will split on each covariate
+#' @param data        Data. Unnecessary if \code{object} is a fit
+#' @param model       Type of model. Choices are \code{'ph'} or \code{'po'} 
+#' @param weights     Case weights
+#' @param yType       Type of plot created. See details
+#' @param factorSplit Should covariate be split as a factor (i.e. by levels)
+#' @param numericCuts If \code{fractorSplit == FALSE}, cut points of covariate to stratify data on
+#' @param col         Colors of each subgroup plot. If left blank, will auto pick colors
+#' @param xlab        Label of x axis
+#' @param ylab        Label of y axis
+#' @param main        title of plot
+#' @param lgdLocation Where legend should be placed. See details
+#' @description Creates plots to diagnosis fit of covariate effect in a regression model. 
+#' For a given variable, stratifies the data across different levels of the variable and adjusts 
+#' for all the other covariates included in \code{fit} and then plots a given function to help 
+#' diagnosis where covariate effect follows model assumption 
+#' (i.e. either proportional hazards or proportional odds). See \code{details} for descriptions of the plots. 
+#'  
+#' If \code{varName} is not provided, will attempt to figure out how to divide up each covariate 
+#' and plot all of them, although this may fail. 
+#'@details 
+#' For the Cox-PH and proportional odds models, there exists a transformation of survival curves 
+#' such that the difference should be constant for subjects with different covariates. 
+#' In the case of the Cox-PH, this is the log(-log(S(t|X))) transformation, for the proporitonal odds, 
+#' this is the log(S(t|X) / (1 - S(t|X))) transformation. 
+#'
+#' The function diag_covar allows the user to easily use these transformations to diagnosis 
+#' whether such a model is appropriate. In particular, it takes a single covariate and 
+#' stratifies the data on different levels of that covariate. 
+#' Then, it fits the semi-parametric regression model 
+#' (adjusting for all other covariates in the data set) on each of these 
+#' stratum and extracts the baseline survival function. If the stratified covariate does 
+#' follow the regression assumption, the difference between these transformed baseline 
+#' survival functions should be approximately constant. 
+#'
+#' To help diagnosis, the default function plotted is the transformed survival functions, 
+#' with the overall means subtracted off. If the assumption holds true, then the mean 
+#' removed curves should be approximately parallel lines (with stochastic noise). 
+#' Other choices of \code{yType}, the function to plot, are \code{"transform"}, 
+#' which is the transformed functions without the means subtracted and \code{"survival"}, 
+#' which is the baseline survival distribution is plotted for each strata. 
+#'
+#' Currently does not support stratifying covariates that are involved in an interaction term. 
+#'
+#' For variables that are factors, it will create a strata for each level of the covariate, up to 20 levels. 
+#' If \code{factorSplit == FALSE}, will divide up numeric covariates according to the cuts provided to numericCuts. 
+#'
+#' \code{lgdLocation} is an argument placed to \code{legend} dictating where the legend will be placed. 
+#' If \code{lgdLocation = NULL}, will use standard placement given \code{yType}. See \code{?legend} for more details. 
+#' @author Clifford Anderson-Bergman
+#' @export
 diag_covar <- function(object, varName, 
            data, model, weights = NULL,
            yType = 'meanRemovedTransform', 
@@ -781,7 +786,52 @@ diag_covar <- function(object, varName,
 
 
 
-
+#' Parametric Regression  Models for Interval Censored Data
+#' 
+#' @param formula     Regression formula. Response must be a \code{Surv} object of type
+#'  \code{'interval2'} or \code{cbind}. See details.
+#' @param data        Dataset
+#' @param model       What type of model to fit. Current choices are "\code{ph}" (proportional hazards), 
+#' "\code{po}" (proportional odds) or "\code{aft}" (accelerated failure time)
+#' @param dist        What baseline parametric distribution to use. See details for current choices
+#' @param weights     vector of case weights. Not standardized; see details
+#'
+#' @description Fits a parametric regression model for interval censored data. 
+#' Can fita proportional hazards, proportional odds or accelerated failure time model.  
+#'
+#' @details Currently supported distributions choices are "exponential", "weibull", "gamma", 
+#' "lnorm", "loglogistic" and "generalgamma" (i.e. generalized gamma distribution). 
+#'
+#' Response variable should either be of the form \code{cbind(l, u)} or \code{Surv(l, u, type = 'interval2')}, 
+#' where \code{l} and \code{u} are the lower and upper ends of the interval known to contain the event of interest. 
+#' Uncensored data can be included by setting \code{l == u}, right censored data can be included by setting 
+#' \code{u == Inf} or \code{u == NA} and left censored data can be included by setting \code{l == 0}.
+#'
+#' Does not allow uncensored data points at t = 0 (i.e. \code{l == u == 0}), as this will 
+#' lead to a degenerate estimator for most parametric families. Unlike the current implementation 
+#' of survival's \code{survreg}, does allow left side of intervals of positive length to 0 and 
+#' right side to be \code{Inf}. 
+#'
+#' In regards to weights, they are not standardized. This means that if weight[i] = 2, 
+#' this is the equivalent to having two observations with the same values as subject i. 
+#' 
+#' 
+#' For numeric stability, if abs(right - left) < 10^-6, observation are considered 
+#' uncensored rather than interval censored with an extremely small interval. 
+#' @examples
+#' data(miceData)
+#'
+#' logist_ph_fit <- ic_par(Surv(l, u, type = 'interval2') ~ grp, 
+#'                        data = miceData, dist = 'loglogistic')
+#' 
+#' logist_po_fit <- ic_par(cbind(l, u) ~ grp, 
+#'                         data = miceData, dist = 'loglogistic',
+#'                        model = 'po')
+#'
+#' summary(logist_ph_fit)
+#' summary(logist_po_fit)
+#' @author Clifford Anderson-Bergman
+#' @export
 ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL){
   if(missing(data)) data <- environment(formula)
 	cl <- match.call()
@@ -846,6 +896,41 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
   return(fitInfo)
 }
 
+#' Get Survival Curve Estimates from icenReg Model
+#' 
+#' @param fit      model fit with \code{ic_par} or \code{ic_sp}
+#' @param newdata  \code{data.frame} containing covariates
+#' @param p        Percentiles
+#' @param q        Quantiles
+#' @description 
+#' Gets probability or quantile estimates from a \code{ic_par} or \code{ic_sp} object. 
+#' Provided estimates conditional on regression parameters found in \code{newdata}.
+#' @details
+#' If \code{newdata} is left blank, baseline estimates will be returned (i.e. all covariates = 0). 
+#' If \code{p} is provided, will return the estimated F^{-1}(p | x). If \code{q} is provided, 
+#' will return the estimated F(q | x). If neither \code{p} nor \code{q} are provided, 
+#' the estimated conditional median is returned.
+#'  
+#' In the case of \code{ic_sp}, the MLE of the baseline survival is not necessarily unique, 
+#' as probability mass is assigned to disjoint Turnbull intervals, but the likelihood function is 
+#' indifferent to how probability mass is assigned within these intervals. In order to have a well 
+#' defined estimate returned, we assume probability is assigned uniformly in these intervals. 
+#' In otherwords, we return *a* maximum likelihood estimate, but don't attempt to characterize *all* maximum 
+#' likelihood estimates with this function. If that is desired, all the information needed can be 
+#' extracted with \code{getSCurves}.
+#' @examples 
+#' simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
+#' inspections = 6, inspectLength = 1)
+#' fit <- ic_par(Surv(l, u, type = 'interval2') ~ x1 + x2,
+#'              data = simdata)
+#' new_data <- data.frame(x1 = c(1,2), x2 = c(-1,1))
+#' rownames(new_data) <- c('grp1', 'grp2')
+#' 
+#' estQ <- getFitEsts(fit, new_data, p = c(.25, .75))
+#' 
+#' estP <- getFitEsts(fit, q = 400)
+#' @author Clifford Anderson-Bergman
+#' @export
 getFitEsts <- function(fit, newdata, p, q){
   if(missing(newdata)) newdata <- NULL
   etas <- get_etas(fit, newdata)
@@ -900,105 +985,35 @@ getFitEsts <- function(fit, newdata, p, q){
 }
 
 
-
-getFitEsts_OLD <-function(fit, newdata, p, q){
-	if(missing(newdata)) newdata <- NULL
-	etas <- get_etas(fit, newdata)
-
-	if(missing(p))	p <- NULL
-	if(missing(q))  q <- NULL
-	if(!is.null(q)) {xs <- q; type = 'q'}
-	else{ 
-		type = 'p'
-		if(is.null(p)) xs <- 0.5
-		else		   xs <- p
-	}
-	
-	if(length(etas) == 1){etas <- rep(etas, length(xs))}
-	if(length(xs) == 1){xs <- rep(xs, length(etas))}
-	if(length(etas) != length(xs) ) stop('length of p or q must match nrow(newdata) OR be 1')
-	
-	if(inherits(fit, 'sp_fit'))	{
-		scurves <- getSCurves(fit, newdata)
-#		ans <- matrix(nrow = length(xs), ncol = length(etas))
-		ans <- numeric()
-#		colnames(ans) <- names(scurves$S_curves)
-				
-		for(i in 1:length(etas)){
-# 			if(type == 'p') ans[,i] <- get_tbull_mid_q(xs, scurves[[2]][[i]], scurves[[1]])
-# 			else ans[,i] 			<- get_tbull_mid_p(xs, scurves[[2]][[i]], scurves[[1]])
-		  if(type == 'p') ans[i] <- get_tbull_mid_q(xs[i], scurves[[2]][[i]], scurves[[1]])
-		  else ans[i] 			<- get_tbull_mid_p(xs[i], scurves[[2]][[i]], scurves[[1]])
-		  
-		}
-		return(ans)
-	}
-	if(inherits(fit, 'par_fit')){	
-		s_fun <- get_s_fun(fit)
-		link_fun <- get_link_fun(fit)
-#		ans <- matrix(nrow = length(xs), ncol = length(etas))
-		ans <- numeric()
-#		colnames(ans) <- names(etas)
-#		rownames(ans) <- xs
-		if(type == 'p'){
-			optimReadyFun <- function(x, p, baselinePars, eta, s_fun, link_fun){
-				s_o <- s_fun(x, baselinePars)
-				s_c <- link_fun(s_o, eta)
-				f <- 1 - s_c
-				return( (f-p)^2 )
-			}	
-			
-# 			for(i in 1:length(xs)){
-# 				for(j in 1:length(etas)){
-# 					upperBound <- findUpperBound(xs[i], s_fun, link_fun, fit, etas[j])
-# 					ans[i,j] <- optimize(optimReadyFun, interval = c(0, upperBound), 
-# 									p = xs[i], baselinePars = fit$baseline,
-# 									etas[j], s_fun, link_fun, tol = 10^-6)$minimum
-# 				
-# 				}
-# 			}
-			upperBound = 1
-			
-			applyFUN <- function(i, xs, link_fun, s_fun, baseline, etas){
-			  upperBound <- findUpperBound(upperBound,xs[i], s_fun, link_fun, fit, etas[i])
-			   optimize(optimReadyFun, interval = c(0, upperBound), 
-			                     p = xs[i], baselinePars = fit$baseline,
-			                     etas[i], s_fun, link_fun, tol = 10^-6)$minimum
-			}
-			ans <- sapply(1:length(xs), FUN = applyFUN, 
-			              xs = xs, etas = etas, 
-			              link_fun = link_fun, s_fun = s_fun,
-			              baseline = fit$baseline)
-			
-			
-# 			for(i in 1:length(xs)){
-# 			    upperBound <- findUpperBound(upperBound,xs[i], s_fun, link_fun, fit, etas[i])
-# 			    ans[i] <- optimize(optimReadyFun, interval = c(0, upperBound), 
-# 			                         p = xs[i], baselinePars = fit$baseline,
-# 			                         etas[i], s_fun, link_fun, tol = 10^-6)$minimum
-# 			    
-# 			}
-			return(ans)
-		}
-		
-# 		for(i in 1:length(xs)){
-# 			for(j in 1:length(etas))
-# 				ans[i,j] <- 1-link_fun(s_fun(xs[i], fit$baseline), etas[j])
-# 		}
-  
-		applyFUN <- function(i, xs, link_fun, s_fun, baseline, etas){ 1 - link_fun(s_fun(xs[i], baseline), etas[i])}
-		ans <- sapply(1:length(xs), FUN = applyFUN, 
-		              xs = xs, etas = etas, 
-		              link_fun = link_fun, s_fun = s_fun,
-		              baseline = fit$baseline)
-# 		for(i in 1:length(xs)){
-# 		    ans[i] <- 1-link_fun(s_fun(xs[i], fit$baseline), etas[i])
-# 		}
-		return(ans)
-	}
-	stop('getFitEsts not currently supported for this object')
-}
-
+#' Compare parametric baseline distributions with semi-parametric baseline
+#' 
+#' @param object       Either a formula or a model fit with \code{ic_sp} or \code{ic_par}
+#' @param data         Data. Unnecessary if \code{object} is a fit
+#' @param model        Type of model. Choices are \code{'ph'} or \code{'po'}
+#' @param dists        Parametric baseline fits	
+#' @param cols         Colors of baseline distributions
+#' @param weights      Case weights
+#' @param lgdLocation  Where legend will be placed. See \code{?legend} for more details
+#' @param useMidCovars Should the distribution plotted be for covariates = mean values instead of 0
+#'
+#' @description 
+#' Creates plots to diagnosis fit of different choices of parametric baseline model. 
+#' Plots the semi paramtric model against different choices of parametric models. 
+#' 
+#' @details
+#' If \code{useMidCovars = T}, then the survival curves plotted are for fits with the mean covariate value, 
+#' rather than 0. This is because often the baseline distribution (i.e. with all covariates = 0) will be 
+#' far away from the majority of the data.
+#' 
+#' @examples data(IR_diabetes)
+#' fit <- ic_par(cbind(left, right) ~ gender, 
+#'              data = IR_diabetes)
+#'
+#' diag_baseline(fit, lgdLocation = "topright", 
+#'              dist = c("exponential", "weibull", "loglogistic"))
+#'
+#' @author Clifford Anderson-Bergman
+#' @export
 diag_baseline <- function(object, data, model = 'ph', weights = NULL,
 						  dists = c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic', 'generalgamma'),
 						  cols = NULL, lgdLocation = 'bottomleft',
@@ -1031,6 +1046,35 @@ diag_baseline <- function(object, data, model = 'ph', weights = NULL,
 	legend(lgdLocation, legend = c('Semi-parametric', dists), col = c('black', cols), lwd = 1)
 }
 
+#' Predictions from icenReg Regression Model
+#' 
+#' @param object   Model fit with \code{ic_par} or \code{ic_sp}
+#' @param type     type of prediction. Options include \code{"lp", "response"}
+#' @param newdata  \code{data.frame} containing covariates
+#' @param ...      other arguments (will be ignored)
+#'
+#' @description   
+#' Gets various estimates from an \code{ic_np}, \code{ic_sp} or \code{ic_par} object.
+#' @details 
+#' If \code{newdata} is left blank, will provide estimates for original data set. 
+#'
+#' For the argument \code{type}, there are two options. \code{"lp"} provides the 
+#' linear predictor for each subject (i.e. in a proportional hazards model, 
+#' this is the log-hazards ratio, in proportional odds, the log proporitonal odds), 
+#' \code{"response"} provides the median response value for each subject, 
+#' *conditional on that subject's covariates, but ignoring their actual response interval*. 
+#' Use \code{imputeCens} to impute the censored values.
+#' @examples 
+#' simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
+#'                       inspections = 6,
+#'                       inspectLength = 1)
+#'
+#' fit <- ic_par(cbind(l, u) ~ x1 + x2,
+#'               data = simdata)
+#'
+#' imputedValues <- predict(fit)
+#' @author Clifford Anderson-Bergman
+#' @export
 predict.icenReg_fit <- function(object, type = 'response',
                                 newdata = NULL, ...)
       #imputeOptions = fullSample, fixedParSample, median
@@ -1043,11 +1087,40 @@ predict.icenReg_fit <- function(object, type = 'response',
   stop('"type" not recognized: options are "lp", "response" and "impute"')
 }
 
-
+#' Impute Interval Censored Data from icenReg Regression Model
+#' 
+#' @param fit         icenReg model fit 
+#' @param newdata     \code{data.frame} containing covariates and censored intervals. If blank, will use data from model
+#' @param imputeType  type of imputation. See details for options
+#' @param numImputes  Number of imputations (ignored if \code{imputeType = "median"}) 
+#' 
+#' @description
+#' Imputes censored responses from data. 
+#' @details 	
+#'  If \code{newdata} is left blank, will provide estimates for original data set. 
+#' 
+#'  There are several options for how to impute. \code{imputeType = 'median'} 
+#'  imputes the median time, conditional on the response interval, covariates and 
+#'  regression parameters at the MLE. To get random imputations without accounting
+#'  for error in the estimated parameters \code{imputeType ='fixedParSample'} takes a 
+#'  random sample of the response variable, conditional on the response interval, 
+#'  covariates and estimated parameters at the MLE. Finally, 
+#'  \code{imputeType = 'fullSample'} first takes a random sample of the coefficients,
+#'  (assuming asymptotic normality) and then takes a random sample 
+#'  of the response variable, conditional on the response interval, 
+#'  covariates, and the random sample of the coefficients. 
+#'  
+#'  @examples 
+#' simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
+#'                       inspections = 6, inspectLength = 1)
+#'
+#' fit <- ic_par(cbind(l, u) ~ x1 + x2,
+#'               data = simdata)
+#'
+#' imputedValues <- imputeCens(fit)
+#' @author Clifford Anderson-Bergman
+#' @export
 imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes = 5){
-#  if(is(fit, 'sp_fit'))
-#    stop("imputation not available for semi-parametric model. 
-#         This is due to the lack of distributional theory for baseline distribution")
   if(is.null(newdata)) newdata <- fit$getRawData()
   yMat <- expandY(fit$formula, newdata, fit)
   p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
@@ -1202,7 +1275,42 @@ pGeneralGamma <- function(q, mu, s, Q){
   
 }
 
-
+#' Non-Parametric Estimator for Interval Censored Data
+#' 
+#' @param formula   Formula for stratification. If only one group, can be left blank and 
+#' data must be entered as n x 2 matrix.
+#' @param data      A \code{data.frame} or an n x 2 matrix. See details.
+#' @param maxIter   Maximum iterations
+#' @param tol       Numeric tolerance
+#' @param B         Should intervals be open or closed? See details.
+#'
+#'  @description
+#'  Fits the non-parametric maximum likelihood estimator (NPMLE) for univariate interval censored data. 
+#'  This is a generalization of the Kaplan-Meier curves that allows for interval censoring. 
+#'  Also referred to as the Turnbull estimator.
+#'  
+#' @details 
+#' \code{data} must be an n x 2 matrix or data.frame containing two columns of data representing 
+#' left and right sides of the censoring interval, denoted L and R. This allows for left censored 
+#' (L == 0), right censored (R == inf), uncensored (L == R) along with general interval censored observations. 
+#'
+#' The argument \code{B} determines whether the intervals should be open or closed, i.e. 
+#' \code{B = c(0,1)} implies that the event occurs within the interval \code{(l,u]}. 
+#' The exception is that if \code{l == u}, it is assumed that the event is uncensored, regardless of \code{B}.
+#'
+#' The NPMLE is fit using an efficient implementation of the EMICM algorithm. 
+#' @references 
+#' Turnbull, B. (1976) The empricial distribution with arbitrarily grouped and censored data 
+#' \emph{Journal of the Royal Statistical Society B}, vol 38 p290-295
+#'
+#' Wellner, J. A., and Zhan, Y. (1997) A hybrid algorithm for computation of the maximum likelihood estimator 
+#' from censored data, \emph{Journal of the  American Statistical Association}, Vol 92, pp945-959
+#'
+#' Anderson-Bergman, C. (2016) An efficient implementation of the EMICM algorithm for the interval censored NPMLE
+#' \emph{Journal of Computational and Graphical Statistics}, \emph{just accepted}
+#' 
+#' @author Clifford Anderson-Bergman
+#' @export
 ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,1)){
   if(is.null(formula)){ return(ic_npSINGLE(data, maxIter = maxIter, tol = tol, B = B)) }
   if(!inherits(formula, 'formula')) {

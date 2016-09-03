@@ -190,7 +190,7 @@ void IC_parOpt::NR_baseline_pars(){
     else{
         for(int i = 0; i < k; i++){
                 if(d2_b_pars(i,i) < -0.001) propVec[i] = -d_b_pars[i]/d2_b_pars(i,i);
-                else propVec[i] = signVal(d_b_pars[i]) * 0.1;
+                else propVec[i] = signVal(d_b_pars[i]) * 0.001;
             
                 if(ISNAN(propVec[i])) propVec[i] = 0;
         }

@@ -139,8 +139,8 @@ public:
 
 class genGammaInfo : public parBLInfo{
 public:
-    double base_d(double x, Eigen::VectorXd &par){return(ic_dgeneralgamma(x, par[0], exp(par[1]), par[2] ));}
-    double base_s(double x, Eigen::VectorXd &par){return(1.0 -ic_pgeneralgamma(x, par[0], exp(par[1]), par[2]));}
+    double base_d(double x, Eigen::VectorXd &par){return(ic_dgeneralgamma(x, par[0], exp(par[1]), exp(par[2]))) ;}
+    double base_s(double x, Eigen::VectorXd &par){return(1.0 -ic_pgeneralgamma(x, par[0], exp(par[1]), exp(par[2]))) ;}
     virtual ~genGammaInfo(){};
 };
 
