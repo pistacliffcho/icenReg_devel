@@ -32,13 +32,6 @@ public:
     double pob;
 };
 
-/*class actPointInf{
-public:
-    int ind;                   //beginning and ending of parameters affected by adjusting active points
-    double par;
-    vector<int> dep_obs;
-//    vector<int> dep_nodes;      //don't think this is necessary; l, r tells us all this!
-};  */
 
 class icm_Abst{
 public:

@@ -21,7 +21,7 @@ SEXP s_regTrans(SEXP times, SEXP etas,
         Rprintf("warning: LENGTH(times) != LEGNTH(etas). Quiting\n");
         return(R_NilValue);
     }
-    SEXP ans = PROTECT(allocVector(REALSXP, k));
+    SEXP ans = PROTECT(Rf_allocVector(REALSXP, k));
     double* c_time = REAL(times);
     double* c_etas = REAL(etas);
     double val;
@@ -47,7 +47,7 @@ SEXP q_regTrans(SEXP p, SEXP etas,
         Rprintf("warning: LENGTH(times) != LEGNTH(etas). Quiting\n");
         return(R_NilValue);
     }
-    SEXP ans = PROTECT(allocVector(REALSXP, k));
+    SEXP ans = PROTECT(Rf_allocVector(REALSXP, k));
     double val;
     double* c_p = REAL(p);
     double* c_etas = REAL(etas);

@@ -85,7 +85,7 @@ double signVal(double x){
 }
 
 void copyRmatrix_intoEigen(SEXP r_mat, Eigen::MatrixXd &e_mat){
-    SEXP Rdims = getAttrib(r_mat, R_DimSymbol);
+    SEXP Rdims = Rf_getAttrib(r_mat, R_DimSymbol);
     PROTECT(Rdims);
     int nRows = INTEGER(Rdims)[0];
     int nCols = INTEGER(Rdims)[1];
@@ -105,6 +105,15 @@ void Rvec2eigen(SEXP r_vec, Eigen::VectorXd &e_vec){
         e_vec[i] = REAL(r_vec)[i];
 }
 
+Rcpp::NumericVector eigen2RVec(Eigen::VectorXd &e_vec){
+	int k = e_vec.size();
+	Rcpp::NumericVector ans(k);
+	double* cptr = &ans[0];
+	for(int i = 0; i < k; i++){
+		cptr[i] = e_vec[i];
+	}
+	return(ans);
+}
 
 double ic_dloglogistic(double x, double a, double b){
     double x_a = x/a;
@@ -132,7 +141,7 @@ double ic_dlnorm(double x, double mu, double s){
 }
 
 double ic_plnorm(double x, double mu, double s){
-    return(pnorm(log(x), mu, s, 0, 0));
+    return(R::pnorm(log(x), mu, s, 0, 0));
 }
 
 
@@ -156,16 +165,16 @@ double ic_pgeneralgamma(double q, double mu, double s, double Q){
     double Q_inv = 1 / (Q*Q);
     double expnu = exp(Q*w) * Q_inv;
     double ans;
-    if(Q > 0){ ans = 1 - pgamma(expnu, Q_inv, 1.0,  0, 0);}
-    else{ ans = pgamma(expnu, Q_inv, 1.0, 0, 0);}
+    if(Q > 0){ ans = 1 - Rf_pgamma(expnu, Q_inv, 1.0,  0, 0);}
+    else{ ans = Rf_pgamma(expnu, Q_inv, 1.0, 0, 0);}
     return(ans);
 }
 
 double ic_qgeneralgamma(double p, double mu, double s, double Q){
-    if(Q == 0){ return(qlnorm(p, mu, s, 1, 0)); }
+    if(Q == 0){ return(R::qlnorm(p, mu, s, 1, 0)); }
     double Q2 = (Q*Q);
     double Q_inv = 1/Q2;
-    double part2 = s * (log(Q2 * qgamma(p, Q_inv, 1.0, 0, 0)) / Q);
+    double part2 = s * (log(Q2 * R::qgamma(p, Q_inv, 1.0, 0, 0)) / Q);
     double ans = exp(mu + part2);
     return(ans);
 }
@@ -246,7 +255,7 @@ extern "C"{
         }
         pavaForOptim(d1, d2, x, prop_delta);
         
-        SEXP ans = allocVector(REALSXP, k);
+        SEXP ans = Rf_allocVector(REALSXP, k);
         PROTECT(ans);
         for(int i = 0; i<k; i++){ REAL(ans)[i] = prop_delta[i];}
         UNPROTECT(1);
@@ -414,7 +423,7 @@ void add_index(int a_ind, std::vector<int> &indVec){
 }
 
 std::vector<int> getSEXP_MatDims(SEXP R_mat){
-    SEXP Rdims = getAttrib(R_mat, R_DimSymbol);
+    SEXP Rdims = Rf_getAttrib(R_mat, R_DimSymbol);
     PROTECT(Rdims);
     std::vector<int> ans(2);
     ans[0] = INTEGER(Rdims)[0];

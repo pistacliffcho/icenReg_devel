@@ -36,9 +36,7 @@ public:
 	double con_d(double base_t, double nu){
 		double con_t = base_t / nu;
 		double ans = blInf->base_d(con_t, b_pars);
-		
 		ans = ans / nu; 
-		
 		return(ans);
 	}
 	double con_s(double base_t, double nu){

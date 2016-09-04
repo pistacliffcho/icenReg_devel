@@ -157,9 +157,9 @@ IC_parOpt_aft::IC_parOpt_aft(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
     d_betas.resize(k);
     d2_betas.resize(k, k);
     
-    SEXP RuncenDim = getAttrib(R_uncenInd, R_DimSymbol);
+    SEXP RuncenDim = Rf_getAttrib(R_uncenInd, R_DimSymbol);
     PROTECT(RuncenDim);
-    SEXP RgicDim = getAttrib(R_gicInd, R_DimSymbol);
+    SEXP RgicDim = Rf_getAttrib(R_gicInd, R_DimSymbol);
     PROTECT(RgicDim);
     
     int n_1 = INTEGER(RuncenDim)[0];

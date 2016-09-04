@@ -11,7 +11,9 @@ Imports:
     foreach,
     methods,
     MLEcens
-LinkingTo: RcppEigen
+LinkingTo: 
+    Rcpp,
+    RcppEigen 
 Maintainer: Clifford Anderson-Bergman <pistacliffcho@gmail.com>
 Description: Regression models for interval censored data. Currently supports
     Cox-PH, proportional odds, and accelerated failure time models. Allows for

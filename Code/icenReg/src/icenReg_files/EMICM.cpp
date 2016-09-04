@@ -7,10 +7,10 @@ SEXP EMICM(SEXP Rlind, SEXP Rrind, SEXP iters){
 	double tol = pow(10.0, -10.0);	
 	emicm emicmObj(Rlind, Rrind);
 	double final_llk = emicmObj.run(tol, maxIters, ems);
-	SEXP ans = PROTECT(allocVector(VECSXP, 3));
-	SEXP R_phat = PROTECT(allocVector(REALSXP, emicmObj.baseP.size() ));
-	SEXP R_llk = PROTECT(allocVector(REALSXP, 1) );
-	SEXP R_iters = PROTECT(allocVector(INTSXP, 1) );
+	SEXP ans = PROTECT(Rf_allocVector(VECSXP, 3));
+	SEXP R_phat = PROTECT(Rf_allocVector(REALSXP, emicmObj.baseP.size() ));
+	SEXP R_llk = PROTECT(Rf_allocVector(REALSXP, 1) );
+	SEXP R_iters = PROTECT(Rf_allocVector(INTSXP, 1) );
 	
 	double* c_phat = REAL(R_phat);
 	for(int i = 0; i < LENGTH(R_phat); i++){ c_phat[i] = emicmObj.baseP[i]; }

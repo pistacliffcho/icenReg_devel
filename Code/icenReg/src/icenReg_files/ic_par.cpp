@@ -498,9 +498,9 @@ IC_parOpt::IC_parOpt(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
     d_betas.resize(k);
     d2_betas.resize(k, k);
     
-    SEXP RuncenDim = getAttrib(R_uncenInd, R_DimSymbol);
+    SEXP RuncenDim = Rf_getAttrib(R_uncenInd, R_DimSymbol);
     PROTECT(RuncenDim);
-    SEXP RgicDim = getAttrib(R_gicInd, R_DimSymbol);
+    SEXP RgicDim = Rf_getAttrib(R_gicInd, R_DimSymbol);
     PROTECT(RgicDim);
     
     int n_1 = INTEGER(RuncenDim)[0];
@@ -553,6 +553,59 @@ IC_parOpt::IC_parOpt(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
     UNPROTECT(2);
 }
 
+void IC_parOpt::optimize(){
+    lk_old = R_NegInf;
+    int maxIter = 1000;
+    double tol = pow(10.0, -10.0);
+    lk_new = calcLike_all();
+
+    if(lk_new == R_NegInf){
+        int bk = b_pars.size();
+        int tries = 0;
+        double delta = 0.001;
+        while(tries < 10 && lk_new == R_NegInf){
+            tries++;
+            for(int i = 0; i < bk; i++){
+                if(lk_new == R_NegInf){
+                    b_pars[i] = delta;
+                    lk_new = calcLike_all();
+                    if(lk_new == R_NegInf) b_pars[i] = 0;
+                }
+            }
+            delta *= 5;
+        }
+    }
+    if(lk_new == R_NegInf){
+        int bk = b_pars.size();
+        int tries = 0;
+        double delta = -1;
+        while(tries < 10 && lk_new == R_NegInf){
+            tries++;
+            for(int i = 0; i < bk; i++){
+                if(lk_new == R_NegInf){
+                    b_pars[i] = delta;
+                    lk_new = calcLike_all();
+                    if(lk_new == R_NegInf) b_pars[i] = 0;
+                }
+            }
+            delta *= 5;
+        }
+    }
+    if(lk_new == R_NegInf){
+        Rprintf("failed to find adequate starting point!n");
+        return;
+    }
+
+    for(int i = 0; i < 5; i++){ NR_baseline_pars(); }
+    while(iter < maxIter && lk_new - lk_old > tol){
+        lk_old = lk_new;
+        iter++;
+        NR_baseline_pars();
+        NR_reg_pars();
+        lk_new = calcLike_baseReady();   
+    }
+}
+
 
 SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
             SEXP uncenInd, SEXP gicInd, SEXP lInd, SEXP rInd,
@@ -574,74 +627,21 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
     }
     if(optObj->blInf == NULL) return(R_NilValue);
     if(optObj->lnkFn == NULL) return(R_NilValue);
-    double lk_old = R_NegInf;
-    int iter = 0;
-    int maxIter = 1000;
-    double tol = pow(10.0, -10.0);
-    double lk_new = optObj->calcLike_all();
 
-    if(lk_new == R_NegInf){
-        int bk = optObj->b_pars.size();
-        int tries = 0;
-        double delta = 1;
-        while(tries < 10 && lk_new == R_NegInf){
-            tries++;
-            for(int i = 0; i < bk; i++){
-                if(lk_new == R_NegInf){
-                    optObj->b_pars[i] = delta;
-                    lk_new = optObj->calcLike_all();
-                    if(lk_new == R_NegInf)   optObj->b_pars[i] = 0;
-                }
-            }
-            delta *= 5;
-        }
-    }
-    
-    if(lk_new == R_NegInf){
-        int bk = optObj->b_pars.size();
-        int tries = 0;
-        double delta = -1;
-        while(tries < 10 && lk_new == R_NegInf){
-            tries++;
-            for(int i = 0; i < bk; i++){
-                if(lk_new == R_NegInf){
-                    optObj->b_pars[i] = delta;
-                    lk_new = optObj->calcLike_all();
-                    if(lk_new == R_NegInf)   optObj->b_pars[i] = 0;
-                }
-            }
-            delta *= 5;
-        }
-    }
-    if(lk_new == R_NegInf){
-        Rprintf("failed to find adequate starting point! Please contact maintainer of package\n");
-        return(R_NilValue);
-    }
-
-    for(int i = 0; i < 5; i++){
-        optObj->NR_baseline_pars();
-
-    }
-    while(iter < maxIter && lk_new - lk_old > tol){
-        lk_old = lk_new;
-        iter++;
-        optObj->NR_baseline_pars();
-        optObj->NR_reg_pars();
-        lk_new = optObj->calcLike_baseReady();
-        
-    }
-    SEXP score = PROTECT(allocVector(REALSXP, optObj->betas.size() + optObj->b_pars.size() ) );
+	optObj->optimize();
+	
+    SEXP score = PROTECT(Rf_allocVector(REALSXP, optObj->betas.size() + optObj->b_pars.size() ) );
     optObj->fillFullHessianAndScore(outHessian, score);
-    SEXP reg_est = PROTECT(allocVector(REALSXP, optObj->betas.size()));
-    SEXP base_est = PROTECT(allocVector(REALSXP, optObj->b_pars.size()));
-    SEXP final_llk = PROTECT(allocVector(REALSXP, 1));
-    SEXP iters = PROTECT(allocVector(REALSXP, 1));
+    SEXP reg_est = PROTECT(Rf_allocVector(REALSXP, optObj->betas.size()));
+    SEXP base_est = PROTECT(Rf_allocVector(REALSXP, optObj->b_pars.size()));
+    SEXP final_llk = PROTECT(Rf_allocVector(REALSXP, 1));
+    SEXP iters = PROTECT(Rf_allocVector(REALSXP, 1));
     for(int i = 0; i < LENGTH(reg_est); i++)    REAL(reg_est)[i] = optObj->betas[i];
     for(int i = 0; i < LENGTH(base_est); i++)   REAL(base_est)[i] = optObj->b_pars[i];
     REAL(final_llk)[0] = optObj->calcLike_baseReady();
-    REAL(iters)[0] = iter;
+    REAL(iters)[0] = optObj->iter;
         
-    SEXP ans = PROTECT(allocVector(VECSXP, 6));
+    SEXP ans = PROTECT(Rf_allocVector(VECSXP, 6));
     SET_VECTOR_ELT(ans, 0, reg_est);
     SET_VECTOR_ELT(ans, 1, base_est);
     SET_VECTOR_ELT(ans, 2, final_llk);
@@ -707,7 +707,7 @@ SEXP dGeneralGamma(SEXP R_x, SEXP R_mu, SEXP R_s, SEXP R_Q){
     double* s = REAL(R_s);
     double* Q = REAL(R_Q);
     
-    SEXP ans = PROTECT(allocVector(REALSXP, size));
+    SEXP ans = PROTECT(Rf_allocVector(REALSXP, size));
     double* cans = REAL(ans);
     for(int i = 0; i < size; i++){
         cans[i] = ic_dgeneralgamma(x[i], mu[i], s[i], Q[i]);
@@ -725,24 +725,21 @@ SEXP pGeneralGamma(SEXP R_x, SEXP R_mu, SEXP R_s, SEXP R_Q){
     double* s = REAL(R_s);
     double* Q = REAL(R_Q);
     
-    SEXP ans = PROTECT(allocVector(REALSXP, size));
+    SEXP ans = PROTECT(Rf_allocVector(REALSXP, size));
     double* cans = REAL(ans);
     for(int i = 0; i < size; i++){
         cans[i] = ic_pgeneralgamma(x[i], mu[i], s[i], Q[i]);
     }
     UNPROTECT(1);
     return(ans);
-    
 }
 SEXP qGeneralGamma(SEXP R_x, SEXP R_mu, SEXP R_s, SEXP R_Q){
     int size = LENGTH(R_x);
-    
     double* x = REAL(R_x);
     double* mu = REAL(R_mu);
     double* s = REAL(R_s);
     double* Q = REAL(R_Q);
-    
-    SEXP ans = PROTECT(allocVector(REALSXP, size));
+    SEXP ans = PROTECT(Rf_allocVector(REALSXP, size));
     double* cans = REAL(ans);
     for(int i = 0; i < size; i++){
         cans[i] = ic_qgeneralgamma(x[i], mu[i], s[i], Q[i]);

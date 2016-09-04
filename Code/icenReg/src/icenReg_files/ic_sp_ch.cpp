@@ -478,12 +478,12 @@ SEXP ic_sp_ch(SEXP Rlind, SEXP Rrind, SEXP Rcovars, SEXP fitType,
     cumhaz2p_hat(optObj->baseCH, p_hat);
     
     
-    SEXP ans = PROTECT(allocVector(VECSXP, 5));
-    SEXP R_pans = PROTECT(allocVector(REALSXP,p_hat.size()));
-    SEXP R_coef = PROTECT(allocVector(REALSXP, optObj->reg_par.size()));
-    SEXP R_fnl_llk = PROTECT(allocVector(REALSXP, 1));
-    SEXP R_its = PROTECT(allocVector(REALSXP, 1));
-    SEXP R_score = PROTECT(allocVector(REALSXP, optObj->reg_par.size()));
+    SEXP ans = PROTECT(Rf_allocVector(VECSXP, 5));
+    SEXP R_pans = PROTECT(Rf_allocVector(REALSXP,p_hat.size()));
+    SEXP R_coef = PROTECT(Rf_allocVector(REALSXP, optObj->reg_par.size()));
+    SEXP R_fnl_llk = PROTECT(Rf_allocVector(REALSXP, 1));
+    SEXP R_its = PROTECT(Rf_allocVector(REALSXP, 1));
+    SEXP R_score = PROTECT(Rf_allocVector(REALSXP, optObj->reg_par.size()));
     int phat_size = p_hat.size();
     for(int i = 0; i < phat_size; i++){ REAL(R_pans)[i] = p_hat[i]; }
     for(int i = 0; i < optObj->reg_par.size(); i++){
@@ -603,8 +603,8 @@ SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals){
     int tbulls = mi_l.size();
     
     int n = LENGTH(lVals);
-    SEXP l_ind = PROTECT(allocVector(INTSXP, n));
-    SEXP r_ind = PROTECT(allocVector(INTSXP, n));
+    SEXP l_ind = PROTECT(Rf_allocVector(INTSXP, n));
+    SEXP r_ind = PROTECT(Rf_allocVector(INTSXP, n));
     
     int* cl_ind = INTEGER(l_ind);
     int* cr_ind = INTEGER(r_ind);
@@ -615,27 +615,15 @@ SEXP findMI(SEXP R_AllVals, SEXP isL, SEXP isR, SEXP lVals, SEXP rVals){
     
     for(int i = 0; i < n; i++){
     	this_Lval = clVals[i];
-/*        for(int j = 0; j < tbulls; j++){
-            if(mi_l[j] >= this_Lval){
-				cl_ind[i] = j;
-                break;
-            }
-        }	*/	
-       cl_ind[i] = findSurroundingVals(this_Lval, mi_l, mi_r, true);
+        cl_ind[i] = findSurroundingVals(this_Lval, mi_l, mi_r, true);
         this_Rval = crVals[i];
-      /*  for(int j = tbulls-1; j >= 0; j--){
-            if(mi_r[j] <= this_Rval){
-				cr_ind[i] = j;
-                break;
-            }
-        } */
     	cr_ind[i] = findSurroundingVals(this_Rval, mi_l, mi_r, false);
      }
     
     
-    SEXP ans = PROTECT(allocVector(VECSXP, 4));
-    SEXP Rl_mi = PROTECT(allocVector(REALSXP, tbulls));
-    SEXP Rr_mi = PROTECT(allocVector(REALSXP, tbulls));
+    SEXP ans = PROTECT(Rf_allocVector(VECSXP, 4));
+    SEXP Rl_mi = PROTECT(Rf_allocVector(REALSXP, tbulls));
+    SEXP Rr_mi = PROTECT(Rf_allocVector(REALSXP, tbulls));
     for(int i = 0; i < tbulls; i++){
         REAL(Rl_mi)[i] = mi_l[i];
         REAL(Rr_mi)[i] = mi_r[i];

@@ -104,15 +104,15 @@ public:
 
 class gammaInfo : public parBLInfo{
 public:
-    double base_d(double x, Eigen::VectorXd &par){return(dgamma(x, exp(par[0]), exp(par[1]), 0));}
-    double base_s(double x, Eigen::VectorXd &par){return(pgamma(x, exp(par[0]), exp(par[1]), 0, 0));}
+    double base_d(double x, Eigen::VectorXd &par){return(R::dgamma(x, exp(par[0]), exp(par[1]), 0));}
+    double base_s(double x, Eigen::VectorXd &par){return(R::pgamma(x, exp(par[0]), exp(par[1]), 0, 0));}
     virtual ~gammaInfo(){};
 };
 
 class weibullInfo : public parBLInfo{
 public:
-    double base_d(double x, Eigen::VectorXd &par){return(dweibull(x, exp(par[0]), exp(par[1]), 0));}
-    double base_s(double x, Eigen::VectorXd &par){return(pweibull(x, exp(par[0]), exp(par[1]), 0, 0));}
+    double base_d(double x, Eigen::VectorXd &par){return(R::dweibull(x, exp(par[0]), exp(par[1]), 0));}
+    double base_s(double x, Eigen::VectorXd &par){return(R::pweibull(x, exp(par[0]), exp(par[1]), 0, 0));}
     virtual ~weibullInfo(){};
 };
 
@@ -125,8 +125,8 @@ public:
 
 class expInfo : public parBLInfo{
 public:
-    double base_d(double x, Eigen::VectorXd &par){return(dexp(x, exp(par[0]), 0));}
-    double base_s(double x, Eigen::VectorXd &par){return(pexp(x, exp(par[0]), 0, 0));}
+    double base_d(double x, Eigen::VectorXd &par){return(R::dexp(x, exp(par[0]), 0));}
+    double base_s(double x, Eigen::VectorXd &par){return(R::pexp(x, exp(par[0]), 0, 0));}
     virtual ~expInfo(){};
 };
 
@@ -253,7 +253,10 @@ public:
     void fillFullHessianAndScore(SEXP r_mat, SEXP score);
     //for filling out the full hessian and score at the MLE
 
-    double h;
+    double h, lk_new, lk_old;
+	int iter;
+	
+	void optimize();
 
 
     IC_parOpt(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,

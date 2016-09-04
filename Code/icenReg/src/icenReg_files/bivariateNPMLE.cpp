@@ -509,24 +509,24 @@ SEXP optCliq(SEXP cliqMat, SEXP R_tol, SEXP R_innerLoops, SEXP R_outerLoops, SEX
     
     int n_mi = bvObj.p_mass.size();
     
-    SEXP pvec = PROTECT(allocVector(REALSXP, n_mi));
+    SEXP pvec = PROTECT(Rf_allocVector(REALSXP, n_mi));
     for(int i = 0; i < n_mi; i++){
         REAL(pvec)[i] = bvObj.p_mass[i];
     }
     
-    SEXP llh = PROTECT(allocVector(REALSXP, 1));
+    SEXP llh = PROTECT(Rf_allocVector(REALSXP, 1));
     REAL(llh)[0] = bvObj.llk();
     
-    SEXP R_tot_its = PROTECT(allocVector(REALSXP, 1));
+    SEXP R_tot_its = PROTECT(Rf_allocVector(REALSXP, 1));
     REAL(R_tot_its)[0] = tot_its;
     
-    SEXP out_its = PROTECT(allocVector(REALSXP, 1));
+    SEXP out_its = PROTECT(Rf_allocVector(REALSXP, 1));
     REAL(out_its)[0] = out_it;
     
-    SEXP error = PROTECT(allocVector(REALSXP, 1));
+    SEXP error = PROTECT(Rf_allocVector(REALSXP, 1));
     REAL(error)[0] = bvObj.fullError;
     
-    SEXP ans = PROTECT(allocVector(VECSXP, 5));
+    SEXP ans = PROTECT(Rf_allocVector(VECSXP, 5));
     SET_VECTOR_ELT(ans, 0, pvec);
     SET_VECTOR_ELT(ans, 1, llh);
     SET_VECTOR_ELT(ans, 2, R_tot_its);

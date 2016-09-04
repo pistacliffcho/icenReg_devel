@@ -57,16 +57,16 @@ double transform_p_none(double p, double nu){return(p);}
 
 // BASELINE MODELS
 double getExpSurv(double q, SEXP bli){
-    return( pexp(q, exp(REAL(bli)[0]), 0, 0) );
+    return( R::pexp(q, exp(REAL(bli)[0]), 0, 0) );
 }
 double getWeibSurv(double q, SEXP bli){
-    return( pweibull(q, exp(REAL(bli)[0]), exp(REAL(bli)[1]), 0, 0));
+    return( R::pweibull(q, exp(REAL(bli)[0]), exp(REAL(bli)[1]), 0, 0));
 }
 double getLogNormSurv(double q, SEXP bli){
-    return( pnorm(log(q), REAL(bli)[0], exp(REAL(bli)[1]), 0, 0) );
+    return( R::pnorm(log(q), REAL(bli)[0], exp(REAL(bli)[1]), 0, 0) );
 }
 double getGammaSurv(double q, SEXP bli){
-    return( pgamma(q, exp(REAL(bli)[0]), exp(REAL(bli)[1]), 0,0 ) );
+    return( R::pgamma(q, exp(REAL(bli)[0]), exp(REAL(bli)[1]), 0,0 ) );
 }
 double getLgLgsticSurv(double q, SEXP bli){
     return( 1.0 - ic_ploglogistic(q, exp(REAL(bli)[0]), exp(REAL(bli)[1])));
@@ -80,17 +80,17 @@ double getNonParSurv(double q, SEXP bli);
 
 
 double getExpQ(double p, SEXP bli){
-    return( qexp(p, exp(REAL(bli)[0]), 1, 0) );
+    return( R::qexp(p, exp(REAL(bli)[0]), 1, 0) );
 }
 
 double getWeibQ(double p, SEXP bli){
-    return( qweibull(p, exp(REAL(bli)[0]), exp(REAL(bli)[1]), 1, 0));
+    return( R::qweibull(p, exp(REAL(bli)[0]), exp(REAL(bli)[1]), 1, 0));
 }
 double getLogNormQ(double p, SEXP bli){
-    return( exp( qnorm(p, REAL(bli)[0], exp(REAL(bli)[1]), 1, 0) ) );
+    return( exp( R::qnorm(p, REAL(bli)[0], exp(REAL(bli)[1]), 1, 0) ) );
 }
 double getGammaQ(double p, SEXP bli){
-    return( qgamma(p, exp(REAL(bli)[0]), exp(REAL(bli)[1]), 1,0 ) );
+    return( R::qgamma(p, exp(REAL(bli)[0]), exp(REAL(bli)[1]), 1,0 ) );
 }
 double getLgLgsticQ(double p, SEXP bli){
     return(ic_qloglogistic(p, exp(REAL(bli)[0]), exp(REAL(bli)[1]) ) );
