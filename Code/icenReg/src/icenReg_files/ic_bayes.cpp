@@ -62,3 +62,59 @@ void MHBlockUpdater::acceptOrReject(){
 		}
 	}
 }
+
+void MHBlockUpdater::mcmc(){
+	savedValues.resize(numSaved, totParams);
+	int saveCount = 0;
+	for(int i = 0; i < samples; i++){
+		proposeNewParameters();
+		acceptOrReject();
+		if( (i % thin) == 0){
+			savedValues.row(saveCount) = currentParameters;
+			saveCount++;
+		}
+		if( (i % iterationsPerUpdate) && updateChol ){
+			updateCholosky();
+		}
+	}
+}
+
+double logIC_bayesPostDens(Eigen::VectorXd &propVec, void* void_icBayesPtr){
+	IC_bayes* icBayesPtr = static_cast<IC_bayes*>(void_icBayesPtr);
+	double ans = icBayesPtr->computePosteriorLogDens(propVec);
+	return(ans);
+}
+
+
+
+
+
+//		CONSTRUCTOR AND DECONSTRUCTOR FUNCTIONS
+MHBlockUpdater::MHBlockUpdater(Eigen::VectorXd &initValues, Eigen::MatrixXd &initChol,
+				  int samples, int thin, int iterationsPerUpdate,
+				  bool updateChol){
+	currentParameters = initValues;
+	cholDecomp = initChol;
+	this->samples = samples;
+	this->thin = thin;
+	this->iterationsPerUpdate = iterationsPerUpdate;
+	this->updateChol = updateChol;		
+	double numSaved_double =((double) samples) / ((double) thin);
+	numSaved = floor(numSaved_double);
+	totParams = currentParameters.size();		  
+}
+
+IC_bayes::IC_bayes(Rcpp::Function R_prior, SEXP useMLE_start, SEXP updateChol,
+			  SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
+              SEXP R_uncenInd, SEXP R_gicInd, SEXP R_lInd, SEXP R_rInd,
+              SEXP R_parType, SEXP R_linkType, SEXP R_w) 
+              : IC_parOpt(R_s_t, R_d_t, R_covars,
+              R_uncenInd, R_gicInd, R_lInd, R_rInd,
+              R_parType, R_linkType, R_w),
+              priorFxn(R_prior)
+              {
+}
+
+IC_bayes::~IC_bayes(){
+	delete mcmcInfo;
+}
