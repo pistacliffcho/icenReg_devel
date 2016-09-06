@@ -32,7 +32,7 @@ class IC_bayes : public IC_parOpt{
 	double computePosteriorLogDens(Eigen::VectorXd &propVec);
 	MHBlockUpdater* mcmcInfo;
 	
-	IC_bayes(Rcpp::Function R_prior, SEXP useMLE_start, SEXP updateChol,
+	IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
 			  SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
               SEXP R_uncenInd, SEXP R_gicInd, SEXP R_lInd, SEXP R_rInd,
               SEXP R_parType, SEXP R_linkType, SEXP R_w);

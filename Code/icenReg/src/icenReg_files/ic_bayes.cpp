@@ -104,15 +104,63 @@ MHBlockUpdater::MHBlockUpdater(Eigen::VectorXd &initValues, Eigen::MatrixXd &ini
 	totParams = currentParameters.size();		  
 }
 
-IC_bayes::IC_bayes(Rcpp::Function R_prior, SEXP useMLE_start, SEXP updateChol,
+IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
 			  SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
               SEXP R_uncenInd, SEXP R_gicInd, SEXP R_lInd, SEXP R_rInd,
               SEXP R_parType, SEXP R_linkType, SEXP R_w) 
-              : IC_parOpt(R_s_t, R_d_t, R_covars,
-              R_uncenInd, R_gicInd, R_lInd, R_rInd,
-              R_parType, R_linkType, R_w),
-              priorFxn(R_prior)
-              {
+	:IC_parOpt(R_s_t, R_d_t, R_covars,
+               R_uncenInd, R_gicInd, R_lInd, R_rInd,
+               R_parType, R_linkType, R_w),
+     priorFxn(R_priorFxn){
+    int n_reg_pars = betas.size();
+    int n_b_pars = b_pars.size(); 
+    Eigen::MatrixXd eChol;
+    
+    Rcpp::LogicalVector R_useMLE_start = R_bayesList["useMLE_start"];
+    Rcpp::IntegerVector R_samples      = R_bayesList["samples"];
+    Rcpp::IntegerVector R_thin         = R_bayesList["thin"];
+    Rcpp::IntegerVector R_it_per_up    = R_bayesList["iterationsPerUpdate"];
+    Rcpp::LogicalVector R_updateChol   = R_bayesList["updateChol"];
+    
+    bool useMLE_start        = LOGICAL(R_useMLE_start)[0] == TRUE;
+    int samples              = INTEGER(R_samples)[0];
+    int thin                 = INTEGER(R_thin)[0];
+    int iterationsPerUpdate  = INTEGER(R_it_per_up)[0];
+    bool updateChol          = LOGICAL(R_updateChol)[0] == TRUE;
+    
+    if(useMLE_start){
+        optimize();
+            	 	
+        // This is a bit backwards, but since the tools have
+        // already been built to fill the full Hessian into 
+        // an R-matrix
+            	 	
+        Rcpp::NumericVector R_score(n_reg_pars + n_b_pars);
+        Rcpp::NumericMatrix R_Hessian(n_reg_pars + n_b_pars);
+		fillFullHessianAndScore(R_Hessian, R_score);
+		Eigen::MatrixXd eHess;
+		copyRmatrix_intoEigen(R_Hessian, eHess);
+		eChol = eHess.llt().matrixL();            	 	
+    }
+    else{
+    	Rprintf("NOTE: ADAPTIVE BLOCK UPDATING IS NOT PROPERLY IMPLEMENTED YET!!!\n");
+    	eChol.resize(n_reg_pars + n_b_pars, n_reg_pars + n_b_pars);
+    	eChol *= 0.0;
+    	for(int i = 0; i < (n_reg_pars + n_b_pars); i++){
+    		eChol(i, i) = 1.0;
+    	}
+	}
+	Eigen::VectorXd initPars(n_b_pars + n_reg_pars);
+	for(int i = 0; i < n_b_pars; i++){
+		initPars[i] = b_pars[i];
+	}
+	for(int i = 0; i < n_reg_pars; i++){
+		initPars[i + n_b_pars] = betas[i];
+	}
+	mcmcInfo = new MHBlockUpdater(initPars, eChol,
+				  samples, thin, iterationsPerUpdate,
+				  updateChol);
+	
 }
 
 IC_bayes::~IC_bayes(){
