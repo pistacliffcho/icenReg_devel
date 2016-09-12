@@ -55,5 +55,6 @@ public:
 	IC_parOpt_aft(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
                      SEXP R_uncenInd, SEXP R_gicInd, SEXP R_lInd, SEXP R_rInd,
                      SEXP R_parType, SEXP R_linkType, SEXP R_w);
+    IC_parOpt_aft(Rcpp::List R_list);
 };	
 

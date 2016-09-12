@@ -96,7 +96,35 @@ void IC_parOpt_aft::update_dobs_detas(){
   
 }
 
+IC_parOpt_aft::IC_parOpt_aft(Rcpp::List R_list){
+	Rcpp::NumericVector R_s_t 	   = R_list["s_t"];
+	Rcpp::NumericVector R_d_t      = R_list["d_t"];
+	Rcpp::NumericMatrix R_covars   = R_list["covars"];
+	Rcpp::IntegerVector R_uncenInd = R_list["uncenInd"];
+	Rcpp::IntegerVector R_gicInd   = R_list["gicInd"];
+	Rcpp::IntegerVector R_lInd     = R_list["lInd"];
+	Rcpp::IntegerVector R_rInd     = R_list["rInd"];
+	Rcpp::IntegerVector R_parType  = R_list["parType"];
+	Rcpp::IntegerVector R_linkType = R_list["linkInd"];
+	Rcpp::NumericVector R_w        = R_list["w"];
+	
+	successfulBuild = true;
+	if(Rf_isNull(R_s_t) )     successfulBuild = false;
+	if(Rf_isNull(R_d_t) )     successfulBuild = false;
+	if(Rf_isNull(R_covars))   successfulBuild = false;
+	if(Rf_isNull(R_uncenInd)) successfulBuild = false;
+	if(Rf_isNull(R_gicInd))   successfulBuild = false;
+	if(Rf_isNull(R_lInd))     successfulBuild = false;
+	if(Rf_isNull(R_parType))  successfulBuild = false;
+	if(Rf_isNull(R_linkType)) successfulBuild = false;
+	if(Rf_isNull(R_w))        successfulBuild = false;
+	
+	init(R_s_t, R_d_t, R_covars, 
+ 		 R_uncenInd, R_gicInd, R_lInd,
+ 		 R_rInd, R_parType, R_linkType, 
+ 		 R_w);
 
+}
 
 IC_parOpt_aft::IC_parOpt_aft(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
                      SEXP R_uncenInd, SEXP R_gicInd, SEXP R_lInd, SEXP R_rInd,

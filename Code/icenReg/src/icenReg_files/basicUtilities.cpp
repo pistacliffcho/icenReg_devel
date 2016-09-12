@@ -98,6 +98,18 @@ void copyRmatrix_intoEigen(SEXP r_mat, Eigen::MatrixXd &e_mat){
     UNPROTECT(1);
 }
 
+Rcpp::NumericMatrix eigen2RMat(Eigen::MatrixXd &e_mat){
+	int nRow = e_mat.rows();
+	int nCol = e_mat.cols();
+	Rcpp::NumericMatrix ans(nRow, nCol);
+	for(int i = 0; i < nRow; i++){
+		for(int j = 0; j < nCol; j++){
+			ans(i,j) = e_mat(i,j);
+		}
+	}
+	return(ans);
+}
+
 void Rvec2eigen(SEXP r_vec, Eigen::VectorXd &e_vec){
     int k = LENGTH(r_vec);
     e_vec.resize(k);

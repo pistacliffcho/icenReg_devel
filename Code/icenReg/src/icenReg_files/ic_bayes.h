@@ -24,8 +24,11 @@ class MHBlockUpdater{
 };
 
 
-class IC_bayes : public IC_parOpt{
+class IC_bayes {
 	public :
+	
+	
+	IC_parOpt* baseIC;
 	Rcpp::Function priorFxn;
 	double computePriorLogDens(Eigen::VectorXd &propVec);
 	double computeLLK(Eigen::VectorXd &propVec);
@@ -41,3 +44,6 @@ class IC_bayes : public IC_parOpt{
 
 double logIC_bayesPostDens(Eigen::VectorXd &propVec, void* void_icBayesPtr);
 
+// [[Rcpp::export]]
+Rcpp::List R_ic_bayes(Rcpp::List R_bayesList, Rcpp::Function priorFxn, 
+					  Rcpp::List R_ic_parList);

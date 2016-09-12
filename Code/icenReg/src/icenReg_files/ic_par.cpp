@@ -437,12 +437,55 @@ void IC_parOpt::NR_reg_pars(){
 }
 
 
+IC_parOpt::IC_parOpt(Rcpp::List R_list){
 
+	Rcpp::NumericVector R_s_t 	   = R_list["s_t"];
+	Rcpp::NumericVector R_d_t      = R_list["d_t"];
+	Rcpp::NumericMatrix R_covars   = R_list["covars"];
+	Rcpp::IntegerMatrix R_uncenInd = R_list["uncenInd_mat"];
+	Rcpp::IntegerMatrix R_gicInd   = R_list["gicInd_mat"];
+	Rcpp::IntegerVector R_lInd     = R_list["leftCenInd"];
+	Rcpp::IntegerVector R_rInd     = R_list["rightCenInd"];
+	Rcpp::IntegerVector R_parType  = R_list["parInd"];
+	Rcpp::IntegerVector R_linkType = R_list["linkType"];
+	Rcpp::NumericVector R_w        = R_list["w"];
+	
+	successfulBuild = true;
+	if(Rf_isNull(R_s_t) )     successfulBuild = false;
+	if(Rf_isNull(R_d_t) )     successfulBuild = false;
+	if(Rf_isNull(R_covars))   successfulBuild = false;
+	if(Rf_isNull(R_uncenInd)) successfulBuild = false;
+	if(Rf_isNull(R_gicInd))   successfulBuild = false;
+	if(Rf_isNull(R_lInd))     successfulBuild = false;
+	if(Rf_isNull(R_parType))  successfulBuild = false;
+	if(Rf_isNull(R_linkType)) successfulBuild = false;
+	if(Rf_isNull(R_w))        successfulBuild = false;
+	
+	
+	if(!successfulBuild){
+		Rprintf("Build unsuccessful because list names are not correct!\n");
+	}
+	
+	init(R_s_t, R_d_t, R_covars, 
+ 		 R_uncenInd, R_gicInd, R_lInd,
+ 		 R_rInd, R_parType, R_linkType, 
+ 		 R_w);
+}
 
 IC_parOpt::IC_parOpt(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
                      SEXP R_uncenInd, SEXP R_gicInd, SEXP R_lInd, SEXP R_rInd,
                      SEXP R_parType, SEXP R_linkType, SEXP R_w){
+ 	init(R_s_t, R_d_t, R_covars, 
+ 		 R_uncenInd, R_gicInd, R_lInd,
+ 		 R_rInd, R_parType, R_linkType, 
+ 		 R_w);                    
+}
+
+void IC_parOpt::init(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
+                     SEXP R_uncenInd, SEXP R_gicInd, SEXP R_lInd, SEXP R_rInd,
+                     SEXP R_parType, SEXP R_linkType, SEXP R_w){
     blInf = NULL;
+    parType = INTEGER(R_parType)[0];
     if(INTEGER(R_parType)[0] == 1) {
         blInf = new gammaInfo();
         b_pars.resize(2);
@@ -482,6 +525,7 @@ IC_parOpt::IC_parOpt(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
     else{Rprintf("warning: parameter type not supported!\n");}
     
     lnkFn = NULL;
+    linkType = INTEGER(R_linkType)[0];
     if(INTEGER(R_linkType)[0] == 1) {lnkFn = new propOdd;}
     else if(INTEGER(R_linkType)[0] == 2) {lnkFn = new propHaz;}
     else if(INTEGER(R_linkType)[0] == 3) {lnkFn = new aft_linkFun;}
@@ -551,6 +595,9 @@ IC_parOpt::IC_parOpt(SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
     
     h = pow(10.0, -5.0);
     UNPROTECT(2);
+    iter = 0;
+    
+    successfulBuild = true;
 }
 
 void IC_parOpt::optimize(){
@@ -606,8 +653,7 @@ void IC_parOpt::optimize(){
     }
 }
 
-
-SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
+Rcpp::List ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
             SEXP uncenInd, SEXP gicInd, SEXP lInd, SEXP rInd,
             SEXP parType, SEXP linkType,
             SEXP outHessian, SEXP R_w){
@@ -629,69 +675,109 @@ SEXP ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
     if(optObj->lnkFn == NULL) return(R_NilValue);
 
 	optObj->optimize();
-	
-    SEXP score = PROTECT(Rf_allocVector(REALSXP, optObj->betas.size() + optObj->b_pars.size() ) );
-    optObj->fillFullHessianAndScore(outHessian, score);
-    SEXP reg_est = PROTECT(Rf_allocVector(REALSXP, optObj->betas.size()));
-    SEXP base_est = PROTECT(Rf_allocVector(REALSXP, optObj->b_pars.size()));
-    SEXP final_llk = PROTECT(Rf_allocVector(REALSXP, 1));
-    SEXP iters = PROTECT(Rf_allocVector(REALSXP, 1));
-    for(int i = 0; i < LENGTH(reg_est); i++)    REAL(reg_est)[i] = optObj->betas[i];
-    for(int i = 0; i < LENGTH(base_est); i++)   REAL(base_est)[i] = optObj->b_pars[i];
-    REAL(final_llk)[0] = optObj->calcLike_baseReady();
-    REAL(iters)[0] = optObj->iter;
-        
-    SEXP ans = PROTECT(Rf_allocVector(VECSXP, 6));
-    SET_VECTOR_ELT(ans, 0, reg_est);
-    SET_VECTOR_ELT(ans, 1, base_est);
-    SET_VECTOR_ELT(ans, 2, final_llk);
-    SET_VECTOR_ELT(ans, 3, iters);
-    SET_VECTOR_ELT(ans, 4, outHessian);
-    SET_VECTOR_ELT(ans, 5, score);
-    UNPROTECT(6);
-    
-    if(INTEGER(parType)[0] == 1){
-        gammaInfo* deleteObj = static_cast<gammaInfo*>(optObj->blInf);
-        delete deleteObj;
-    }
-    if(INTEGER(parType)[0] == 2){
-        weibullInfo* deleteObj = static_cast<weibullInfo*>(optObj->blInf);
-        delete deleteObj;
-    }
-    if(INTEGER(parType)[0] == 3){
-        lnormInfo* deleteObj = static_cast<lnormInfo*>(optObj->blInf);
-        delete deleteObj;
-    }
-    if(INTEGER(parType)[0] == 4){
-        expInfo* deleteObj = static_cast<expInfo*>(optObj->blInf);
-        delete deleteObj;
-    }
-    if(INTEGER(parType)[0] == 5){
-        loglogisticInfo* deleteObj = static_cast<loglogisticInfo*>(optObj->blInf);
-        delete deleteObj;
-    }
-    if(INTEGER(parType)[0] == 6){
-        genGammaInfo* deleteObj = static_cast<genGammaInfo*>(optObj->blInf);
-        delete deleteObj;
-    }
-    if(INTEGER(linkType)[0] == 1){
-        propOdd* deleteObj = static_cast<propOdd*>(optObj->lnkFn);
-        delete deleteObj;
-	    delete optObj;
-    }
-    if(INTEGER(linkType)[0] == 2){
-        propHaz* deleteObj = static_cast<propHaz*>(optObj->lnkFn);
-        delete deleteObj;
-	    delete optObj;
-    }
-    if(INTEGER(linkType)[0] == 3){
-    	aft_linkFun* deleteLnkObj = static_cast<aft_linkFun*>(optObj->lnkFn);
-    	delete deleteLnkObj;
-    	IC_parOpt_aft* deleteObj = static_cast<IC_parOpt_aft*>(optObj);
-    	delete deleteObj;
-    }
-    return(ans);
+	Rcpp::List ans;
+	ans = optObj->exportAns();
+	delete optObj;
+	return(ans);
 }
+
+
+Rcpp::List ic_parList(Rcpp::List R_parList){
+    IC_parOpt* optObj;
+    
+    Rcpp::IntegerVector linkType = R_parList["linkType"];
+    if(INTEGER(linkType)[0] == 1 || INTEGER(linkType)[0] == 2){
+    	optObj = new IC_parOpt(R_parList);
+    }
+    else if(INTEGER(linkType)[0] == 3){
+    	optObj = new IC_parOpt_aft(R_parList);
+    	
+    }
+    else{
+    	Rprintf("Warning: linkType not recognized.\n");
+    	return(R_NilValue);
+    }
+
+
+    if(optObj->blInf == NULL) return(R_NilValue);
+    if(optObj->lnkFn == NULL) return(R_NilValue);
+
+	optObj->optimize();
+	Rcpp::List ans = optObj->exportAns();
+	delete optObj;
+	return(ans);
+}
+
+Rcpp::List IC_parOpt::exportAns(){
+	int totParams = betas.size() + b_pars.size();
+
+    Rcpp::NumericMatrix outHessian(totParams, totParams);
+	Rcpp::NumericVector score(totParams);
+	Rcpp::NumericVector reg_est( betas.size() );
+	Rcpp::NumericVector base_est( b_pars.size() );
+	Rcpp::NumericVector final_llk(1);	
+	Rcpp::NumericVector iters(1);
+	
+	fillFullHessianAndScore(outHessian, score);
+    for(int i = 0; i < LENGTH(reg_est); i++)    reg_est[i] = betas[i];
+    for(int i = 0; i < LENGTH(base_est); i++)   base_est[i] = b_pars[i];
+    final_llk[0] = calcLike_baseReady();
+    iters[0]     = iter;
+        
+    Rcpp::List ans(6);
+    ans["reg_pars"]   = reg_est;
+    ans["baseline"]   = base_est;
+    ans["llk"]        = final_llk;
+    ans["iterations"] = iters;
+    ans["hessian"]    = outHessian;
+    ans["score"]      = score;
+
+	return(ans);
+}
+
+IC_parOpt::~IC_parOpt(){
+    if(parType == 1){
+        gammaInfo* deleteObj = static_cast<gammaInfo*>(blInf);
+        delete deleteObj;
+    }
+    if(parType == 2){
+        weibullInfo* deleteObj = static_cast<weibullInfo*>(blInf);
+        delete deleteObj;
+    }
+    if(parType == 3){
+        lnormInfo* deleteObj = static_cast<lnormInfo*>(blInf);
+        delete deleteObj;
+    }
+    if(parType == 4){
+        expInfo* deleteObj = static_cast<expInfo*>(blInf);
+        delete deleteObj;
+    }
+    if(parType == 5){
+        loglogisticInfo* deleteObj = static_cast<loglogisticInfo*>(blInf);
+        delete deleteObj;
+    }
+    if(parType == 6){
+        genGammaInfo* deleteObj = static_cast<genGammaInfo*>(blInf);
+        delete deleteObj;
+    }
+    if(linkType == 1){
+        propOdd* deleteObj = static_cast<propOdd*>(lnkFn);
+        delete deleteObj;
+//	    delete optObj;
+    }
+    if(linkType == 2){
+        propHaz* deleteObj = static_cast<propHaz*>(lnkFn);
+        delete deleteObj;
+//	    delete optObj;
+    }
+    if(linkType == 3){
+    	aft_linkFun* deleteLnkObj = static_cast<aft_linkFun*>(lnkFn);
+    	delete deleteLnkObj;
+//    	IC_parOpt_aft* deleteObj = static_cast<IC_parOpt_aft*>(optObj);
+//    	delete deleteObj;
+    }
+}
+
 
 
 

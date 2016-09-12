@@ -6,7 +6,8 @@ Date: 2016-9-3
 Author: Clifford Anderson-Bergman; uses Marloes Maathuis's HeightMap algorithm
     (MLEcens::reduc)
 Depends:
-    survival
+    survival,
+    Rcpp
 Imports:
     foreach,
     methods,
