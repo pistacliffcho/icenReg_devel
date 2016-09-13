@@ -366,10 +366,6 @@ lines.icenReg_fit <- function(x, y, fun = 'surv', ...){
   if(fun == 'surv'){ s_trans <- function(x){x}; yName = 'S(t)'}
   else if(fun == 'cdf'){ s_trans <- function(x){1-x}; yName = 'F(t)' }
   else stop('"fun" option not recognized. Choices are "surv" or "cdf"')
-  
-#  addList <- list(xlab = xlab, ylab = yName)
-#  argList <- addListIfMissing(addList, argList)
-
   if(x$par == 'semi-parametric' | x$par == 'non-parametric'){
     argList <- addIfMissing('s', 'type', argList)
     curveInfo <- getSCurves(x, y)
@@ -738,9 +734,6 @@ diag_covar <- function(object, varName,
 			thisCurve <- getSCurves(spltFits[[nm]])
 			theseTbls <- thisCurve$Tbull_ints
 			thisS <- thisCurve$S_curves$baseline
-			#thisCol <- col[i]
-			#lines(theseTbls[,1], s_trans(thisS), col = thisCol, type = 's')
-			#lines(theseTbls[,2], s_trans(thisS), col = thisCol, type = 's')
 			estList[[nm]] <- list(x = theseTbls, y = s_trans(thisS) )
 		}
 		else if(yType == 'meanRemovedTransform'){	
@@ -1401,4 +1394,101 @@ icqqplot <- function(par_fit){
       ylab = 'Parametric Survival', type = 's')
  lines(baseS, parLowerS, type = 's')
  lines(c(0,1), c(0,1), col = 'red')
+}
+
+
+
+
+
+#' Bayesian Regression  Models for Interval Censored Data
+#' 
+#' @param formula     Regression formula. Response must be a \code{Surv} object of type
+#'  \code{'interval2'} or \code{cbind}. See details.
+#' @param data        Dataset
+#' @param model       What type of model to fit. Current choices are "\code{ph}" (proportional hazards), 
+#' "\code{po}" (proportional odds) or "\code{aft}" (accelerated failure time)
+#' @param dist        What baseline parametric distribution to use. See details for current choices
+#' @param weights     vector of case weights. Not standardized; see details
+#' @param priorFxn    
+#'
+#' @description Fits a Bayesian regression model for interval censored data. 
+#' Can fita proportional hazards, proportional odds or accelerated failure time model.  
+#'
+#' @details Currently supported distributions choices are "exponential", "weibull", "gamma", 
+#' "lnorm", "loglogistic" and "generalgamma" (i.e. generalized gamma distribution). 
+#'
+#' Response variable should either be of the form \code{cbind(l, u)} or \code{Surv(l, u, type = 'interval2')}, 
+#' where \code{l} and \code{u} are the lower and upper ends of the interval known to contain the event of interest. 
+#' Uncensored data can be included by setting \code{l == u}, right censored data can be included by setting 
+#' \code{u == Inf} or \code{u == NA} and left censored data can be included by setting \code{l == 0}.
+#'
+#' Does not allow uncensored data points at t = 0 (i.e. \code{l == u == 0}), as this will 
+#' lead to a degenerate estimator for most parametric families. Unlike the current implementation 
+#' of survival's \code{survreg}, does allow left side of intervals of positive length to 0 and 
+#' right side to be \code{Inf}. 
+#'
+#' In regards to weights, they are not standardized. This means that if weight[i] = 2, 
+#' this is the equivalent to having two observations with the same values as subject i. 
+#' 
+#' 
+#' For numeric stability, if abs(right - left) < 10^-6, observation are considered 
+#' uncensored rather than interval censored with an extremely small interval. 
+#' @examples
+#'
+#' @author Clifford Anderson-Bergman
+#' @export
+ic_bayes <- function(formula, data, priorFxn = function(x) return(0),
+                       model = 'ph', dist = 'weibull', weights = NULL){
+  if(missing(data)) data <- environment(formula)
+  cl <- match.call()
+  mf <- match.call(expand.dots = FALSE)
+  #    m <- match(c("formula", "data", "subset", "weights", "na.action", "offset"), names(mf), 0L)
+  m <- match(c("formula", "data", "subset", "na.action", "offset"), names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  mf <- eval(mf, parent.frame())
+  
+  mt <- attr(mf, "terms")
+  y <- model.response(mf, "numeric")
+  x <- model.matrix(mt, mf, contrasts)
+  if(is.matrix(x))	xNames <- colnames(x)
+  else				xNames <- as.character(formula[[3]])
+  if('(Intercept)' %in% colnames(x)){	
+    ind = which(colnames(x) == '(Intercept)')
+    x <- x[,-ind]
+    xNames <- xNames[-ind]
+  }
+  
+  yMat <- as.matrix(y)[,1:2]
+  
+  if(is(y, "Surv")){
+    rightCens <- mf[,1][,3] == 0
+    yMat[rightCens,2] <- Inf
+    
+    exact <- mf[,1][,3] == 1
+    yMat[exact, 2] = yMat[exact, 1]
+  }
+  storage.mode(yMat) <- 'double'
+  
+  if(sum(is.na(mf)) > 0)
+    stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")
+  
+  testMat <- cbind(x, 1)
+  invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)
+  if(is(invertResult, 'try-error'))
+    stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')
+  
+  callText <- paste(dist, model)
+  
+  if(is.null(weights))	weights = rep(1, nrow(yMat))
+  if(length(weights) != nrow(yMat))	stop('weights improper length!')
+  if(min(weights) < 0)				stop('negative weights not allowed!')
+  if(sum(is.na(weights)) > 0)			stop('cannot have weights = NA')
+  if(is.null(ncol(x))) recenterCovar = FALSE
+  samples <- fit_bayes(yMat, x, parFam = dist, link = model, 
+                     leftCen = 0, rightCen = Inf, uncenTol = 10^-6, 
+                     regnames = xNames, weights = weights,
+                     callText = callText, priorFxn = priorFxn)
+  return(samples)
 }

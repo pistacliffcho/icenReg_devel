@@ -37,9 +37,10 @@ double IC_bayes::computePosteriorLogDens(Eigen::VectorXd &propVec){
 
 //          SAMPLING FUNCTIONs
 void MHBlockUpdater::proposeNewParameters(){
+	proposalParameters.resize(totParams);
 	for(int i = 0; i < totParams; i++){
 		proposalParameters[i] = R::rnorm(0.0, 1.0);
-	}
+	}	
 	proposalParameters = cholDecomp * proposalParameters.transpose() + currentParameters;
 	proposeLogDens = logPostDens(proposalParameters, posteriorCalculator);
 }
@@ -54,7 +55,7 @@ void MHBlockUpdater::acceptOrReject(){
 		currentParameters = proposalParameters;
 	}
 	else{
-		double acceptProb = exp(currentLogDens - proposeLogDens);
+		double acceptProb = exp(proposeLogDens - currentLogDens);
 		double randVal = R::runif(0.0, 1.0);
 		if(randVal < acceptProb){
 			currentLogDens = proposeLogDens;
@@ -64,13 +65,33 @@ void MHBlockUpdater::acceptOrReject(){
 }
 
 void MHBlockUpdater::mcmc(){
+	
+	if(logPostDens == NULL){
+		throw std::range_error("logPostDens pointer not initialized in MHBlockUpdater.\n");
+	}
+	if(posteriorCalculator == NULL){
+		throw std::range_error("posteriorCalculator not initialized in MHBlockUpdater.\n");
+	}
+	
+	currentLogDens = R_NegInf;
+	proposeNewParameters();
+	acceptOrReject();
+
+	
 	savedValues.resize(numSaved, totParams);
+	savedLPD.resize(numSaved);
+	
+	cout << "Starting parameters: \n" << currentParameters << 
+			"\nStarting Chol: \n" << cholDecomp << "\n";
+	
+	
 	int saveCount = 0;
 	for(int i = 0; i < samples; i++){
 		proposeNewParameters();
 		acceptOrReject();
 		if( (i % thin) == 0){
 			savedValues.row(saveCount) = currentParameters;
+			savedLPD[i]                = currentLogDens;
 			saveCount++;
 		}
 		if( (i % iterationsPerUpdate) && updateChol ){
@@ -101,30 +122,26 @@ MHBlockUpdater::MHBlockUpdater(Eigen::VectorXd &initValues, Eigen::MatrixXd &ini
 	this->updateChol = updateChol;		
 	double numSaved_double =((double) samples) / ((double) thin);
 	numSaved = floor(numSaved_double);
-	totParams = currentParameters.size();		  
+	totParams = currentParameters.size();	
+	logPostDens = NULL;	  
+	posteriorCalculator = NULL;
 }
 
 IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
-			  SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
-              SEXP R_uncenInd, SEXP R_gicInd, SEXP R_lInd, SEXP R_rInd,
-              SEXP R_parType, SEXP R_linkType, SEXP R_w)
-              : priorFxn(R_priorFxn){
+				   Rcpp::List R_ic_parList)
+                   : priorFxn(R_priorFxn){
+                   
+    Rcpp::IntegerVector R_linkType = R_ic_parList["linkType"];
     int cLinkType = INTEGER(R_linkType)[0];
     if(cLinkType == 1 || cLinkType == 2){ 
-	    baseIC = new IC_parOpt(R_s_t, R_d_t, R_covars,
-          				       R_uncenInd, R_gicInd, R_lInd, R_rInd,
-               				   R_parType, R_linkType, R_w);
+	    baseIC = new IC_parOpt(R_ic_parList);
     }
     else if(cLinkType == 3){
-    	baseIC = new IC_parOpt_aft(R_s_t, R_d_t, R_covars,
-          				       R_uncenInd, R_gicInd, R_lInd, R_rInd,
-               				   R_parType, R_linkType, R_w);
+    	baseIC = new IC_parOpt_aft(R_ic_parList);
     }
     else{
     	Rprintf("Warning: invalid link type! Setting to aft\n");
-    	baseIC = new IC_parOpt_aft(R_s_t, R_d_t, R_covars,
-          				       R_uncenInd, R_gicInd, R_lInd, R_rInd,
-               				   R_parType, R_linkType, R_w);
+    	baseIC = new IC_parOpt_aft(R_ic_parList);
     }          
     int n_reg_pars = baseIC->betas.size();
     int n_b_pars   = baseIC->b_pars.size();
@@ -136,7 +153,7 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
     Rcpp::IntegerVector R_thin         = R_bayesList["thin"];
     Rcpp::IntegerVector R_it_per_up    = R_bayesList["iterationsPerUpdate"];
     Rcpp::LogicalVector R_updateChol   = R_bayesList["updateChol"];
-    
+
     baseIC->successfulBuild = true;
     if(Rf_isNull(R_useMLE_start)) baseIC->successfulBuild = false;
     if(Rf_isNull(R_samples))      baseIC->successfulBuild = false;
@@ -164,7 +181,8 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
 		baseIC->fillFullHessianAndScore(R_Hessian, R_score);
 		Eigen::MatrixXd eHess;
 		copyRmatrix_intoEigen(R_Hessian, eHess);
-		eChol = eHess.llt().matrixL();            	 	
+		eHess = -eHess.inverse();   
+		eChol =  eHess.llt().matrixL();       	 	
     }
     else{
     	Rprintf("NOTE: ADAPTIVE BLOCK UPDATING IS NOT PROPERLY IMPLEMENTED YET!!!\n");
@@ -185,6 +203,8 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
 				  samples, thin, iterationsPerUpdate,
 				  updateChol);
 	
+	mcmcInfo->logPostDens         = logIC_bayesPostDens;
+	mcmcInfo->posteriorCalculator = this;
 }
 
 IC_bayes::~IC_bayes(){
@@ -198,22 +218,8 @@ IC_bayes::~IC_bayes(){
 Rcpp::List R_ic_bayes(Rcpp::List R_bayesList, Rcpp::Function priorFxn, 
 					  Rcpp::List R_ic_parList){
 	
-	Rcpp::NumericVector R_s_t      = R_ic_parList["R_s_t"];
-	Rcpp::NumericVector R_d_t      = R_ic_parList["R_d_t"];
-	Rcpp::NumericMatrix R_covars   = R_ic_parList["R_covars"];
-	Rcpp::IntegerVector R_uncenInd = R_ic_parList["R_uncenInd"];
-	Rcpp::IntegerVector R_gicInd   = R_ic_parList["R_gicInd"];
-	Rcpp::IntegerVector R_lInd     = R_ic_parList["R_lInd"];
-	Rcpp::IntegerVector R_rInd     = R_ic_parList["R_rInd"];
-	Rcpp::IntegerVector R_parType  = R_ic_parList["R_parType"];
-	Rcpp::IntegerVector R_linkType = R_ic_parList["R_linkType"];
-	Rcpp::NumericVector R_w        = R_ic_parList["R_w"];
-	
-	
-	IC_bayes bayes(R_bayesList, priorFxn,
-			  R_s_t, R_d_t, R_covars,
-              R_uncenInd, R_gicInd, R_lInd, R_rInd,
-              R_parType, R_linkType, R_w);	
+
+    IC_bayes bayes(R_bayesList, priorFxn, R_ic_parList);          
 	
 	if(!bayes.baseIC->successfulBuild){
 		Rprintf("Unsuccessful build of C++ IC_bayes object!\n");
@@ -225,6 +231,6 @@ Rcpp::List R_ic_bayes(Rcpp::List R_bayesList, Rcpp::Function priorFxn,
 	
 	Rcpp::List ans;
 	ans["samples"] = eigen2RMat(bayes.mcmcInfo->savedValues);
-
+	ans["logPosteriorDensity"] = eigen2RVec(bayes.mcmcInfo->savedLPD);
 	return(ans);
 }

@@ -17,3 +17,16 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// R_ic_bayes
+Rcpp::List R_ic_bayes(Rcpp::List R_bayesList, Rcpp::Function priorFxn, Rcpp::List R_ic_parList);
+RcppExport SEXP icenReg_R_ic_bayes(SEXP R_bayesListSEXP, SEXP priorFxnSEXP, SEXP R_ic_parListSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::List >::type R_bayesList(R_bayesListSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type priorFxn(priorFxnSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type R_ic_parList(R_ic_parListSEXP);
+    __result = Rcpp::wrap(R_ic_bayes(R_bayesList, priorFxn, R_ic_parList));
+    return __result;
+END_RCPP
+}

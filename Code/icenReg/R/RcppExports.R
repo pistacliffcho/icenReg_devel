@@ -5,3 +5,7 @@ ic_parList <- function(R_parList) {
     .Call('icenReg_ic_parList', PACKAGE = 'icenReg', R_parList)
 }
 
+R_ic_bayes <- function(R_bayesList, priorFxn, R_ic_parList) {
+    .Call('icenReg_R_ic_bayes', PACKAGE = 'icenReg', R_bayesList, priorFxn, R_ic_parList)
+}
+

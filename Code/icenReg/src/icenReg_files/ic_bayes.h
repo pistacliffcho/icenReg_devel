@@ -9,9 +9,9 @@ class MHBlockUpdater{
 	bool updateChol;
 	double currentLogDens, proposeLogDens;
 	
-	Eigen::VectorXd currentParameters, proposalParameters;
+	Eigen::VectorXd currentParameters, proposalParameters, savedLPD;
 	Eigen::MatrixXd savedValues;
-	Eigen::MatrixXd cholDecomp;
+	Eigen::MatrixXd cholDecomp;	
 	
 	void proposeNewParameters();
 	void acceptOrReject(); 
@@ -36,14 +36,10 @@ class IC_bayes {
 	MHBlockUpdater* mcmcInfo;
 	
 	IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
-			  SEXP R_s_t, SEXP R_d_t, SEXP R_covars,
-              SEXP R_uncenInd, SEXP R_gicInd, SEXP R_lInd, SEXP R_rInd,
-              SEXP R_parType, SEXP R_linkType, SEXP R_w);
+			  Rcpp::List R_ic_parList);
+	
     ~IC_bayes();
 };
 
 double logIC_bayesPostDens(Eigen::VectorXd &propVec, void* void_icBayesPtr);
 
-// [[Rcpp::export]]
-Rcpp::List R_ic_bayes(Rcpp::List R_bayesList, Rcpp::Function priorFxn, 
-					  Rcpp::List R_ic_parList);

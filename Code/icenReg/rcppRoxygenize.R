@@ -1,0 +1,5 @@
+library(Rcpp)
+library(roxygen2)
+setwd("~/Desktop/icenReg_devel/Code/icenReg")
+compileAttributes()
+roxygenize()

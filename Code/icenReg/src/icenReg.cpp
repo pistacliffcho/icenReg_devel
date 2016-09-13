@@ -54,3 +54,7 @@ Rcpp::List ic_par(SEXP R_s_t,     // this is a vector of times for which the bas
 */
 // [[Rcpp::export]]
 Rcpp::List ic_parList(Rcpp::List R_parList);
+
+// [[Rcpp::export]]
+Rcpp::List R_ic_bayes(Rcpp::List R_bayesList, Rcpp::Function priorFxn, 
+					  Rcpp::List R_ic_parList);
