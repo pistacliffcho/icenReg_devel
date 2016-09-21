@@ -1409,7 +1409,8 @@ icqqplot <- function(par_fit){
 #' "\code{po}" (proportional odds) or "\code{aft}" (accelerated failure time)
 #' @param dist        What baseline parametric distribution to use. See details for current choices
 #' @param weights     vector of case weights. Not standardized; see details
-#' @param priorFxn    
+#' @param priorFxn    An R function that computes the prior
+#' @param controls    Control parameters passed to samplers 
 #'
 #' @description Fits a Bayesian regression model for interval censored data. 
 #' Can fita proportional hazards, proportional odds or accelerated failure time model.  
@@ -1438,7 +1439,8 @@ icqqplot <- function(par_fit){
 #' @author Clifford Anderson-Bergman
 #' @export
 ic_bayes <- function(formula, data, priorFxn = function(x) return(0),
-                       model = 'ph', dist = 'weibull', weights = NULL){
+                     model = 'ph', dist = 'weibull', weights = NULL,
+                     controls = bayesControls()){
   if(missing(data)) data <- environment(formula)
   cl <- match.call()
   mf <- match.call(expand.dots = FALSE)
@@ -1489,6 +1491,34 @@ ic_bayes <- function(formula, data, priorFxn = function(x) return(0),
   samples <- fit_bayes(yMat, x, parFam = dist, link = model, 
                      leftCen = 0, rightCen = Inf, uncenTol = 10^-6, 
                      regnames = xNames, weights = weights,
-                     callText = callText, priorFxn = priorFxn)
+                     callText = callText, priorFxn = priorFxn,
+                     bayesList = controls)
   return(samples)
+}
+
+#' Control parameters for ic_bayes
+#' 
+#' @param samples               Number of samples. 
+#' @param useMLE_start          Should MLE used for starting point? Highly recommended
+#' @param burnIn                Number of samples discarded for burn in
+#' @param iterationsPerUpdate   Number of iterations between updates of proposal covariance matrix
+#' @param cholScale             Scalar value to adjust choleski proposal covariance matrix
+#' @param burnIn                Number of burn in samples used
+#' @param updateChol            Should cholesky decomposition be udpated?
+#' @param acceptRate            Target acceptance rate
+#' @export
+bayesControls <- function(samples = 5000, 
+                          useMLE_start = TRUE, burnIn = 2500, 
+                          iterationsPerUpdate = 250,
+                          updateChol = T, acceptRate = 0.44){
+  ans <- list(useMLE_start        = useMLE_start,
+              samples             = samples,
+              thin                = 1,
+              iterationsPerUpdate = iterationsPerUpdate,
+              updateChol          = updateChol,
+              cholScale           = 1,
+              burnIn              = burnIn,
+              acceptRate          = acceptRate
+  )
+  return(ans)
 }

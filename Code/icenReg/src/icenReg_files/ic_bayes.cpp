@@ -23,6 +23,7 @@ double IC_bayes::computeLLK(Eigen::VectorXd &propVec){
 	for(int i = 0; i < regSize; i++){
 		baseIC->betas[i] = propVec[i + baselineSize];
 	}
+	baseIC->update_etas();
 	double ans = baseIC->calcLike_all();
 	return(ans);
 }
@@ -41,18 +42,45 @@ void MHBlockUpdater::proposeNewParameters(){
 	for(int i = 0; i < totParams; i++){
 		proposalParameters[i] = R::rnorm(0.0, 1.0);
 	}	
-	proposalParameters = cholDecomp * proposalParameters.transpose() + currentParameters;
+	proposalParameters = cholDecomp * proposalParameters + currentParameters;
 	proposeLogDens = logPostDens(proposalParameters, posteriorCalculator);
 }
 
-void MHBlockUpdater::updateCholosky(){
-	Rprintf("Not currently working\n");
+void MHBlockUpdater::updateCholesky(){
+
+	int nCols = burnInMat.cols();
+	timesAdapted++;
+	double acceptRate = timesAccepted / timesRan;
+	gamma1 = 1.0/pow(timesAdapted + 3.0, 0.8);
+    double gamma2 = 10.0 * gamma1;
+    double adaptFactor = exp(gamma2 * (acceptRate - optimalAR) );
+    cholScale = cholScale * adaptFactor;
+	
+	double nRows = burnInMat.rows();
+	double colMean;
+	for(int j = 0; j < nCols; j++){
+		colMean = burnInMat.col(j).mean();
+		for(int i = 0; i < nRows; i++){
+			burnInMat(i,j) -= colMean;
+		}	
+	}
+	Eigen::MatrixXd intermMat = burnInMat.adjoint() * burnInMat / (nRows - 1.0);
+	
+	propCov = propCov + gamma1 * (intermMat - propCov);
+	cholDecomp = propCov.llt().matrixL();
+	cholDecomp *= cholScale;
+	
+	timesRan = 0;
+	timesAccepted = 0;
 }
 
 void MHBlockUpdater::acceptOrReject(){
+	timesRan++;
+	if(ISNAN(proposeLogDens)){return;}
 	if(proposeLogDens >= currentLogDens){
 		currentLogDens = proposeLogDens;
 		currentParameters = proposalParameters;
+		timesAccepted++;
 	}
 	else{
 		double acceptProb = exp(proposeLogDens - currentLogDens);
@@ -60,6 +88,7 @@ void MHBlockUpdater::acceptOrReject(){
 		if(randVal < acceptProb){
 			currentLogDens = proposeLogDens;
 			currentParameters = proposalParameters;
+			timesAccepted++;
 		}
 	}
 }
@@ -73,19 +102,28 @@ void MHBlockUpdater::mcmc(){
 		throw std::range_error("posteriorCalculator not initialized in MHBlockUpdater.\n");
 	}
 	
-	currentLogDens = R_NegInf;
+	currentLogDens = logPostDens(currentParameters, posteriorCalculator);
 	proposeNewParameters();
 	acceptOrReject();
-
+	
+	int saveCount = 0;
+	int burnInLoops = burnIn / iterationsPerUpdate;
+	int numberParms = currentParameters.size();
+	burnInMat.resize(iterationsPerUpdate, numberParms );
+	burnInMat *= 0.0;
+	for(int i = 0; i < burnInLoops; i++){
+		for(int j = 0; j < iterationsPerUpdate; j++){
+			proposeNewParameters();
+			acceptOrReject();		
+			burnInMat.row(j) = currentParameters;	
+		}
+		if(updateChol){	updateCholesky(); }
+	}
+	
 	
 	savedValues.resize(numSaved, totParams);
 	savedLPD.resize(numSaved);
 	
-	cout << "Starting parameters: \n" << currentParameters << 
-			"\nStarting Chol: \n" << cholDecomp << "\n";
-	
-	
-	int saveCount = 0;
 	for(int i = 0; i < samples; i++){
 		proposeNewParameters();
 		acceptOrReject();
@@ -93,9 +131,6 @@ void MHBlockUpdater::mcmc(){
 			savedValues.row(saveCount) = currentParameters;
 			savedLPD[i]                = currentLogDens;
 			saveCount++;
-		}
-		if( (i % iterationsPerUpdate) && updateChol ){
-			updateCholosky();
 		}
 	}
 }
@@ -111,20 +146,30 @@ double logIC_bayesPostDens(Eigen::VectorXd &propVec, void* void_icBayesPtr){
 
 
 //		CONSTRUCTOR AND DECONSTRUCTOR FUNCTIONS
-MHBlockUpdater::MHBlockUpdater(Eigen::VectorXd &initValues, Eigen::MatrixXd &initChol,
+MHBlockUpdater::MHBlockUpdater(Eigen::VectorXd &initValues, Eigen::MatrixXd &initCov,
 				  int samples, int thin, int iterationsPerUpdate,
-				  bool updateChol){
-	currentParameters = initValues;
-	cholDecomp = initChol;
-	this->samples = samples;
-	this->thin = thin;
+				  bool updateChol, int burnIn, double cholScale, 
+				  double acceptRate){
+	currentParameters         = initValues;
+	propCov                   = initCov;
+	cholDecomp                = propCov.llt().matrixL();
+	this->samples             = samples;
+	this->thin                = thin;
 	this->iterationsPerUpdate = iterationsPerUpdate;
-	this->updateChol = updateChol;		
-	double numSaved_double =((double) samples) / ((double) thin);
-	numSaved = floor(numSaved_double);
-	totParams = currentParameters.size();	
-	logPostDens = NULL;	  
-	posteriorCalculator = NULL;
+	this->updateChol          = updateChol;		
+	this->burnIn              = burnIn;
+	double numSaved_double    = ((double) samples) / ((double) thin);
+	this->cholScale           = cholScale;
+	numSaved                  = floor(numSaved_double);
+	totParams                 = currentParameters.size();	
+	logPostDens               = NULL;	  
+	posteriorCalculator       = NULL;
+	timesRan                  = 0.0;
+	timesAccepted             = 0.0;
+	gamma1                    = 0.0;
+	optimalAR                 = acceptRate;
+	timesAdapted              = 0.0;
+		
 }
 
 IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
@@ -143,9 +188,10 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
     	Rprintf("Warning: invalid link type! Setting to aft\n");
     	baseIC = new IC_parOpt_aft(R_ic_parList);
     }          
-    int n_reg_pars = baseIC->betas.size();
-    int n_b_pars   = baseIC->b_pars.size();
-     
+    int n_reg_pars  = baseIC->betas.size();
+    int n_b_pars    = baseIC->b_pars.size();
+    int totalParams = n_reg_pars + n_b_pars;
+
     Eigen::MatrixXd eChol;
     
     Rcpp::LogicalVector R_useMLE_start = R_bayesList["useMLE_start"];
@@ -153,22 +199,21 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
     Rcpp::IntegerVector R_thin         = R_bayesList["thin"];
     Rcpp::IntegerVector R_it_per_up    = R_bayesList["iterationsPerUpdate"];
     Rcpp::LogicalVector R_updateChol   = R_bayesList["updateChol"];
-
-    baseIC->successfulBuild = true;
-    if(Rf_isNull(R_useMLE_start)) baseIC->successfulBuild = false;
-    if(Rf_isNull(R_samples))      baseIC->successfulBuild = false;
-    if(Rf_isNull(R_thin))         baseIC->successfulBuild = false;
-    if(Rf_isNull(R_it_per_up))    baseIC->successfulBuild = false;
-    if(Rf_isNull(R_updateChol))   baseIC->successfulBuild = false;
-    
-    if(!baseIC->successfulBuild){ return; }
+    Rcpp::NumericVector R_cholScale    = R_bayesList["cholScale"];
+    Rcpp::IntegerVector R_burnIn       = R_bayesList["burnIn"];
+    Rcpp::NumericVector R_acceptRate   = R_bayesList["acceptRate"];
     
     bool useMLE_start        = LOGICAL(R_useMLE_start)[0] == TRUE;
     int samples              = INTEGER(R_samples)[0];
     int thin                 = INTEGER(R_thin)[0];
     int iterationsPerUpdate  = INTEGER(R_it_per_up)[0];
+    double acceptRate        = REAL(R_acceptRate)[0];
     bool updateChol          = LOGICAL(R_updateChol)[0] == TRUE;
-    
+    double cholScale         = R_cholScale[0];
+    int burnIn               = R_burnIn[0];
+
+	Eigen::MatrixXd propCov;
+
     if(useMLE_start){
         baseIC->optimize();
             	 	
@@ -179,29 +224,33 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
         Rcpp::NumericVector R_score(n_reg_pars + n_b_pars);
         Rcpp::NumericMatrix R_Hessian(n_reg_pars + n_b_pars);
 		baseIC->fillFullHessianAndScore(R_Hessian, R_score);
-		Eigen::MatrixXd eHess;
-		copyRmatrix_intoEigen(R_Hessian, eHess);
-		eHess = -eHess.inverse();   
-		eChol =  eHess.llt().matrixL();       	 	
+		copyRmatrix_intoEigen(R_Hessian, propCov);
+		Eigen::MatrixXd intermMat = -propCov.inverse();   
+		propCov = intermMat;
     }
     else{
-    	Rprintf("NOTE: ADAPTIVE BLOCK UPDATING IS NOT PROPERLY IMPLEMENTED YET!!!\n");
-    	eChol.resize(n_reg_pars + n_b_pars, n_reg_pars + n_b_pars);
-    	eChol *= 0.0;
-    	for(int i = 0; i < (n_reg_pars + n_b_pars); i++){
-    		eChol(i, i) = 1.0;
-    	}
+    	propCov.resize(totalParams, totalParams);
+    	propCov *= 0.0;
+    	for(int i = 0; i < (totalParams); i++){
+    		propCov(i, i) = 0.1;
+    	}	    	
 	}
+		
 	Eigen::VectorXd initPars(n_b_pars + n_reg_pars);
-	for(int i = 0; i < n_b_pars; i++){
-		initPars[i] = baseIC->b_pars[i];
+	if(useMLE_start){
+		for(int i = 0; i < n_b_pars; i++){	
+			initPars[i] = baseIC->b_pars[i];
+		}
+		for(int i = 0; i < n_reg_pars; i++){
+			initPars[i + n_b_pars] = baseIC->betas[i];
+		}
 	}
-	for(int i = 0; i < n_reg_pars; i++){
-		initPars[i + n_b_pars] = baseIC->betas[i];
+	else{
+		for(int i = 0; i < totalParams; i++){ initPars[i] = 0; }
 	}
-	mcmcInfo = new MHBlockUpdater(initPars, eChol,
+	mcmcInfo = new MHBlockUpdater(initPars, propCov,
 				  samples, thin, iterationsPerUpdate,
-				  updateChol);
+				  updateChol, burnIn, cholScale, acceptRate);
 	
 	mcmcInfo->logPostDens         = logIC_bayesPostDens;
 	mcmcInfo->posteriorCalculator = this;

@@ -926,21 +926,14 @@ makeQQFit <- function(fit){
 
 ###   BAYESIAN TOOLS
 
-makeBayesList <- function(){
-  ans <- list(useMLE_start        = TRUE,
-              samples             = 1000,
-              thin                = 1,
-              iterationsPerUpdate = 100,
-              updateChol          = FALSE)
-  return(ans)
-}
 
 
 
 fit_bayes <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', 
                     leftCen = 0, rightCen = Inf, 
                     uncenTol = 10^-6, regnames, 
-                    weights, callText, priorFxn){
+                    weights, callText, priorFxn,
+                    bayesList){
   
 
   parList<- make_par_fitList(y_mat, x_mat, parFam = "gamma", 
@@ -948,9 +941,8 @@ fit_bayes <- function(y_mat, x_mat, parFam = 'gamma', link = 'po',
                              uncenTol = 10^-6, regnames,
                              weights, callText)
   
-  bayesList <- makeBayesList()
-  
-  ans <- R_ic_bayes(bayesList, priorFxn, parList)
-  colnames(ans$samples) = colnames(x_mat)
+  ans                   = R_ic_bayes(bayesList, priorFxn, parList)
+  allParNames           = c(parList$bnames, parList$regnames)
+  colnames(ans$samples) = colnames(allParNames)
   return(ans)
 }

@@ -5,7 +5,7 @@
 \title{Bayesian Regression  Models for Interval Censored Data}
 \usage{
 ic_bayes(formula, data, priorFxn = function(x) return(0), model = "ph",
-  dist = "weibull", weights = NULL)
+  dist = "weibull", weights = NULL, controls = bayesControls())
 }
 \arguments{
 \item{formula}{Regression formula. Response must be a \code{Surv} object of type
@@ -13,7 +13,7 @@ ic_bayes(formula, data, priorFxn = function(x) return(0), model = "ph",
 
 \item{data}{Dataset}
 
-\item{priorFxn}{}
+\item{priorFxn}{An R function that computes the prior}
 
 \item{model}{What type of model to fit. Current choices are "\code{ph}" (proportional hazards), 
 "\code{po}" (proportional odds) or "\code{aft}" (accelerated failure time)}
@@ -21,6 +21,8 @@ ic_bayes(formula, data, priorFxn = function(x) return(0), model = "ph",
 \item{dist}{What baseline parametric distribution to use. See details for current choices}
 
 \item{weights}{vector of case weights. Not standardized; see details}
+
+\item{controls}{Control parameters passed to samplers}
 }
 \description{
 Fits a Bayesian regression model for interval censored data. 
