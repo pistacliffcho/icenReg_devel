@@ -234,88 +234,14 @@ fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po',
                     uncenTol = 10^-6, regnames, 
                     weights, callText){
 
-# 	recenterCovar <- FALSE
-# 	k_reg <- getNumCovars(x_mat)
-# 	if(k_reg > 0)	recenterCovar <- TRUE
-# 	etaOffset = 0
-# 	if(!is.matrix(x_mat))
-# 		x_mat <- matrix(x_mat, ncol = 1)
-# 	if(recenterCovar == TRUE){
-# 		prcomp_xmat <- prcomp(x_mat, center = TRUE, scale. = TRUE)
-# 		x_mat <- prcomp_xmat$x
-# 	}
-# 	
-# 	isUncen <- abs(y_mat[,2] - y_mat[,1]) < uncenTol
-# 	mean_uncen_t <- (y_mat[isUncen,1] + y_mat[isUncen,2])/2
-# 	y_mat[isUncen,1] <- mean_uncen_t
-# 	y_mat[isUncen,2] <- mean_uncen_t
-# 	isRightCen <- y_mat[,2] == rightCen
-# 	isLeftCen <- y_mat[,1]  <= leftCen
-# 	isGCen <- !(isUncen | isRightCen | isLeftCen)
-# 	
-# 	if(any(isRightCen & isUncen))	stop('estimator not defined if left side of interval = 0')
-# 	if(any(isLeftCen & isUncen))	stop('uncensored times cannot be equal = 0. Try replacing exact times = 0 with really small numbers')
-# 	if(any(y_mat[,1] > y_mat[,2]))	stop('left side of interval cannot be larger than right!')
-# 	
-# 	s_t <- unique( as.numeric(y_mat) )
-# 	uncenInd_s <- match(y_mat[isUncen, 1], s_t)
-# 	d_t <- unique(s_t[uncenInd_s])
-# 	uncenInd_d <- match(y_mat[isUncen, 1], d_t)
-# 	uncenInd_mat <- as.matrix(cbind(uncenInd_d, uncenInd_s))
-# 	
-# 	rightCenInd <- match(y_mat[isRightCen,1], s_t)
-# 	leftCenInd <- match(y_mat[isLeftCen,2], s_t)
-# 	
-# 	leftSideInd <- match(y_mat[isGCen, 1], s_t)
-# 	rightSideInd <- match(y_mat[isGCen, 2], s_t)
-# 	
-# 	gicInd_mat <- as.matrix(cbind(leftSideInd, rightSideInd))
-# 	
-# 	w_reordered <- c(weights[isUncen], weights[isGCen], weights[isLeftCen], weights[isRightCen])
-# 	
-# 	if(is.matrix(x_mat)	){
-# 		if(ncol(x_mat) > 1)	x_mat_rearranged <- rbind(x_mat[isUncen,], x_mat[isGCen,], x_mat[isLeftCen,], x_mat[isRightCen,])
-# 		else				x_mat_rearranged <- matrix(c(x_mat[isUncen], x_mat[isGCen], x_mat[isLeftCen], x_mat[isRightCen]), ncol = 1)
-# 	}
-# 	else if(length(x_mat) != 0)		x_mat_rearranged <- matrix(c(x_mat[isUncen], x_mat[isGCen], x_mat[isLeftCen], x_mat[isRightCen]), ncol = 1)
-# 	else							x_mat_rearranged <- matrix(ncol = 0, nrow = nrow(x_mat))
-# 	storage.mode(x_mat_rearranged) <- 'double'
-# 	x_mat_rearranged <- as.matrix(x_mat_rearranged)	
-# 	
-# 	if(k_reg == 0)	x_mat_rearranged <- matrix(nrow = nrow(x_mat), ncol = k_reg)
-# 		
-# 	#regnames = colnames(x_mat_rearranged)
-# 	if(parFam == 'gamma') {parInd = as.integer(1); k_base = 2; bnames = c('log_shape', 'log_scale')}
-# 	else if(parFam == 'weibull') {parInd = as.integer(2); k_base = 2; bnames = c('log_shape', 'log_scale')}
-# 	else if(parFam == 'lnorm') {parInd = as.integer(3); k_base = 2; bnames = c('mu', 'log_s')}
-# 	else if(parFam == 'exponential') {parInd = as.integer(4); k_base = 1; bnames = 'log_scale'}
-# 	else if(parFam == 'loglogistic') {parInd = as.integer(5); k_base = 2; bnames = c('log_alpha', 'log_beta')}
-#   else if(parFam == 'generalgamma') {parInd = as.integer(6); k_base = 3; bnames = c('mu', 'log_s', 'Q')}
-# 	else stop('parametric family not supported')
-# 
-# 	hessnames = c(bnames, regnames)
-# 	
-# 	if(link == 'po') linkInd = as.integer(1)
-# 	else if (link == 'ph') linkInd = as.integer(2)
-# 	else if (link == 'aft') linkInd = as.integer(3)
-# 	else stop('link function not supported')
-# 	
-# 	hessian <- matrix(numeric(), nrow = (k_reg + k_base), ncol = (k_reg + k_base))
-	
-  parList<- make_par_fitList(y_mat, x_mat, parFam = "gamma", 
-                               link = "po", leftCen = 0, rightCen = Inf,
-                               uncenTol = 10^-6, regnames,
-                               weights, callText)
+  parList<- make_par_fitList(y_mat, x_mat, parFam = parFam, 
+                               link = link, leftCen = leftCen, rightCen = rightCen,
+                               uncenTol = uncenTol, regnames = regnames,
+                               weights = weights, callText = callText)
   
-  
-# 	c_fit <- .Call('ic_par', s_t, d_t, x_mat_rearranged,
-# 				uncenInd_mat, parList$gicInd_mat, leftCenInd, rightCenInd,
-# 				parInd, linkInd, hessian, as.numeric(w_reordered) )
-
   c_fit <- ic_parList(parList)
   								
-#	names(c_fit) <- c('reg_pars', 'baseline', 'llk', 'iterations', 'hessian', 'score')
-	
+
 	fit <- new(callText)
 	fit$reg_pars      <- c_fit$reg_pars
 	fit$baseline      <- c_fit$baseline
@@ -940,9 +866,44 @@ fit_bayes <- function(y_mat, x_mat, parFam = 'gamma', link = 'po',
                              link = "po", leftCen = 0, rightCen = Inf,
                              uncenTol = 10^-6, regnames,
                              weights, callText)
+
+  c_fit                  = R_ic_bayes(bayesList, priorFxn, parList)
+  allParNames            = c(parList$bnames, parList$regnames)
+  mat_samples            = c_fit$samples 
+  colnames(mat_samples)  = allParNames
+  mcmc_samples           = mcmc(mat_samples, thin = bayesList$thin)
+  logPostDens            = c_fit$logPosteriorDensity
+  colnames(mcmc_samples) = allParNames
   
-  ans                   = R_ic_bayes(bayesList, priorFxn, parList)
-  allParNames           = c(parList$bnames, parList$regnames)
-  colnames(ans$samples) = colnames(allParNames)
+
+  
+  nBase    <-  length(parList$bnames)
+  nRegPar  <-  length(parList$reg_pars)
+  
+  fit <- new(callText)
+  fit$baseline      <- colMeans(mat_samples[ ,1:nBase])
+  fit$reg_pars      <- colMeans(mat_samples[ ,nBase + 1:nRegPar])
+  fit$nSamples      <- nrow(mat_samples)
+  fit$var           <- cov(mat_samples)
+  fit$samples       <- mcmc_samples
+  fit$ess           <- coda::effectiveSize(mcmc_samples)
+  
+  names(fit$reg_pars)    <- parList$regnames
+  names(fit$baseline)    <- parList$bnames
+  fit$coefficients <- c(fit$baseline, fit$reg_pars)
+
+  return(fit)
+}
+
+
+formula_has_plus <- function(form){
+  form_char <- as.character(form)
+  return("+" %in% form_char)
+}
+
+getFactorFromData <- function(formExpression, data){
+  form_char <- as.character(formExpression)
+  if(form_char[1] == 'factor') form_char = form_char[2]
+  ans <- as.factor(data[[form_char]])
   return(ans)
 }

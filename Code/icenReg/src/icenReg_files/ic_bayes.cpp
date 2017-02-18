@@ -68,7 +68,6 @@ void MHBlockUpdater::updateCholesky(){
 	
 	propCov = propCov + gamma1 * (intermMat - propCov);
 	cholDecomp = propCov.llt().matrixL();
-	cholDecomp *= cholScale;
 	
 	timesRan = 0;
 	timesAccepted = 0;
@@ -129,7 +128,7 @@ void MHBlockUpdater::mcmc(){
 		acceptOrReject();
 		if( (i % thin) == 0){
 			savedValues.row(saveCount) = currentParameters;
-			savedLPD[i]                = currentLogDens;
+			savedLPD[saveCount]        = currentLogDens;
 			saveCount++;
 		}
 	}
@@ -160,7 +159,7 @@ MHBlockUpdater::MHBlockUpdater(Eigen::VectorXd &initValues, Eigen::MatrixXd &ini
 	this->burnIn              = burnIn;
 	double numSaved_double    = ((double) samples) / ((double) thin);
 	this->cholScale           = cholScale;
-	numSaved                  = floor(numSaved_double);
+	numSaved                  = ceil(numSaved_double);
 	totParams                 = currentParameters.size();	
 	logPostDens               = NULL;	  
 	posteriorCalculator       = NULL;
@@ -199,7 +198,7 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
     Rcpp::IntegerVector R_thin         = R_bayesList["thin"];
     Rcpp::IntegerVector R_it_per_up    = R_bayesList["iterationsPerUpdate"];
     Rcpp::LogicalVector R_updateChol   = R_bayesList["updateChol"];
-    Rcpp::NumericVector R_cholScale    = R_bayesList["cholScale"];
+    Rcpp::NumericVector R_cholScale    = R_bayesList["initSD"];
     Rcpp::IntegerVector R_burnIn       = R_bayesList["burnIn"];
     Rcpp::NumericVector R_acceptRate   = R_bayesList["acceptRate"];
     
@@ -232,7 +231,7 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
     	propCov.resize(totalParams, totalParams);
     	propCov *= 0.0;
     	for(int i = 0; i < (totalParams); i++){
-    		propCov(i, i) = 0.1;
+    		propCov(i, i) = cholScale;
     	}	    	
 	}
 		

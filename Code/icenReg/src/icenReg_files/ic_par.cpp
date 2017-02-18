@@ -134,11 +134,11 @@ void IC_parOpt::calc_baseline_dervs(){
         for(int i = 0; i < k; i++){
             b_pars[i] += h;
             lk_h[i] = calcLike_all();
-            b_pars[i] -= 2 * h;
+            b_pars[i] -= 2.0 * h;
             lk_l[i] = calcLike_all();
             b_pars[i] += h;
-            d_b_pars[i] = (lk_h[i] - lk_l[i])/(2 * h);
-            d2_b_pars(i,i) = (lk_h[i] + lk_l[i] - 2*lk_0) / (h*h);
+            d_b_pars[i] = (lk_h[i] - lk_l[i])/(2.0 * h);
+            d2_b_pars(i,i) = (lk_h[i] + lk_l[i] - 2.0*lk_0) / (h*h);
         
             if(lk_h[i] == R_NegInf || lk_l[i] == R_NegInf){
                 bad_derv = true;
@@ -156,12 +156,12 @@ void IC_parOpt::calc_baseline_dervs(){
                 b_pars[i] += h;
                 b_pars[j] += h;
                 lk_hh = calcLike_all();
-                b_pars[i] -= 2 * h;
-                b_pars[j] -= 2 * h;
+                b_pars[i] -= 2.0 * h;
+                b_pars[j] -= 2.0 * h;
                 lk_ll = calcLike_all();
                 b_pars[i] += h;
                 b_pars[j] += h;
-                rho = (lk_hh + lk_ll + 2 * lk_0 - lk_h[i] - lk_h[j] - lk_l[i] - lk_l[j])/(2 * h * h);
+                rho = (lk_hh + lk_ll + 2.0 * lk_0 - lk_h[i] - lk_h[j] - lk_l[i] - lk_l[j])/(2.0 * h * h);
                 d2_b_pars(i,j) = rho;
                 d2_b_pars(j,i) = rho;
             }
@@ -274,12 +274,12 @@ void IC_parOpt::numericCovar_dervs(){
         betas[i] += h;
         update_etas();
         lk_h[i] = calcLike_baseReady();
-        betas[i] -= 2 * h;
+        betas[i] -= 2.0 * h;
         update_etas();
         lk_l[i] = calcLike_baseReady();
         betas[i] += h;
-        d_betas[i] = (lk_h[i] - lk_l[i])/(2 * h);
-        d2_betas(i,i) = (lk_h[i] + lk_l[i] - 2*lk_0) / (h*h);
+        d_betas[i] = (lk_h[i] - lk_l[i])/(2.0 * h);
+        d2_betas(i,i) = (lk_h[i] + lk_l[i] - 2.0 *lk_0) / (h*h);
     }
     double lk_ll, lk_hh, rho;
     for(int i = 0; i < k; i++){
@@ -289,13 +289,13 @@ void IC_parOpt::numericCovar_dervs(){
                 betas[j] += h;
                 update_etas();
                 lk_hh = calcLike_baseReady();
-                betas[i] -= 2 * h;
-                betas[j] -= 2 * h;
+                betas[i] -= 2.0 * h;
+                betas[j] -= 2.0 * h;
                 update_etas();
                 lk_ll = calcLike_baseReady();
                 betas[i] += h;
                 betas[j] += h;
-                rho = (lk_hh + lk_ll + 2 * lk_0 - lk_h[i] - lk_h[j] - lk_l[i] - lk_l[j])/(2 * h * h);
+                rho = (lk_hh + lk_ll + 2 * lk_0 - lk_h[i] - lk_h[j] - lk_l[i] - lk_l[j])/(2.0 * h * h);
                 d2_betas(i,j) = rho;
                 d2_betas(j,i) = rho;
             }
@@ -315,11 +315,11 @@ void IC_parOpt::fillFullHessianAndScore(SEXP r_mat, SEXP score){
     for(int i = 0; i < k_base; i++){
         b_pars[i] += h;
         lk_h[i] = calcLike_all();
-        b_pars[i] -= 2 * h;
+        b_pars[i] -= 2.0 * h;
         lk_l[i] = calcLike_all();
         b_pars[i] += h;
-        REAL(r_mat)[i + i * k_tot] = (lk_h[i] + lk_l[i] - 2 * lk_0)/(h*h);
-        REAL(score)[i] = (lk_h[i] - lk_l[i])/(2*h);
+        REAL(r_mat)[i + i * k_tot] = (lk_h[i] + lk_l[i] - 2.0 * lk_0)/(h*h);
+        REAL(score)[i] = (lk_h[i] - lk_l[i])/(2.0*h);
     }
     calculate_baseline_probs();
     int i_tot;
@@ -328,12 +328,12 @@ void IC_parOpt::fillFullHessianAndScore(SEXP r_mat, SEXP score){
         betas[i] += h;
         update_etas();
         lk_h[i_tot] = calcLike_baseReady();
-        betas[i] -= 2*h;
+        betas[i] -= 2.0 * h;
         update_etas();
         lk_l[i_tot] = calcLike_baseReady();
         betas[i] += h;
-        REAL(r_mat)[i_tot + i_tot * k_tot] = (lk_l[i_tot] + lk_h[i_tot] - 2*lk_0)/(h * h);
-        REAL(score)[i_tot] = (lk_h[i_tot] - lk_l[i_tot])/(2*h);
+        REAL(r_mat)[i_tot + i_tot * k_tot] = (lk_l[i_tot] + lk_h[i_tot] - 2.0 * lk_0)/(h * h);
+        REAL(score)[i_tot] = (lk_h[i_tot] - lk_l[i_tot])/(2.0 * h);
 
     }
     update_etas();
@@ -351,11 +351,11 @@ void IC_parOpt::fillFullHessianAndScore(SEXP r_mat, SEXP score){
                 update_etas();
                 lk_hh = calcLike_all();
 
-                if(i <k_base)   {   b_pars[i] -= 2*h;}
-                else            {   betas[i - k_base] -= 2*h;}
+                if(i <k_base)   {   b_pars[i] -= 2.0 * h;}
+                else            {   betas[i - k_base] -= 2.0 * h;}
                 
-                if(j < k_base)  {   b_pars[j] -= 2*h;}
-                else            {   betas[j - k_base] -= 2*h;};
+                if(j < k_base)  {   b_pars[j] -= 2.0 * h;}
+                else            {   betas[j - k_base] -= 2.0 * h;};
                 update_etas();
                 lk_ll = calcLike_all();
 
@@ -400,7 +400,7 @@ void IC_parOpt::NR_reg_pars(){
         tries++;
         for(int i = 0; i < k; i++)
             d2_betas(i,i) -= delta;
-        delta *= 2;
+        delta *= 2.0;
         esolve.compute(d2_betas);
         if(esolve.info() == Eigen::Success)
             evals = esolve.eigenvalues();
@@ -686,6 +686,7 @@ Rcpp::List ic_parList(Rcpp::List R_parList){
     IC_parOpt* optObj;
     
     Rcpp::IntegerVector linkType = R_parList["linkType"];
+        
     if(INTEGER(linkType)[0] == 1 || INTEGER(linkType)[0] == 2){
     	optObj = new IC_parOpt(R_parList);
     }

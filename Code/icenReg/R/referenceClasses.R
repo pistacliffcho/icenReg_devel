@@ -42,6 +42,7 @@ ic_ph <- setRefClass(Class = 'ic_ph',
 ic_po <- setRefClass(Class = 'ic_po',
                      contains = 'sp_fit')
 
+
 par_fit <- setRefClass(Class = 'par_fit',
                        contains = 'icenReg_fit',
                        fields = c('baseline',
@@ -49,13 +50,25 @@ par_fit <- setRefClass(Class = 'par_fit',
                                   'pca_hessian'
                                   ))
 
+bayes_fit <- setRefClass(Class = 'bayes_fit',
+                         contains = 'icenReg_fit',
+                         fields = c('samples',
+                                    'baseline',
+                                    'logPosteriorDensities',
+                                    'nSamples',
+                                    'ess'))
+
+
 surv_trans_models <- c('po', 'ph', 'aft', 'none')
 parametricFamilies <- c('exponential', 'weibull', 'gamma', 'lnorm', 'loglogistic', 'generalgamma')
 
 for(mod in surv_trans_models){
-  for(fam in parametricFamilies)
+  for(fam in parametricFamilies){
     setRefClass(Class = paste(fam, mod, sep = " "),
                 contains = 'par_fit')
+    setRefClass(Class = paste(fam, mod, 'bayes', sep = " "),
+              contains = 'bayes_fit')
+  }  
 }
 
 

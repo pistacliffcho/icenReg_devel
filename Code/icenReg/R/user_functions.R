@@ -1335,16 +1335,15 @@ ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,1)
   
   
   formFactor <- formula[[3]]
-  if( length(formFactor) != 1 ){ 
+  if( formula_has_plus(formFactor) ){ 
     stop('predictor must be either single factor OR 0 for ic_np')
   }
   if(formFactor == 0){ return(ic_npSINGLE(yMat, maxIter = maxIter, tol = tol, B = B)) }
-  thisFactor <- data[[ as.character(formFactor) ]]
+#  thisFactor <- data[[ as.character(formFactor) ]]
+  thisFactor <- getFactorFromData(formFactor, data)
   if(!is.factor(thisFactor)){ stop('predictor must be factor') }
-  
   theseLevels <- levels(thisFactor)
   fitList <- list()
-  
   for(thisLevel in theseLevels){
     thisData <- yMat[thisFactor == thisLevel, ]
     if(nrow(thisData) > 0)
@@ -1481,7 +1480,7 @@ ic_bayes <- function(formula, data, priorFxn = function(x) return(0),
   if(is(invertResult, 'try-error'))
     stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')
   
-  callText <- paste(dist, model)
+  callText <- paste(dist, model, 'bayes')
   
   if(is.null(weights))	weights = rep(1, nrow(yMat))
   if(length(weights) != nrow(yMat))	stop('weights improper length!')
@@ -1493,7 +1492,9 @@ ic_bayes <- function(formula, data, priorFxn = function(x) return(0),
                      regnames = xNames, weights = weights,
                      callText = callText, priorFxn = priorFxn,
                      bayesList = controls)
-  return(samples)
+  ans <- new(callText)
+  postMeans <- colMeans(samples)
+  return(ans)
 }
 
 #' Control parameters for ic_bayes
@@ -1502,21 +1503,22 @@ ic_bayes <- function(formula, data, priorFxn = function(x) return(0),
 #' @param useMLE_start          Should MLE used for starting point? Highly recommended
 #' @param burnIn                Number of samples discarded for burn in
 #' @param iterationsPerUpdate   Number of iterations between updates of proposal covariance matrix
-#' @param cholScale             Scalar value to adjust choleski proposal covariance matrix
-#' @param burnIn                Number of burn in samples used
-#' @param updateChol            Should cholesky decomposition be udpated?
+#' @param initSD                If \code{useMLE_start == FALSE}, initial standard deviation used 
+#' @param updateChol            Should cholesky decomposition be updated?
 #' @param acceptRate            Target acceptance rate
+#' @param thin                  Amount of thinning
 #' @export
-bayesControls <- function(samples = 5000, 
+bayesControls <- function(samples = 10000, 
                           useMLE_start = TRUE, burnIn = 2500, 
-                          iterationsPerUpdate = 250,
-                          updateChol = T, acceptRate = 0.44){
+                          iterationsPerUpdate = 250, initSD = 0.1,
+                          updateChol = T, acceptRate = 0.44,
+                          thin = 1){
   ans <- list(useMLE_start        = useMLE_start,
               samples             = samples,
-              thin                = 1,
+              thin                = thin,
               iterationsPerUpdate = iterationsPerUpdate,
               updateChol          = updateChol,
-              cholScale           = 1,
+              initSD              = initSD,
               burnIn              = burnIn,
               acceptRate          = acceptRate
   )
