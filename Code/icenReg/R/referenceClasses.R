@@ -59,7 +59,9 @@ bayes_fit <- setRefClass(Class = 'bayes_fit',
                                     'baseline',
                                     'logPosteriorDensities',
                                     'nSamples',
-                                    'ess'))
+                                    'ess',
+                                    'logPrior',
+                                    'finalChol'))
 
 
 surv_trans_models <- c('po', 'ph', 'aft', 'none')
@@ -98,18 +100,23 @@ setRefClass('icenRegSummary',
                 baseline <<- fit$par
                 colNames <- c('Estimate', 'Exp(Est)', 'Std.Error', 'z-value', 'p')
                 coefs <- fit$coefficients
-                sumPars <- matrix(nrow = length(coefs), ncol = length(colNames))
-                se <- sqrt(diag(fit$var))
-                for(i in seq_along(coefs)){
-                  sumPars[i,1] <- coefs[i]
-                  sumPars[i,2] <- exp(coefs[i])
-                  sumPars[i,3] <- se[i]
-                  sumPars[i,4] <- coefs[i]/se[i]
-                  sumPars[i,5] <- 2 * (1 - pnorm(abs(sumPars[i,4])))
+                if(is(fit, 'bayes_fit')){
+                  sumPars <- summary(fit$samples)
                 }
-                colnames(sumPars) <- colNames
-                rownames(sumPars) <- names(coefs)
-                sumPars <- signif(sumPars, sigFigs)
+                else{
+                  sumPars <- matrix(nrow = length(coefs), ncol = length(colNames))
+                  se <- sqrt(diag(fit$var))
+                  for(i in seq_along(coefs)){
+                    sumPars[i,1] <- coefs[i]
+                    sumPars[i,2] <- exp(coefs[i])
+                    sumPars[i,3] <- se[i]
+                    sumPars[i,4] <- coefs[i]/se[i]
+                    sumPars[i,5] <- 2 * (1 - pnorm(abs(sumPars[i,4])))
+                  }
+                  colnames(sumPars) <- colNames
+                  rownames(sumPars) <- names(coefs)
+                  sumPars <- signif(sumPars, sigFigs)
+                }
                 summaryParameters <<- sumPars
                 call <<- fit$call
                 llk <<- fit$llk
@@ -150,7 +157,7 @@ setRefClass('icenRegSummary',
                 }
                 if(is.character(printMat)) { cat(printMat)}
                 else{print(printMat)}
-                cat('\nfinal llk = ', llk, '\nIterations = ', iterations, '\n')
+                if(!inherits(fullFit, 'bayes_fit')) cat('\nfinal llk = ', llk, '\nIterations = ', iterations, '\n')
                 if(inherits(fullFit, 'sp_fit') & !inherits(fullFit, 'ic_np')) cat('Bootstrap Samples = ', other[['bs_samps']], '\n')
                 if(sampSizeWarn){
                   cat("WARNING: only ", other[['bs_samps']], " bootstrap samples used for standard errors. \nSuggest using more bootstrap samples for inference\n")

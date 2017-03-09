@@ -4,8 +4,9 @@
 \alias{bayesControls}
 \title{Control parameters for ic_bayes}
 \usage{
-bayesControls(samples = 5000, useMLE_start = TRUE, burnIn = 2500,
-  iterationsPerUpdate = 250, updateChol = T, acceptRate = 0.44)
+bayesControls(samples = 10001, useMLE_start = TRUE, burnIn = 2499,
+  iterationsPerUpdate = 250, initSD = 0.1, updateChol = T,
+  acceptRate = 0.44, thin = 5)
 }
 \arguments{
 \item{samples}{Number of samples.}
@@ -16,13 +17,13 @@ bayesControls(samples = 5000, useMLE_start = TRUE, burnIn = 2500,
 
 \item{iterationsPerUpdate}{Number of iterations between updates of proposal covariance matrix}
 
-\item{updateChol}{Should cholesky decomposition be udpated?}
+\item{initSD}{If \code{useMLE_start == FALSE}, initial standard deviation used}
+
+\item{updateChol}{Should cholesky decomposition be updated?}
 
 \item{acceptRate}{Target acceptance rate}
 
-\item{cholScale}{Scalar value to adjust choleski proposal covariance matrix}
-
-\item{burnIn}{Number of burn in samples used}
+\item{thin}{Amount of thinning}
 }
 \description{
 Control parameters for ic_bayes

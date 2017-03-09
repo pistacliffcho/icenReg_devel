@@ -46,25 +46,27 @@ void MHBlockUpdater::proposeNewParameters(){
 	proposeLogDens = logPostDens(proposalParameters, posteriorCalculator);
 }
 
-void MHBlockUpdater::updateCholesky(){
-
-	int nCols = burnInMat.cols();
+void MHBlockUpdater::updateCholesky(Eigen::MatrixXd valMat){
+	int nCols = valMat.cols();
 	timesAdapted++;
 	double acceptRate = timesAccepted / timesRan;
 	gamma1 = 1.0/pow(timesAdapted + 3.0, 0.8);
     double gamma2 = 10.0 * gamma1;
     double adaptFactor = exp(gamma2 * (acceptRate - optimalAR) );
     cholScale = cholScale * adaptFactor;
-	
-	double nRows = burnInMat.rows();
+		
 	double colMean;
+	double denom = valMat.rows();
+	int nRows = valMat.rows();
 	for(int j = 0; j < nCols; j++){
-		colMean = burnInMat.col(j).mean();
+		colMean = 0;
+		for(int k = 0; k < nRows; k++){ colMean += valMat(k, j); }
+		colMean = colMean / denom;
 		for(int i = 0; i < nRows; i++){
-			burnInMat(i,j) -= colMean;
+			valMat(i,j) -= colMean;
 		}	
 	}
-	Eigen::MatrixXd intermMat = burnInMat.adjoint() * burnInMat / (nRows - 1.0);
+	Eigen::MatrixXd intermMat = xtx(valMat, 0, nRows - 1) / (denom - 1.0);
 	
 	propCov = propCov + gamma1 * (intermMat - propCov);
 	cholDecomp = propCov.llt().matrixL();
@@ -101,6 +103,10 @@ void MHBlockUpdater::mcmc(){
 		throw std::range_error("posteriorCalculator not initialized in MHBlockUpdater.\n");
 	}
 	
+	timesRan      = 0;
+	timesAccepted = 0;
+	timesAdapted  = 0;
+	
 	currentLogDens = logPostDens(currentParameters, posteriorCalculator);
 	proposeNewParameters();
 	acceptOrReject();
@@ -116,7 +122,7 @@ void MHBlockUpdater::mcmc(){
 			acceptOrReject();		
 			burnInMat.row(j) = currentParameters;	
 		}
-		if(updateChol){	updateCholesky(); }
+		if(updateChol){	updateCholesky(burnInMat); }
 	}
 	
 	
@@ -130,6 +136,12 @@ void MHBlockUpdater::mcmc(){
 			savedValues.row(saveCount) = currentParameters;
 			savedLPD[saveCount]        = currentLogDens;
 			saveCount++;
+		}
+		if( ((i % iterationsPerUpdate) == 0) & updateChol & i > iterationsPerUpdate){ 
+			Eigen::MatrixXd recentVals = copyRows(savedValues, 
+												 saveCount - iterationsPerUpdate - 1, 
+												 saveCount - 1); 
+			updateCholesky(recentVals); 
 		}
 	}
 }
@@ -280,5 +292,6 @@ Rcpp::List R_ic_bayes(Rcpp::List R_bayesList, Rcpp::Function priorFxn,
 	Rcpp::List ans;
 	ans["samples"] = eigen2RMat(bayes.mcmcInfo->savedValues);
 	ans["logPosteriorDensity"] = eigen2RVec(bayes.mcmcInfo->savedLPD);
+	ans["finalChol"] = eigen2RMat(bayes.mcmcInfo->propCov);
 	return(ans);
 }

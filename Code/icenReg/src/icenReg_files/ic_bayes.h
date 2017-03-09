@@ -21,7 +21,7 @@ class MHBlockUpdater{
 	
 	void proposeNewParameters();
 	void acceptOrReject(); 
-	void updateCholesky();
+	void updateCholesky(Eigen::MatrixXd valMat);
 	void mcmc();
 	
 	MHBlockUpdater(Eigen::VectorXd &initValues, Eigen::MatrixXd &initCov,

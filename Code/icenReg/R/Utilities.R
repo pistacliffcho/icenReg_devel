@@ -249,7 +249,8 @@ fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po',
 	fit$iterations    <- c_fit$iterations
 	fit$hessian       <- c_fit$hessian
 	fit$score         <- c_fit$score
-
+  fit$par           <- parFam
+  
 	recenterCovar <- FALSE
 	if(recenterCovar == TRUE){
 		fit$pca_coefs <- fit$reg_pars
@@ -858,36 +859,40 @@ makeQQFit <- function(fit){
 fit_bayes <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', 
                     leftCen = 0, rightCen = Inf, 
                     uncenTol = 10^-6, regnames, 
-                    weights, callText, priorFxn,
-                    bayesList){
+                    weights, callText, logPriorFxn,
+                    bayesList, modelName){
   
 
-  parList<- make_par_fitList(y_mat, x_mat, parFam = "gamma", 
+  parList<- make_par_fitList(y_mat, x_mat, parFam = parFam, 
                              link = "po", leftCen = 0, rightCen = Inf,
                              uncenTol = 10^-6, regnames,
                              weights, callText)
 
-  c_fit                  = R_ic_bayes(bayesList, priorFxn, parList)
+  c_fit                  = R_ic_bayes(bayesList, logPriorFxn, parList)
   allParNames            = c(parList$bnames, parList$regnames)
   mat_samples            = c_fit$samples 
   colnames(mat_samples)  = allParNames
-  mcmc_samples           = mcmc(mat_samples, thin = bayesList$thin)
+  mcmc_samples           = mcmc(mat_samples, 
+                                thin = bayesList$thin, 
+                                start = bayesList$burnIn + 1)
   logPostDens            = c_fit$logPosteriorDensity
   colnames(mcmc_samples) = allParNames
   
-
+  nBase             <- length(parList$bnames)
+  nRegPar           <- length(parList$regnames)
   
-  nBase    <-  length(parList$bnames)
-  nRegPar  <-  length(parList$reg_pars)
-  
-  fit <- new(callText)
+  fit <- new(modelName)
+  fit$par           <- parFam
   fit$baseline      <- colMeans(mat_samples[ ,1:nBase])
   fit$reg_pars      <- colMeans(mat_samples[ ,nBase + 1:nRegPar])
   fit$nSamples      <- nrow(mat_samples)
   fit$var           <- cov(mat_samples)
   fit$samples       <- mcmc_samples
+  fit$logPosteriorDensities <- logPostDens
   fit$ess           <- coda::effectiveSize(mcmc_samples)
-  
+  fit$call          <- callText
+  fit$logPrior      <- logPriorFxn
+  fit$finalChol      <- c_fit$finalChol
   names(fit$reg_pars)    <- parList$regnames
   names(fit$baseline)    <- parList$bnames
   fit$coefficients <- c(fit$baseline, fit$reg_pars)

@@ -10,16 +10,16 @@ hemoReady$R[ hemoReady$d3 == 1] <- Inf
 cnts <- bayesControls(useMLE_start = F, 
                       acceptRate = 0.33,
                       updateChol = T, 
-                      burnIn = 2000, 
-                      iterationsPerUpdate = 200, 
-                      samples = 10000)
+                      burnIn = 5000, 
+                      iterationsPerUpdate = 500, 
+                      thin = 1,
+                      samples = 20000)
 
 pFit <- ic_par(cbind(L, R) ~ Low + Medium + High, data = hemoReady)
 bFit <- ic_bayes(cbind(L, R) ~ Low + Medium + High, data = hemoReady, controls = cnts)
-mcmcSamps <- mcmc( bFit$samples )
-effectiveSize(mcmcSamps)
-#plot(mcmcSamps)
-
+summary(bFit)
+plot(bFit$samples)
+plot(bFit$logPosteriorDensities, type = 'l')
 
 cnts1 <- bayesControls(samples = 10^4 * 5)
 cnts2 <- bayesControls(samples = 10^4 * 5, useMLE_start = F, updateChol = T)

@@ -592,3 +592,43 @@ int findSurroundingVals(double val, vector<double>& leftVec,
 	if( isLeft ) return(b); 
 	return(a);
 }
+
+Eigen::MatrixXd xtx(Eigen::MatrixXd &x){
+	int nCols = x.cols();
+	int nRows = x.rows();
+	Eigen::MatrixXd ans(nCols, nCols);
+	for(int i = 0; i < nCols; i++){
+		for(int j = 0; j <= i; j++){
+			ans(i,j) = 0;
+			for(int r = 0; r < nRows; r++){ ans(i,j) += x(r, i) * x(r, j);}
+			ans(j,i) = ans(i,j);
+		}
+	}
+	return(ans);
+}
+
+Eigen::MatrixXd xtx(Eigen::MatrixXd &x, int row_start, int row_end){
+	int nCols = x.cols();
+	Eigen::MatrixXd ans(nCols, nCols);
+	for(int i = 0; i < nCols; i++){
+		for(int j = 0; j <= i; j++){
+			ans(i,j) = 0;
+			for(int r = row_start; r < row_end; r++){ ans(i,j) += x(r, i) * x(r, j);}
+			ans(j,i) = ans(i,j);
+		}
+	}
+	return(ans);
+}
+
+Eigen::MatrixXd copyRows(Eigen::MatrixXd &x, int row_start, int row_end){
+	int nCols = x.cols();
+	int nRows = row_end - row_start + 1;
+	
+	Eigen::MatrixXd ans(nRows, nCols);
+	int cur_row = 0;
+	for(int i = row_start; i <= row_end; i++){
+		ans.row(cur_row) = x.row(i);
+		cur_row++;
+	}
+	return(ans);
+}

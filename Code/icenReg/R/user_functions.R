@@ -1401,21 +1401,27 @@ icqqplot <- function(par_fit){
 
 #' Bayesian Regression  Models for Interval Censored Data
 #' 
-#' @param formula     Regression formula. Response must be a \code{Surv} object of type
+#' @param formula        Regression formula. Response must be a \code{Surv} object of type
 #'  \code{'interval2'} or \code{cbind}. See details.
-#' @param data        Dataset
-#' @param model       What type of model to fit. Current choices are "\code{ph}" (proportional hazards), 
+#' @param data           Dataset
+#' @param model          What type of model to fit. Current choices are "\code{ph}" (proportional hazards), 
 #' "\code{po}" (proportional odds) or "\code{aft}" (accelerated failure time)
-#' @param dist        What baseline parametric distribution to use. See details for current choices
-#' @param weights     vector of case weights. Not standardized; see details
-#' @param priorFxn    An R function that computes the prior
-#' @param controls    Control parameters passed to samplers 
+#' @param dist           What baseline parametric distribution to use. See details for current choices
+#' @param weights        vector of case weights. Not standardized; see details
+#' @param logPriorFxn    An R function that computes the log prior
+#' @param controls       Control parameters passed to samplers 
 #'
 #' @description Fits a Bayesian regression model for interval censored data. 
 #' Can fita proportional hazards, proportional odds or accelerated failure time model.  
 #'
 #' @details Currently supported distributions choices are "exponential", "weibull", "gamma", 
 #' "lnorm", "loglogistic" and "generalgamma" (i.e. generalized gamma distribution). 
+#'
+#' The \code{logPriorFxn} should taken in the a vector of values corresponding to \emph{all}
+#' the parameters of the model (baseline parameters first, regression parameters second) and returns the
+#' log prior, calculated up to an additive constant. Default behavior is to use a flat prior. 
+#' See examples for an example of using the log prior function.
+#'
 #'
 #' Response variable should either be of the form \code{cbind(l, u)} or \code{Surv(l, u, type = 'interval2')}, 
 #' where \code{l} and \code{u} are the lower and upper ends of the interval known to contain the event of interest. 
@@ -1434,10 +1440,31 @@ icqqplot <- function(par_fit){
 #' For numeric stability, if abs(right - left) < 10^-6, observation are considered 
 #' uncensored rather than interval censored with an extremely small interval. 
 #' @examples
-#'
+#' data(miceData)
+#' 
+#' flat_prior_model <- ic_bayes(cbind(l, u) ~ grp, data = miceData)
+#' # Default behavior is flat prior
+#' 
+#' priorFxn <- function(pars){
+#'  ans <- 0
+#'  ans <- ans + dnorm(pars[1], log = T)
+#'  ans <- ans + dnorm(pars[3], sd = 0.25, log = T)
+#' }
+#' # Prior function puts N(0,1) prior on baseline shape parameter (first parameter)
+#' # flat prior on baseline scale parameter (second parameter)
+#' # and N(0,0.25) on regression parameter (third parameter)
+#' 
+#' inform_prior_fit <- ic_bayes(cbind(l, u) ~ grp, 
+#'                              data = miceData,
+#'                              logPriorFxn = priorFxn)
+#' 
+#' summary(flat_prior_model)
+#' summary(inform_prior_fit)
+#' # Note tight prior on the regression pulls posterior mean toward 0
+#' 
 #' @author Clifford Anderson-Bergman
 #' @export
-ic_bayes <- function(formula, data, priorFxn = function(x) return(0),
+ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
                      model = 'ph', dist = 'weibull', weights = NULL,
                      controls = bayesControls()){
   if(missing(data)) data <- environment(formula)
@@ -1480,20 +1507,22 @@ ic_bayes <- function(formula, data, priorFxn = function(x) return(0),
   if(is(invertResult, 'try-error'))
     stop('covariate matrix is computationally singular! Make sure not to add intercept to model, also make sure every factor has observations at every level')
   
-  callText <- paste(dist, model, 'bayes')
+  modelName <- paste(dist, model, 'bayes')
+  callText <- cl
   
   if(is.null(weights))	weights = rep(1, nrow(yMat))
   if(length(weights) != nrow(yMat))	stop('weights improper length!')
   if(min(weights) < 0)				stop('negative weights not allowed!')
   if(sum(is.na(weights)) > 0)			stop('cannot have weights = NA')
   if(is.null(ncol(x))) recenterCovar = FALSE
-  samples <- fit_bayes(yMat, x, parFam = dist, link = model, 
+  ans <- fit_bayes(yMat, x, parFam = dist, link = model, 
                      leftCen = 0, rightCen = Inf, uncenTol = 10^-6, 
                      regnames = xNames, weights = weights,
-                     callText = callText, priorFxn = priorFxn,
-                     bayesList = controls)
-  ans <- new(callText)
-  postMeans <- colMeans(samples)
+                     callText = callText, logPriorFxn = logPriorFxn,
+                     bayesList = controls, modelName = modelName)
+  ans$model = model
+  ans$terms <- mt
+  ans$xlevels <- .getXlevels(mt, mf)
   return(ans)
 }
 
@@ -1508,11 +1537,11 @@ ic_bayes <- function(formula, data, priorFxn = function(x) return(0),
 #' @param acceptRate            Target acceptance rate
 #' @param thin                  Amount of thinning
 #' @export
-bayesControls <- function(samples = 10000, 
-                          useMLE_start = TRUE, burnIn = 2500, 
+bayesControls <- function(samples = 10001, 
+                          useMLE_start = TRUE, burnIn = 2499, 
                           iterationsPerUpdate = 250, initSD = 0.1,
                           updateChol = T, acceptRate = 0.44,
-                          thin = 1){
+                          thin = 5){
   ans <- list(useMLE_start        = useMLE_start,
               samples             = samples,
               thin                = thin,

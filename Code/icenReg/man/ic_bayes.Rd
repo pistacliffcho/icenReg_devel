@@ -4,7 +4,7 @@
 \alias{ic_bayes}
 \title{Bayesian Regression  Models for Interval Censored Data}
 \usage{
-ic_bayes(formula, data, priorFxn = function(x) return(0), model = "ph",
+ic_bayes(formula, data, logPriorFxn = function(x) return(0), model = "ph",
   dist = "weibull", weights = NULL, controls = bayesControls())
 }
 \arguments{
@@ -13,7 +13,7 @@ ic_bayes(formula, data, priorFxn = function(x) return(0), model = "ph",
 
 \item{data}{Dataset}
 
-\item{priorFxn}{An R function that computes the prior}
+\item{logPriorFxn}{An R function that computes the log prior}
 
 \item{model}{What type of model to fit. Current choices are "\code{ph}" (proportional hazards), 
 "\code{po}" (proportional odds) or "\code{aft}" (accelerated failure time)}
@@ -31,6 +31,12 @@ Can fita proportional hazards, proportional odds or accelerated failure time mod
 \details{
 Currently supported distributions choices are "exponential", "weibull", "gamma", 
 "lnorm", "loglogistic" and "generalgamma" (i.e. generalized gamma distribution). 
+
+The \code{logPriorFxn} should taken in the a vector of values corresponding to \emph{all}
+the parameters of the model (baseline parameters first, regression parameters second) and returns the
+log prior, calculated up to an additive constant. Default behavior is to use a flat prior. 
+See examples for an example of using the log prior function.
+
 
 Response variable should either be of the form \code{cbind(l, u)} or \code{Surv(l, u, type = 'interval2')}, 
 where \code{l} and \code{u} are the lower and upper ends of the interval known to contain the event of interest. 
@@ -50,6 +56,27 @@ For numeric stability, if abs(right - left) < 10^-6, observation are considered
 uncensored rather than interval censored with an extremely small interval.
 }
 \examples{
+data(miceData)
+
+flat_prior_model <- ic_bayes(cbind(l, u) ~ grp, data = miceData)
+# Default behavior is flat prior
+
+priorFxn <- function(pars){
+ ans <- 0
+ ans <- ans + dnorm(pars[1], log = T)
+ ans <- ans + dnorm(pars[3], sd = 0.25, log = T)
+}
+# Prior function puts N(0,1) prior on baseline shape parameter (first parameter)
+# flat prior on baseline scale parameter (second parameter)
+# and N(0,0.25) on regression parameter (third parameter)
+
+inform_prior_fit <- ic_bayes(cbind(l, u) ~ grp, 
+                             data = miceData,
+                             logPriorFxn = priorFxn)
+
+summary(flat_prior_model)
+summary(inform_prior_fit)
+# Note tight prior on the regression pulls posterior mean toward 0
 
 }
 \author{
