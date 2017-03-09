@@ -22,6 +22,9 @@ icenReg_fit <- setRefClass(Class = 'icenReg_fit',
                          },
                          getRawData = function(){
                            return(.self$.dataEnv$data)
+                         },
+                         initialize = function(...){
+                           makeActiveBinding('coef', function(){return(coefficients)} ,.self)
                          }
                        )
                        )

@@ -50,13 +50,13 @@
       -\log(S_T(t))$
   \end{itemize}
 
-  The survival function is easiest to interpret: $S_T(t)$ represents the probability of survival (if the outcome of interest is death) up to time $t$. This value is a probability, so we always have that $S(t) \in [0,1]$. Likewise, $S$ is necessarily a decreasing (but not strictly decreasing) function. 
+  The survival function is easiest to interpret: $S_T(t)$ represents the probability of survival (if the outcome of interest is death) up to time $t$. This value is a probability, so we always have that $S(t) \in [0,1]$. Likewise, $S$ is necessarily a decreasing (but not strictly decreasing) function. Two common assumptions are that $S(0) = 1$, i.e., event times must be strictly positive, and $S(\infty) = 0$, i.e., an event will eventually happen with probability 1. 
+
   
   The hazard function is slightly more awkward to interpret: it is the failure rate at time $t$ conditional on survival up to time $t$. Although the hazard function is mostly motivated by the regression model built around it, in some ways the hazard function may be more relevant than the pdf/pmf for certain situations. For example, if a patient goes to a doctor to assess their risk of heart disease, they are interested in their hazard rate (given that they have not suffered heart disease), rather than the estimated pdf/pmf. The hazard function is non-negative, but not to be confused with a pdf/pmf; the integral/sum is not bounded by 1. 
   
   The cumulative hazard function does not have a nice interpretation, but proves to be mathematically convienent in many problems. It is a non-negative function. 
 
-  By definition, $S$ must be a decreasing function. Two common assumptions are that $S(0) = 1$, i.e., event times must be strictly positive, and $S(\infty) = 0$, i.e., an event will eventually happen with probability 1. 
 
 \subsection{What is Censoring?}
 
@@ -103,7 +103,7 @@
   A special case of interval censoring is current status data. This occurs when each subject is only inspected a single time. If the event has already occurred at the time of inspection, that subject is left censored, otherwise it is right censored. Data may be collected in this manner for cost effectiveness (no need to follow patients) or because inspection may alter the samples. As an example, sensitivity analysis for explosives involves testing new materials at different levels of impact. It is assumed that for each sample, impacts above a certain threshold will always trigger the explosive, below this threshold will never trigger the explsives, and that this threshold is random for each sample. After a failed test (i.e., failed to detonate), the sample will be damaged and is no longer suited for retesting. This results in current status data; instead of time, the exposure measurement is force of impact. If a sample failed to detonate at its tested level, it is right censored. If a sample successfully detonated, it is left censored. 
 
   \subsection{Censoring and the likelihood function}
-
+  \label{sec:llk}
   We cover the case of right censoring in detail and state the results for left censoring and interval censoring. 
   
   As stated above, for each subject there exists a response time $T_i$ and a censoring time $C_i$. The tuple $\{Y_i, \delta_i\}$ is observed for each subject. Defining $f_{T, C}(t, c, \Theta)$ to be the joint pdf of $T_i$ and $C_i$, conditional on some parameters set $\Theta$, we can write the joint pdf of $\{Y_i, \delta_i\}$ 
@@ -192,7 +192,7 @@ data("IR_diabetes")
 head(IR_diabetes)
 @
 
-Note that some of this data is recorded as exact observations, such as subjects 2 and 4, and some as intervals. This is a result of the frequency of doctor checkups. A very important standard assumption to consider is that doctor checkups are indepedent of event time. This may be a questionable assumption in this case. 
+Note that some of this data is recorded as exact observations, such as subjects 2 and 4, and some as intervals. This is a result of the frequency of doctor checkups. 
 
 
 \section{Fundamental survival estimators}
@@ -290,9 +290,23 @@ npmle_fit <- ic_np(cbind(left, right) ~ gender,
 plot(npmle_fit, col = c('purple', 'orange') )
 @
 
-We note that visually, there appears to be no issue with representational non-uniqueness in this example. This is due to the many ties in the data, which collapse the Turnbull intervals down to a single point. 
+We note that visually, there appears to be no issue with representational non-uniqueness in this example. This is due to the many ties in the data, which collapse the Turnbull intervals down to a single point for any given $t$. 
+
+  \subsubsection{Parametric Models}
+
+  Using the likelihood functions presented in \ref{sec:llk}, standard fully parametric maximum likelihood (MLE) or Bayesian models can be fit for censored data. Typically parametric families use include the exponential distribution, Weibull, gamma, log-normal and log-logisitic to name a few. Note that for all these models, $S(0) = 1$, a standard assumption in survival analysis. This assumption is not ne
+  
+  In partice, the single parameter exponential distribution 
 
   \subsection{Regression models}
+  
+  Generalized linear models (GLM's) have the relation that 
+  
+  \[
+  E[y_i | x_i, \beta] = g(x_i \beta)
+  \]
+  
+  where $g$ is the link function connecting the linear predictor ($x_i \beta$) to the conditional mean of $y_i$. Traditional survival regression models 
   
     \subsubsection{Cox proportional hazards}
     
