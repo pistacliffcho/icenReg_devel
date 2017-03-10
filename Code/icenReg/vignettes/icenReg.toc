@@ -7,8 +7,9 @@
 \contentsline {subsection}{\numberline {2.1}Non-parametric models}{5}
 \contentsline {subsection}{\numberline {2.2}Semi-parametric models}{6}
 \contentsline {subsection}{\numberline {2.3}Parametric Models}{8}
-\contentsline {section}{\numberline {3}Inspecting model fit}{9}
-\contentsline {subsection}{\numberline {3.1}Examining Baseline Distribution}{9}
-\contentsline {subsection}{\numberline {3.2}Examining Covariate Effect}{11}
-\contentsline {section}{\numberline {4}Appendix}{12}
-\contentsline {subsection}{\numberline {4.1}Parallel Bootstrapping}{12}
+\contentsline {subsubsection}{\numberline {2.3.1}Bayesian Parametric Models}{9}
+\contentsline {section}{\numberline {3}Inspecting model fit}{14}
+\contentsline {subsection}{\numberline {3.1}Examining Baseline Distribution}{14}
+\contentsline {subsection}{\numberline {3.2}Examining Covariate Effect}{15}
+\contentsline {section}{\numberline {4}Appendix}{17}
+\contentsline {subsection}{\numberline {4.1}Parallel Bootstrapping}{17}

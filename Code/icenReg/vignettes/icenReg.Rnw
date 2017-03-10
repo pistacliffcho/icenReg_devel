@@ -1,3 +1,6 @@
+
+
+
 %\VignetteIndexEntry{Using icenReg}
 
 \documentclass[a4paper]{article}
@@ -30,7 +33,7 @@
 
 \section{Introduction}
 
-This manual is meant to provide an introduction to using {\bf icenReg} to analyze interval censored data. It is written with expectation that the reader is familiar with basic survival analysis methods. Familiarity with the Kaplan Meier curves and Cox proportional hazards model should be sufficient. 
+This manual is meant to provide an introduction to using {\bf icenReg} to analyze interval censored data. It is written with expectation that the reader is familiar with basic survival analysis methods. Familiarity with the Kaplan Meier curves, survival regression models (Cox PH, AFT and proportional odds) and basic Bayesian principles should be sufficient for all that is covered in this text.
 
 \subsection{Interval Censoring}
 
@@ -39,9 +42,9 @@ Interval censoring occurs when a response is known only up to an interval. A cla
   
 Often interval censoring is ignored in analysis. For example, age is usually reported only up to the year, rather than as a continuous variable; when a subject reports that their age is 33, the information we have is really that their age is in the interval [33,34). In the case that these intervals are very short relative to the question of interest, such as with reported age when the scientific quesiton is about age of onset of type II diabetes, the bias introduced by ignoring the interval censoring may besmall enough to be safely ignored. However, in the case that the width of intervals is non-trivial, statistical methods that account for this should be used for reliable analysis. 
   
-Standard notation for interval censoring is that each subject has a true event time $t_i$ which is potentially unobserved. Rather, we observe a response interval $l_i,r_i$ such that the true event time is known to have occurred within. Default behavior is to assume this an half open, half closed interval, i.e. $t_i \in (l_i, r_i]$. Whether the boundaries of the interval are included or not can be controled by the option \texttt{B} in the model fitting functions. An exception to this notation is that $(t_i, t_i]$ always implies that event $i$ is uncensored with event time at $t_i$, despite this being an undefined interval. This allows for uncensored observations ($l_i = r_i$), right censored($r_i = \infty$), left censored ($l_i = 0$) or none of the above ($0 < l_i < r_i < \infty$). 
+Standard notation for interval censoring is that each subject has a true event time $t_i$ which is potentially unobserved. Rather, we observe a response interval $l_i,r_i$ such that the true event time is known to have occurred within. Default behavior is to assume this an half open, half closed interval, i.e. $t_i \in (l_i, r_i]$\footnote{In {\bf icenReg}, whether the boundaries of the interval are included or not can be controlled by the option \texttt{B} in the model fitting functions.}. An exception to the rule in this notation is that $(t_i, t_i]$ always implies that event $i$ is uncensored with event time at $t_i$, despite this being an undefined interval. This allows for uncensored observations ($l_i = r_i$), right censored($r_i = \infty$), left censored ($l_i = 0$) or none of the above ($0 < l_i < r_i < \infty$). 
   
-In {\bf icenReg}, the response value is allowed to be interval censored. If our data contains the values \texttt{L} and \texttt{R}, representing the left and right sides of the response interval, we can pass our response to a regression model using either
+In {\bf icenReg}, several models are included in which the response value is allowed to be interval censored. If our data contains the values \texttt{L} and \texttt{R}, representing the left and right sides of the response interval, we can pass our response to a regression model using either
   
 \begin{verbatim}
 cbind(L, R)
@@ -67,7 +70,7 @@ where $h(t | X, \beta)$ is the hazard rate conditional on covariates $X$ and reg
   
 where $S(t| X, \beta)$ is the conditional survival and $S_o(t)$ is the baseline survival function. 
   
-The less known proportional odds model can be expressed as
+The somewhat less common proportional odds model can be expressed as
   
 \[\text{Odds}(S(t | X, \beta)) = e^{X^T \beta} \text{Odds}(S_o(t)) \]
 \begin{center}  
@@ -76,7 +79,7 @@ The less known proportional odds model can be expressed as
 \[ \frac{S(t | X, \beta)} {1 - S(t | X, \beta) } = e^{X^T \beta}\frac{S_o(t)} {1 - S_o(t)} \]
   
   
-Unlike the special example of the Cox PH model with right-censored data, the baseline parameters \emph{must} be estimated concurrently with the regression parameters. The model can be kept semi-parametric (i.e. no need to decide on a parametric baseline distribution) by using the Turnbull estimator, modified to account for the given regression model, as the baseline distribution. The semi-parametric model can be computationally very difficult, as the number of baseline parameters can be quite high (up to $n$), which must follow shape constraints (i.e. either a set of probability masses or a cumulative hazard function, which must be strictly increasing) and there is no closed form solution to either regression or baseline parameters. One of the contribution the algorithms in {\bf icenReg} make to the field of statistical computing is efficient computation of the non-parametric and semi-parametric estimators, allowing for relatively efficient estimation on standard computers (\emph{i.e.} less than one second) of relatively large samples ($n$ = 10,000 for the semi-paramtric model, $n$ = 100,000 for the non-parametric model), although the semi-parametric models are still significantly slower than fully-parametric models. 
+Unlike the special example of the Cox PH model with right-censored data, it is very difficult to estimate the regression parameters without estimating the baseline distribution\footnote{Methods to estimate the regression parameters without estimating the baseline parameters have been proposed, but at great computational cost without any clear statistical benefit.}. The model can be kept semi-parametric (i.e. no need to decide on a parametric baseline distribution) by using the Turnbull estimator, modified to account for the given regression model, as the baseline distribution. The semi-parametric model can be computationally very difficult, as the number of baseline parameters can be quite high (up to $n$), which must follow shape constraints (i.e. either a set of probability masses or a cumulative hazard function, which must be strictly increasing) and there is no closed form solution to either regression or baseline parameters. One of the contribution the algorithms in {\bf icenReg} make to the field of statistical computing is efficient computation of the non-parametric and semi-parametric estimators, allowing for relatively efficient estimation on standard computers (\emph{i.e.} less than one second) of relatively large samples ($n$ = 10,000 for the semi-paramtric model, $n$ = 100,000 for the non-parametric model), although the semi-parametric models are still significantly slower than fully-parametric models. 
   
   
 Fully parametric models exist as well and can be calculated using fairly standard algorithms. In addition to the proportional hazards and odds models, the accelerated failure time  model can be used for parameteric modeling. These models have the following relationship:  
@@ -202,10 +205,10 @@ We fit the model below. Note that this may be time consuming, as the semi-parame
   
 <<>>=
   fit_ph <- ic_sp(cbind(left, right) ~ gender, model = 'ph', 
-                  bs_samples = 100, data = IR_diabetes)
+                  bs_samples = 10, data = IR_diabetes)
       
   fit_po <- ic_sp(cbind(left, right) ~ gender, model = 'po',
-                  bs_samples = 100, data = IR_diabetes)
+                  bs_samples = 10, data = IR_diabetes)
 @
 
 The first model by default fits a Cox-PH model, while the second fits a proportional odds model. We can look at the results using either the \texttt{summary} function, or just directly looking at the results (what is displayed is the same). 
@@ -253,6 +256,89 @@ fit_po_gamma
   
 <<fig = TRUE, height = 5.5, width = 5.5>>=
 plot(fit_po_gamma, newdata, lgdLocation = "topright")
+@
+
+  \subsubsection{Bayesian Parametric Models}
+  
+  The option for parametric Bayesian models is also permitted in {\bf icenReg} with the \texttt{ic\_bayes} function. If a flat prior is desired, the use is exactly identical to \texttt{ic\_par}. 
+  
+<<>>=
+flatPrior_fit <- ic_bayes(cbind(left, right) ~ gender,
+    data = IR_diabetes, model = "aft", dist = "gamma")
+@  
+
+The standard methods work in the same manner as other {\bf icenReg} fits, although the basic output looks fairly different.
+
+<<>>=
+flatPrior_fit
+@
+
+User that want access to the raw samples can do so through the \texttt{\$samples}
+field. 
+
+<<>>=
+head(flatPrior_fit$samples)  
+@
+
+This object is of class \texttt{mcmc} from the \texttt{coda} package. 
+
+The log posterior density at each iteration can be accessed through the \texttt{\$logPosteriorDensities} field. 
+
+<<>>=
+head(flatPrior_fit$logPosteriorDensities)  
+@
+
+
+Plotting calls are as standard. Important note: this plots the MAP estimates of the survival curve for a subject with given covariates, \emph{not} the posterior mean estimates!
+
+<<fig = TRUE, height = 5.5, width = 5.5>>=
+  plot(flatPrior_fit, newdata)
+@
+
+MCMC diagnositic plots can be generated by accessing the \texttt{\$samples} field. 
+
+<<fig = TRUE, height = 7.5, width = 7.5>>=
+  plot(flatPrior_fit$samples)
+@
+
+As noted earlier, default behavior is to use a flat prior. If a user wants to use an informative prior, they can provide whichever custom writen prior they choose. This function must take in a vector of values corresponding to all the parameters of the model (i.e. first baseline parameters and then regression parameters) and return the log-prior, calculated up to a additive constant. 
+
+This is illustrated with an example where we decide to put a tight prior about the shape parameter (i.e. first baseline parameter) and the regression parameter, and a diffuse prior about the scale parameter. 
+
+<<>>=
+ logPriorFunction <- function(x){
+   ans <- 0 
+   ans <- ans + dnorm(x[1], sd = 0.1, log = T)
+   # Tight prior about 1st parameter, log_shape
+   ans <- ans + dnorm(x[2], sd = 10, log = T)
+   # Diffuse prior about 2nd parameter, log_scale
+   ans <- ans + dnorm(x[3], sd = 0.1, log = T)
+   # Tight prior about 3rd parameter, regression parameter
+   return(ans)
+ }    
+  
+informPrior_fit <- ic_bayes(cbind(left, right) ~ gender,
+    data = IR_diabetes, model = "aft", dist = "gamma",
+    logPriorFxn = logPriorFunction)
+# Fitting model with prior. 
+
+informPrior_fit
+@
+
+Note that posterior mean for \texttt{log\_scale} is pulled down significantly. 
+
+Default behavior for \texttt{ic\_bayes} is to use an adaptive MH block updater, started from the MLE (not MAP) estimate to seed the starting point of the chain and starting proposal covariance. The proposal covariance is updated as more samples are taken. This should work well with informative likelihoods and relatively weak priors. On the other hand, it can be quite problematic with weak likelihoods and relatively strong priors. In such cases, a user may prefer to turn off the MLE initialization. This can be done with \texttt{bayesControl} function. 
+
+<<fig = TRUE, height = 7.5, width = 7.5>>=
+weak_data <- IR_diabetes[1:2,]
+weakData_fit <- ic_bayes(cbind(left, right) ~ gender,
+    data = weak_data,
+    model = "aft", dist = "gamma",
+    logPriorFxn = logPriorFunction,
+    controls = bayesControls(useMLE_start = F))
+
+plot(weakData_fit$samples)
+
 @
 
 \section{Inspecting model fit}

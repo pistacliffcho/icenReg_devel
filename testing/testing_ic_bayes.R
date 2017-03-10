@@ -1,5 +1,4 @@
 library(icenReg)
-library(coda)
 library(ICsurv)
 data("Hemophilia")
 data(miceData)
@@ -11,15 +10,27 @@ cnts <- bayesControls(useMLE_start = F,
                       acceptRate = 0.33,
                       updateChol = T, 
                       burnIn = 5000, 
-                      iterationsPerUpdate = 500, 
+                      iterationsPerUpdate = 100, 
                       thin = 1,
-                      samples = 20000)
+                      samples = 5000)
 
 pFit <- ic_par(cbind(L, R) ~ Low + Medium + High, data = hemoReady)
 bFit <- ic_bayes(cbind(L, R) ~ Low + Medium + High, data = hemoReady, controls = cnts)
-summary(bFit)
-plot(bFit$samples)
-plot(bFit$logPosteriorDensities, type = 'l')
+summary(bFit) 
+#plot(bFit$samples)
+#plot(bFit$logPosteriorDensities, type = 'l')
+plot(pFit, col = 'blue', lwd = 2)
+lines(bFit, col = 'purple', lwd = 2)
+
+plot(bFit, col = 'blue', lwd = 2)
+lines(pFit, col = 'purple', lwd = 2)
+
+newVals <- data.frame(Low = c(0, 1), Medium = c(1,0), High = c(0,0))
+rownames(newVals) <- c('Medium', 'Low')
+
+plot(pFit, newVals, lwd = 3, col = 'brown', plot_legend = F)
+#lines(pFit, newVals, lwd = 2, col = 'red')
+
 
 cnts1 <- bayesControls(samples = 10^4 * 5)
 cnts2 <- bayesControls(samples = 10^4 * 5, useMLE_start = F, updateChol = T)

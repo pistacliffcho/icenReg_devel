@@ -4,7 +4,7 @@ class MHBlockUpdater{
 	// pointer to a function that calculates log posterior density 
 	// for a given set of parameters
 	
-	int samples, thin, iterationsPerUpdate, totParams, numSaved,
+	int samples, thin, samplesPerUpdate, totParams, numSaved,
 		burnIn;
 	void *posteriorCalculator;
 	bool updateChol;
@@ -25,7 +25,7 @@ class MHBlockUpdater{
 	void mcmc();
 	
 	MHBlockUpdater(Eigen::VectorXd &initValues, Eigen::MatrixXd &initCov,
-				  int samples, int thin, int iterationsPerUpdate,
+				  int samples, int thin, int samplesPerUpdate,
 				  bool updateChol, int burnIn, double cholScale, 
 				  double acceptRate);	
 };

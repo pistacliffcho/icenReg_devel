@@ -3,6 +3,8 @@ UPDATES:
 
 v1.3.7
 Added coef active binding for regression models (i.e. fit$coef is allowed)
+Fixed issue with fitting model with no regression parameters
+Reorganized code files
 
 v1.3.6
 Allow for declaration of whether intervals are open or closed for 
@@ -12,7 +14,7 @@ Uses Roxygen for man files
 
 v1.3.5
 Added parametric AFT models
-fixed bug in plot.icenRegFit regarding xlim and ylim for semiparamtric model
+fixed bug in plot.icenRegFit regarding xlim and ylim for semiparametric model
 sped up ic_sp
 added vignette
 

@@ -29,24 +29,24 @@ icenReg_fit <- setRefClass(Class = 'icenReg_fit',
                        )
                        )
 
-sp_fit <- setRefClass(Class = 'sp_fit',
+sp_fit_class <- setRefClass(Class = 'sp_fit',
                       contains = 'icenReg_fit',
                       fields = c('p_hat',
                                  'T_bull_Intervals',
                                  'bsMat', 
                                  'coef_bc'))
 
-ic_np <- setRefClass(Class = 'ic_np', 
+ic_np_class <- setRefClass(Class = 'ic_np', 
                      contains = 'sp_fit')
 
-ic_ph <- setRefClass(Class = 'ic_ph',
+ic_ph_class <- setRefClass(Class = 'ic_ph',
                      contains = 'sp_fit')
 
-ic_po <- setRefClass(Class = 'ic_po',
+ic_po_class <- setRefClass(Class = 'ic_po',
                      contains = 'sp_fit')
 
 
-par_fit <- setRefClass(Class = 'par_fit',
+par_class <- setRefClass(Class = 'par_fit',
                        contains = 'icenReg_fit',
                        fields = c('baseline',
                                   'hessian',
@@ -61,7 +61,10 @@ bayes_fit <- setRefClass(Class = 'bayes_fit',
                                     'nSamples',
                                     'ess',
                                     'logPrior',
-                                    'finalChol'))
+                                    'finalChol', 
+                                    'MAP_ind',
+                                    'MAP_reg_pars',
+                                    'MAP_baseline'))
 
 
 surv_trans_models <- c('po', 'ph', 'aft', 'none')
@@ -93,15 +96,19 @@ setRefClass('icenRegSummary',
               initialize = function(fit){
                 sigFigs <<- 4
                 fullFit <<- fit
+                otherList <- list()
                 if(fit$model == 'ph') model <<- 'Cox PH'
                 if(fit$model == 'po') model <<- 'Proportional Odds'
                 if(fit$model == 'aft') model <<- 'Accelerated Failure Time'
                 if(fit$model == 'none') model <<- 'Non-parametric'
+                if(inherits(fit, 'bayes_fit')) model <<- paste("Bayesian", model)
                 baseline <<- fit$par
                 colNames <- c('Estimate', 'Exp(Est)', 'Std.Error', 'z-value', 'p')
                 coefs <- fit$coefficients
                 if(is(fit, 'bayes_fit')){
                   sumPars <- summary(fit$samples)
+                  otherList[['MAP']] <- signif( fullFit$samples[fullFit$MAP_ind,], sigFigs)
+#                  names(otherList[['MAP']]) <- colnames(fullFit$samples)
                 }
                 else{
                   sumPars <- matrix(nrow = length(coefs), ncol = length(colNames))
@@ -121,7 +128,6 @@ setRefClass('icenRegSummary',
                 call <<- fit$call
                 llk <<- fit$llk
                 iterations <<- fit$iterations
-                otherList <- list()
                 if(inherits(fit, 'sp_fit') & !inherits(fit, 'ic_np')){
                   otherList[['bs_samps']] <- max(c(nrow(fit$bsMat),0))
                 }
@@ -159,6 +165,10 @@ setRefClass('icenRegSummary',
                 else{print(printMat)}
                 if(!inherits(fullFit, 'bayes_fit')) cat('\nfinal llk = ', llk, '\nIterations = ', iterations, '\n')
                 if(inherits(fullFit, 'sp_fit') & !inherits(fullFit, 'ic_np')) cat('Bootstrap Samples = ', other[['bs_samps']], '\n')
+                if(inherits(fullFit, 'bayes_fit')){
+                  cat('3. MAP estimates:\n') 
+                  print( other[['MAP']] )
+                }
                 if(sampSizeWarn){
                   cat("WARNING: only ", other[['bs_samps']], " bootstrap samples used for standard errors. \nSuggest using more bootstrap samples for inference\n")
                 }

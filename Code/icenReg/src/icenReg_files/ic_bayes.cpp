@@ -60,7 +60,7 @@ void MHBlockUpdater::updateCholesky(Eigen::MatrixXd valMat){
 	int nRows = valMat.rows();
 	for(int j = 0; j < nCols; j++){
 		colMean = 0;
-		for(int k = 0; k < nRows; k++){ colMean += valMat(k, j); }
+		for(int i = 0; i < nRows; i++){ colMean += valMat(i, j); }
 		colMean = colMean / denom;
 		for(int i = 0; i < nRows; i++){
 			valMat(i,j) -= colMean;
@@ -111,37 +111,34 @@ void MHBlockUpdater::mcmc(){
 	proposeNewParameters();
 	acceptOrReject();
 	
-	int saveCount = 0;
-	int burnInLoops = burnIn / iterationsPerUpdate;
 	int numberParms = currentParameters.size();
-	burnInMat.resize(iterationsPerUpdate, numberParms );
+	burnInMat.resize(burnIn, numberParms );
 	burnInMat *= 0.0;
-	for(int i = 0; i < burnInLoops; i++){
-		for(int j = 0; j < iterationsPerUpdate; j++){
-			proposeNewParameters();
-			acceptOrReject();		
-			burnInMat.row(j) = currentParameters;	
-		}
-		if(updateChol){	updateCholesky(burnInMat); }
+	for(int j = 0; j < burnIn; j++){
+		proposeNewParameters();
+		acceptOrReject();		
+		burnInMat.row(j) = currentParameters;	
 	}
 	
 	
-	savedValues.resize(numSaved, totParams);
-	savedLPD.resize(numSaved);
+	savedValues.resize(samples, totParams);
+	savedLPD.resize(samples);
 	
 	for(int i = 0; i < samples; i++){
-		proposeNewParameters();
-		acceptOrReject();
-		if( (i % thin) == 0){
-			savedValues.row(saveCount) = currentParameters;
-			savedLPD[saveCount]        = currentLogDens;
-			saveCount++;
+		for(int j = 0; j < thin; j++){
+			proposeNewParameters();
+			acceptOrReject();
 		}
-		if( ((i % iterationsPerUpdate) == 0) & updateChol & i > iterationsPerUpdate){ 
+		savedValues.row(i) = currentParameters;
+		savedLPD[i]        = currentLogDens;
+		int start_row, stop_row;
+		if(updateChol & ( (i + 1) % samplesPerUpdate == 0) ){
+			start_row = i - samplesPerUpdate + 1;
+			stop_row  = i - 1; 
 			Eigen::MatrixXd recentVals = copyRows(savedValues, 
-												 saveCount - iterationsPerUpdate - 1, 
-												 saveCount - 1); 
-			updateCholesky(recentVals); 
+												 start_row, 
+												 stop_row); 
+			updateCholesky(recentVals);  
 		}
 	}
 }
@@ -158,7 +155,7 @@ double logIC_bayesPostDens(Eigen::VectorXd &propVec, void* void_icBayesPtr){
 
 //		CONSTRUCTOR AND DECONSTRUCTOR FUNCTIONS
 MHBlockUpdater::MHBlockUpdater(Eigen::VectorXd &initValues, Eigen::MatrixXd &initCov,
-				  int samples, int thin, int iterationsPerUpdate,
+				  int samples, int thin, int samplesPerUpdate,
 				  bool updateChol, int burnIn, double cholScale, 
 				  double acceptRate){
 	currentParameters         = initValues;
@@ -166,7 +163,7 @@ MHBlockUpdater::MHBlockUpdater(Eigen::VectorXd &initValues, Eigen::MatrixXd &ini
 	cholDecomp                = propCov.llt().matrixL();
 	this->samples             = samples;
 	this->thin                = thin;
-	this->iterationsPerUpdate = iterationsPerUpdate;
+	this->samplesPerUpdate    = samplesPerUpdate;
 	this->updateChol          = updateChol;		
 	this->burnIn              = burnIn;
 	double numSaved_double    = ((double) samples) / ((double) thin);
@@ -208,7 +205,7 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
     Rcpp::LogicalVector R_useMLE_start = R_bayesList["useMLE_start"];
     Rcpp::IntegerVector R_samples      = R_bayesList["samples"];
     Rcpp::IntegerVector R_thin         = R_bayesList["thin"];
-    Rcpp::IntegerVector R_it_per_up    = R_bayesList["iterationsPerUpdate"];
+    Rcpp::IntegerVector R_sample_per_up    = R_bayesList["samplesPerUpdate"];
     Rcpp::LogicalVector R_updateChol   = R_bayesList["updateChol"];
     Rcpp::NumericVector R_cholScale    = R_bayesList["initSD"];
     Rcpp::IntegerVector R_burnIn       = R_bayesList["burnIn"];
@@ -217,7 +214,7 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
     bool useMLE_start        = LOGICAL(R_useMLE_start)[0] == TRUE;
     int samples              = INTEGER(R_samples)[0];
     int thin                 = INTEGER(R_thin)[0];
-    int iterationsPerUpdate  = INTEGER(R_it_per_up)[0];
+    int samplesPerUpdate     = INTEGER(R_sample_per_up)[0];
     double acceptRate        = REAL(R_acceptRate)[0];
     bool updateChol          = LOGICAL(R_updateChol)[0] == TRUE;
     double cholScale         = R_cholScale[0];
@@ -260,7 +257,7 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
 		for(int i = 0; i < totalParams; i++){ initPars[i] = 0; }
 	}
 	mcmcInfo = new MHBlockUpdater(initPars, propCov,
-				  samples, thin, iterationsPerUpdate,
+				  samples, thin, samplesPerUpdate,
 				  updateChol, burnIn, cholScale, acceptRate);
 	
 	mcmcInfo->logPostDens         = logIC_bayesPostDens;

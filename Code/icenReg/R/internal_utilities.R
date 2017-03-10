@@ -17,53 +17,6 @@ findMaximalIntersections <- function(lower, upper){
 }
 
 
-fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){
-  if(any(obsMat[,1] > obsMat[,2])) 
-    stop("left side of response interval greater than right side. This is impossible.")
-  useGA <- other_info$useGA
-  maxIter <- other_info$maxIter
-  baselineUpdates <- other_info$baselineUpdates
-  useFullHess <- other_info$useFullHess
-  updateCovars <- other_info$updateCovars
-  regStart <- other_info$regStart
-  recenterCovars = FALSE
-	if(getNumCovars(covars) == 0)	recenterCovars <- FALSE
-	mi_info <- findMaximalIntersections(obsMat[,1], obsMat[,2])
-	k = length(mi_info[['mi_l']])
-	covars <- as.matrix(covars)
-	if(callText == 'ic_ph'){fitType = as.integer(1)}
-	else if(callText == 'ic_po'){fitType = as.integer(2)}
-	else {stop('callText not recognized in fit_ICPH')}
-	
-	if(recenterCovars){
-		pca_info <- prcomp(covars, scale. = TRUE)
-		covars <- as.matrix(pca_info$x)
-		regStart <- solve(pca_info$rotation, (regStart * pca_info$scale) )
-	}
-	
-	c_ans <- .Call('ic_sp_ch', mi_info$l_inds, mi_info$r_inds, 
-	               covars, fitType, as.numeric(weights), useGA, 
-	               as.integer(maxIter), as.integer(baselineUpdates),
-	               as.logical(useFullHess), as.logical(updateCovars),
-	               as.double(regStart))  
-	names(c_ans) <- c('p_hat', 'coefficients', 'llk', 'iterations', 'score')
-	myFit <- new(callText)
-	myFit$p_hat <- c_ans$p_hat
-	myFit$coefficients <- c_ans$coefficients
-	myFit$llk <- c_ans$llk
-	myFit$iterations <- c_ans$iterations
-	myFit$score <- c_ans$score
-	myFit[['T_bull_Intervals']] <- rbind(mi_info[['mi_l']], mi_info[['mi_r']])
-	myFit$p_hat <- myFit$p_hat / sum(myFit$p_hat) 
-	myFit$baseOffset <- 0
-	if(recenterCovars == TRUE){
-		myFit$pca_coefs <- myFit$coefficients
-		myFit$pca_info <- pca_info
-		myFit$coefficients <- as.numeric( myFit$pca_info$rotation %*% myFit$coefficients) / myFit$pca_info$scale		
-		myFit$baseOffset = as.numeric(myFit$coefficients %*% myFit$pca_info$center)
-	}
-	return(myFit)
-}
 
 
 
@@ -80,12 +33,11 @@ bs_sampleData <- function(rawDataEnv, weights){
 	return(sampEnv)
 }
 
-getBS_coef <- function(sampDataEnv, callText = 'ic_ph', other_info){ #useGA, maxIter, baselineUpdates){
+getBS_coef <- function(sampDataEnv, callText = 'ic_ph', other_info){ 
 	xMat <- cbind(sampDataEnv$x,1)
 	invertResult <- try(diag(solve(t(xMat) %*% xMat )), silent = TRUE)
 	if(is(invertResult, 'try-error')) {return( rep(NA, ncol(xMat) -1) ) }
 	output <- fit_ICPH(sampDataEnv$y, sampDataEnv$x, callText, sampDataEnv$w, other_info)$coefficients
-	         #          useGA = useGA, maxIter = maxIter, baselineUpdates = baselineUpdates)$coefficients
 	return(output)
 }
 
@@ -142,6 +94,7 @@ make_par_fitList <- function(y_mat, x_mat, parFam = "gamma",
                              uncenTol = 10^-6, regnames,
                              weights, callText){
   k_reg <- getNumCovars(x_mat)
+  recenterCovar = FALSE
   if(k_reg > 0)	recenterCovar <- TRUE
   etaOffset = 0
   if(!is.matrix(x_mat))
@@ -227,56 +180,6 @@ make_par_fitList <- function(y_mat, x_mat, parFam = "gamma",
   )
   
   return(ans)
-}
-
-fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', 
-                    leftCen = 0, rightCen = Inf, 
-                    uncenTol = 10^-6, regnames, 
-                    weights, callText){
-
-  parList<- make_par_fitList(y_mat, x_mat, parFam = parFam, 
-                               link = link, leftCen = leftCen, rightCen = rightCen,
-                               uncenTol = uncenTol, regnames = regnames,
-                               weights = weights, callText = callText)
-  
-  c_fit <- ic_parList(parList)
-  								
-
-	fit <- new(callText)
-	fit$reg_pars      <- c_fit$reg_pars
-	fit$baseline      <- c_fit$baseline
-	fit$llk           <- c_fit$llk
-	fit$iterations    <- c_fit$iterations
-	fit$hessian       <- c_fit$hessian
-	fit$score         <- c_fit$score
-  fit$par           <- parFam
-  
-	recenterCovar <- FALSE
-	if(recenterCovar == TRUE){
-		fit$pca_coefs <- fit$reg_pars
-		fit$pca_hessian  <- fit$hessian
-		fit$pca_info <- prcomp_xmat
-
-		allPars <- c(fit$baseline, fit$reg_pars)
-		
-		transformedPar <- PCAFit2OrgParFit(prcomp_xmat, fit$pca_hessian, allPars, k_base)
-		fit$baseline   <- transformedPar$pars[1:k_base]
-		fit$reg_pars   <- transformedPar$pars[-1:-k_base]
-		fit$var        <- transformedPar$var	
-		fit$hessian    <- solve(fit$var)
-		fit$baseOffset <- as.numeric(fit$reg_pars %*% prcomp_xmat$center)
-	}
-	
-	names(fit$reg_pars)    <- parList$regnames
-	names(fit$baseline)    <- parList$bnames
-	colnames(fit$hessian)  <- parList$hessnames
-	rownames(fit$hessian)  <- parList$hessnames
-	if(recenterCovar == FALSE){
-		fit$var <- -solve(fit$hessian)
-		fit$baseOffset = 0
-	}
-	fit$coefficients <- c(fit$baseline, fit$reg_pars)
-	return(fit)
 }
 
 
@@ -481,7 +384,7 @@ s_loglgst <- function(x, par){
 	return(ans)
 }
 
-get_etas <- function(fit, newdata = NULL){
+get_etas <- function(fit, newdata = NULL, reg_pars = NULL){
   if(fit$par == 'non-parametric'){ans <- 1; names(ans) <- 'baseline'; return(ans)}
 	if(is.null(newdata)){ans <- exp(-fit$baseOffset); names(ans) <- 'baseline'; return(ans)}
 	if(identical(newdata, 'midValues')){
@@ -489,12 +392,13 @@ get_etas <- function(fit, newdata = NULL){
   	names(ans) <- 'Mean Covariate Values'
   	return(ans)
 	}
-  if(identical(rownames(newdata), NULL) ) {rownames(newdata) <- as.character(1:nrow(newdata))}
+  if(is.null(reg_pars)){ reg_pars <- default_reg_pars(fit) }
+  if(identical(rownames(newdata), NULL) ) {rownames(newdata) <- as.character(1:icr_nrow(newdata))}
 	grpNames <- rownames(newdata)
 	reducFormula <- fit$formula
 	reducFormula[[2]] <- NULL
 	new_x <- expandX(reducFormula, newdata, fit)
-	log_etas <- as.numeric( new_x %*% fit$reg_pars - fit$baseOffset) 	
+	log_etas <- as.numeric( new_x %*% reg_pars - fit$baseOffset) 	
 	etas <- exp(log_etas)
 	names(etas) <- grpNames
 	return(etas)
@@ -522,13 +426,14 @@ get_link_fun <- function(fit){
 }
 
 
-findUpperBound <- function(val = 1, x, s_fun, link_fun, fit, eta){
-	fval <- 1 - link_fun(s_fun(val, fit$baseline), eta)
+findUpperBound <- function(val = 1, x, s_fun, link_fun, fit, eta, baseline = NULL){
+  if(is.null(baseline)){ baseline <- default_baseline(fit) }
+	fval <- 1 - link_fun(s_fun(val, baseline), eta)
 	tries = 0
 	while(tries < 100 & fval < x){
 		tries = tries + 1
 		val <- val * 10
-		fval <- 1 - link_fun(s_fun(val, fit$baseline), eta)
+		fval <- 1 - link_fun(s_fun(val, baseline), eta)
 	}
 	if(fval < x)	stop('finding upper bound for quantile failed!')
 	return(val)
@@ -851,55 +756,6 @@ makeQQFit <- function(fit){
 
 
 
-###   BAYESIAN TOOLS
-
-
-
-
-fit_bayes <- function(y_mat, x_mat, parFam = 'gamma', link = 'po', 
-                    leftCen = 0, rightCen = Inf, 
-                    uncenTol = 10^-6, regnames, 
-                    weights, callText, logPriorFxn,
-                    bayesList, modelName){
-  
-
-  parList<- make_par_fitList(y_mat, x_mat, parFam = parFam, 
-                             link = "po", leftCen = 0, rightCen = Inf,
-                             uncenTol = 10^-6, regnames,
-                             weights, callText)
-
-  c_fit                  = R_ic_bayes(bayesList, logPriorFxn, parList)
-  allParNames            = c(parList$bnames, parList$regnames)
-  mat_samples            = c_fit$samples 
-  colnames(mat_samples)  = allParNames
-  mcmc_samples           = mcmc(mat_samples, 
-                                thin = bayesList$thin, 
-                                start = bayesList$burnIn + 1)
-  logPostDens            = c_fit$logPosteriorDensity
-  colnames(mcmc_samples) = allParNames
-  
-  nBase             <- length(parList$bnames)
-  nRegPar           <- length(parList$regnames)
-  
-  fit <- new(modelName)
-  fit$par           <- parFam
-  fit$baseline      <- colMeans(mat_samples[ ,1:nBase])
-  fit$reg_pars      <- colMeans(mat_samples[ ,nBase + 1:nRegPar])
-  fit$nSamples      <- nrow(mat_samples)
-  fit$var           <- cov(mat_samples)
-  fit$samples       <- mcmc_samples
-  fit$logPosteriorDensities <- logPostDens
-  fit$ess           <- coda::effectiveSize(mcmc_samples)
-  fit$call          <- callText
-  fit$logPrior      <- logPriorFxn
-  fit$finalChol      <- c_fit$finalChol
-  names(fit$reg_pars)    <- parList$regnames
-  names(fit$baseline)    <- parList$bnames
-  fit$coefficients <- c(fit$baseline, fit$reg_pars)
-
-  return(fit)
-}
-
 
 formula_has_plus <- function(form){
   form_char <- as.character(form)
@@ -911,4 +767,44 @@ getFactorFromData <- function(formExpression, data){
   if(form_char[1] == 'factor') form_char = form_char[2]
   ans <- as.factor(data[[form_char]])
   return(ans)
+}
+
+icr_nrow <- function(x){
+  ans <- nrow(x)
+  if(is.null(ans)){
+    if(length(x) > 0) ans <- 1
+  }
+  return(ans)
+}
+
+icr_ncol <- function(x){
+  ans <- ncol(x)
+  if(is.null(ans)){
+    if(length(x) > 0) ans <- 1
+  }
+  return(ans)
+}
+
+icr_colMeans <- function(x){
+  if(icr_ncol(x) > 1) return( colMeans(x) )
+  return(mean(x))
+}
+
+get_dataframe_row <- function(df, row){
+  if(ncol(df) == 0) return(NULL)
+  if(ncol(df)  > 1) return(df[row, ])
+  ans <- as.data.frame( df[row,] )
+  colnames(ans) <- colnames(df)
+  rownames(ans) <- rownames(df)[row]
+  return(ans)
+}
+
+
+default_baseline <- function(fit){
+  if(!inherits(fit, 'fit_bayes')) return(fit$baseline)
+  return(fit$MAP_baseline)
+}
+default_reg_pars <- function(fit){
+  if(!inherits(fit, 'fit_bayes')) return(fit$reg_pars)
+  return(fit$MAP_reg_pars)
 }
