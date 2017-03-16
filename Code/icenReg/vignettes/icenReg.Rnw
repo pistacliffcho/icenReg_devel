@@ -107,7 +107,7 @@ At this time, the following set of models can be fit (name in paratheses is func
           \item \texttt{"ph"} for proportional hazards 
           \end{itemize}
         \end{itemize}
-    \item Fully parametric model (\texttt{ic\_par})
+    \item Fully parametric frequentest model (\texttt{ic\_par}) or Bayesian model (\texttt{ic\_bayes})
       \begin{itemize}
         \item \texttt{model} for model type
           \begin{itemize}
@@ -151,7 +151,7 @@ The package includes 3 sources of example data: one function that simulates data
   
 \subsection{Non-parametric models}
   
-The non-parametric maximum likelihood estimator can be using \texttt{ic\_np}. If the data set is relatively small and the user is interested in non-parametric tests, such as the log-rank statistic, we actually advise using the {\bf interval} package, as this provides several testing functions. However, {\bf icenReg} is several fold faster than {\bf interval}, so if large datasets are used (i.e. n > 1,000), the user may have no choice but to use {\bf icenReg} to fit the NPMLE. And while hypothesis testing is not currently available for the NPMLE, these fits can still provide visual diagnostics for semi-parametric and fully parametric models. 
+The non-parametric maximum likelihood estimator (NPMLE) can be fit using \texttt{ic\_np}. If the data set is relatively small and the user is interested in non-parametric tests, such as the log-rank statistic, we actually advise using the {\bf interval} package, as this provides several testing functions. However, computing the NPMLE {\bf icenReg} is several fold faster than {\bf interval}, so if large datasets are used (i.e. n > 1,000), the user may have no choice but to use {\bf icenReg} to fit the NPMLE. And while hypothesis testing is not currently available for the NPMLE in {\bf icenReg}, these fits can still provide visual diagnostics for semi-parametric and fully parametric models. 
 
 %In discussions with the author of {\bf interval}, it was indicated that a user could build a wrapper around \texttt{ic\_np} to be used in {\bf interval}'s logrank tests, but this has not been done yet. 
 
@@ -188,7 +188,7 @@ plot(np_fit, col = c('blue', 'orange'),
 @
 
 
-Looking at the plots, we can see a unique feature about the NPMLE for interval censored data. That is, there are \emph{two} lines used to represent the survival curve. This is because with interval censored data, the NPMLE is not always unique (in fact, it usually is not); any curve that lies between the two lines has the same likelihood. For example, any curve that lies between the two blues lines maximizes the likelihood associated with \texttt{"ge"} group of mice. 
+Looking at the plots, we can see a unique feature about the NPMLE for interval censored data. That is, there are \emph{two} lines used to represent the survival curve. This is because with interval censored data, the NPMLE is not always unique; any curve that lies between the two lines has the same likelihood. For example, any curve that lies between the two blues lines maximizes the likelihood associated with \texttt{"ge"} group of mice. 
 
 %Formal statistical tests using the NPMLE are not currently supported by {\bf icenReg}. We recommend using the {\bf interval} package for this. 
 
@@ -205,13 +205,13 @@ We fit the model below. Note that this may be time consuming, as the semi-parame
   
 <<>>=
   fit_ph <- ic_sp(cbind(left, right) ~ gender, model = 'ph', 
-                  bs_samples = 10, data = IR_diabetes)
+                  bs_samples = 400, data = IR_diabetes)
       
   fit_po <- ic_sp(cbind(left, right) ~ gender, model = 'po',
-                  bs_samples = 10, data = IR_diabetes)
+                  bs_samples = 400, data = IR_diabetes)
 @
 
-The first model by default fits a Cox-PH model, while the second fits a proportional odds model. We can look at the results using either the \texttt{summary} function, or just directly looking at the results (what is displayed is the same). 
+The first model by default fits a Cox-PH model, while the second fits a proportional odds model, as controlled by the \texttt{model} argument. We can look at the results using either the \texttt{summary} function, or just directly looking at the results (what is displayed is the same). 
   
 <<>>= 
   fit_po
@@ -234,11 +234,11 @@ Below is a demonstration of how to plot the semi-parametric fit for males and fe
 
 \subsection{Parametric Models}
   
-We can fit parametric models in {\bf icenReg} using the \texttt{ic\_par} function. The syntax is essentially the same as above, except that the user needs to specify \texttt{dist}, the parametric family that the baseline distribution belongs to. The current choices are \texttt{"exponential", "weibull"} (default), \texttt{"gamma", "lnorm", "loglogistic"} and \texttt{"generalgamma"} (generalized gamma distribution). The user must also select \texttt{model = "ph"},  \texttt{"po"}, or \texttt{"aft"} as the model type. 
+We can fit parametric models in {\bf icenReg} using the \texttt{ic\_par} function. The syntax is essentially the same as above, except that the user needs to specify \texttt{dist}, the parametric family that the baseline distribution belongs to. The current choices are \texttt{"exponential", "weibull"} (default), \texttt{"gamma", "lnorm"} (log-normal), \texttt{"loglogistic"} and \texttt{"generalgamma"} (generalized gamma distribution). The user must also select \texttt{model = "ph"},  \texttt{"po"}, or \texttt{"aft"} as the model type. 
   
 It is not necessary to specify \texttt{bs\_samples} for parametric models, as inference is done using the asymptotic normality of the estimators. Fitting a parametric model is typically faster than the semi-parametric model, even if no bootstrap samples are taken for the semi-parametric model. This is because the fully-parametric model is of lower dimensional space without constraints. 
   
-Suppose we wanted to fit a proportional odds model to the \texttt{IR\_diabets} data with a generalized gamma distribution. This could be fit by
+Suppose we wanted to fit a proportional odds model to the \texttt{IR\_diabets} data with a baseline gamma distribution. This could be fit by
   
 <<>>=
 fit_po_gamma <- ic_par(cbind(left, right) ~ gender,
@@ -258,13 +258,13 @@ fit_po_gamma
 plot(fit_po_gamma, newdata, lgdLocation = "topright")
 @
 
-  \subsubsection{Bayesian Parametric Models}
+  \subsection{Bayesian Parametric Models}
   
   The option for parametric Bayesian models is also permitted in {\bf icenReg} with the \texttt{ic\_bayes} function. If a flat prior is desired, the use is exactly identical to \texttt{ic\_par}. 
   
 <<>>=
 flatPrior_fit <- ic_bayes(cbind(left, right) ~ gender,
-    data = IR_diabetes, model = "aft", dist = "gamma")
+    data = IR_diabetes, model = "po", dist = "gamma")
 @  
 
 The standard methods work in the same manner as other {\bf icenReg} fits, although the basic output looks fairly different.
@@ -292,7 +292,8 @@ head(flatPrior_fit$logPosteriorDensities)
 Plotting calls are as standard. Important note: this plots the MAP estimates of the survival curve for a subject with given covariates, \emph{not} the posterior mean estimates!
 
 <<fig = TRUE, height = 5.5, width = 5.5>>=
-  plot(flatPrior_fit, newdata)
+  plot(flatPrior_fit, newdata,
+       main = 'MAP Estimates')
 @
 
 MCMC diagnositic plots can be generated by accessing the \texttt{\$samples} field. 
@@ -301,7 +302,7 @@ MCMC diagnositic plots can be generated by accessing the \texttt{\$samples} fiel
   plot(flatPrior_fit$samples)
 @
 
-As noted earlier, default behavior is to use a flat prior. If a user wants to use an informative prior, they can provide whichever custom writen prior they choose. This function must take in a vector of values corresponding to all the parameters of the model (i.e. first baseline parameters and then regression parameters) and return the log-prior, calculated up to a additive constant. 
+As noted earlier, default behavior is to use a flat prior. If a user wants to use an informative prior, they can provide whichever custom written prior they choose. This function must take in a vector of values corresponding to all the parameters of the model (i.e. first baseline parameters and then regression parameters) and return the log-prior, calculated up to a additive constant. 
 
 This is illustrated with an example where we decide to put a tight prior about the shape parameter (i.e. first baseline parameter) and the regression parameter, and a diffuse prior about the scale parameter. 
 
@@ -318,28 +319,29 @@ This is illustrated with an example where we decide to put a tight prior about t
  }    
   
 informPrior_fit <- ic_bayes(cbind(left, right) ~ gender,
-    data = IR_diabetes, model = "aft", dist = "gamma",
+    data = IR_diabetes, model = "po", dist = "gamma",
     logPriorFxn = logPriorFunction)
 # Fitting model with prior. 
 
 informPrior_fit
 @
 
-Note that posterior mean for \texttt{log\_scale} is pulled down significantly. 
+Note that the posterior mean for \texttt{log\_shape} is pulled down significantly. 
 
-Default behavior for \texttt{ic\_bayes} is to use an adaptive MH block updater, started from the MLE (not MAP) estimate to seed the starting point of the chain and starting proposal covariance. The proposal covariance is updated as more samples are taken. This should work well with informative likelihoods and relatively weak priors. On the other hand, it can be quite problematic with weak likelihoods and relatively strong priors. In such cases, a user may prefer to turn off the MLE initialization. This can be done with \texttt{bayesControl} function. 
+Default behavior for \texttt{ic\_bayes} is to use an adaptive MH block updater, started from the MLE (not MAP) estimate to seed the starting point of the chain and starting proposal covariance. The proposal covariance is updated as more samples are taken. This should work well with informative likelihoods and relatively weak priors. On the other hand, it can be quite problematic with weak likelihoods and relatively strong priors. In such cases, a user may prefer to turn off the MLE initialization. This can be done with the \texttt{bayesControl} function. 
 
 <<fig = TRUE, height = 7.5, width = 7.5>>=
 weak_data <- IR_diabetes[1:2,]
 weakData_fit <- ic_bayes(cbind(left, right) ~ gender,
     data = weak_data,
-    model = "aft", dist = "gamma",
+    model = "po", dist = "gamma",
     logPriorFxn = logPriorFunction,
     controls = bayesControls(useMLE_start = F))
 
 plot(weakData_fit$samples)
-
 @
+
+Note that in this sample, we see evidence that the chain has not properly mixed, especially in regards to the \texttt{log\_scale} parameter. Using \texttt{bayesControls}, we could increase both the samples and burnIn to address this issue. 
 
 \section{Inspecting model fit}
 

@@ -47,4 +47,3 @@ diag_baseline(fit, lgdLocation = "topright",
 \author{
 Clifford Anderson-Bergman
 }
-

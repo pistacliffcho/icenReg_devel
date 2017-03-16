@@ -636,6 +636,13 @@ getSamplableVar <- function(fit){
   return(ans)
 }
 
+sampBayesPar <- function(fit){
+  nRow <- nrow(fit$samples)
+  samp_ind <- round(runif(n = 1, min = 0.5, max = nRow + 0.5) ) 
+  ans <- fit$samples[samp_ind,]
+  return(ans)
+}
+
 sampPars <- function(mean, var){
   chol_var <- chol(var)
   k <- length(mean)

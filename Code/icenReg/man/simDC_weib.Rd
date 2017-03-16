@@ -38,4 +38,3 @@ and all values less than \code{upperLimit} are right censored.
 simData <- simCS_weib()
 fit <- ic_par(cbind(l, u) ~ x1 + x2, data = simData)
 }
-

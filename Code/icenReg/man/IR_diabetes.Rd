@@ -18,6 +18,7 @@ dataset found in the package \code{glrt}.
 
 \item{\code{gender}}{gender of subject}
 }}
+
 \examples{
  data(IR_diabetes)
  fit <- ic_par(cbind(left, right) ~ gender, 
@@ -30,4 +31,3 @@ Borch-Johnsens, K, Andersen, P and Decker, T (1985).
  "The effect of proteinuria on relative mortality in Type I (insulin-dependent) diabetes mellitus."
  Diabetologia, 28, 590-596.
 }
-

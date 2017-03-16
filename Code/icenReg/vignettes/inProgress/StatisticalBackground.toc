@@ -8,13 +8,13 @@
 \contentsline {subsection}{\numberline {1.5}Motivating examples}{5}
 \contentsline {subsubsection}{\numberline {1.5.1}Right censoring}{5}
 \contentsline {subsubsection}{\numberline {1.5.2}Interval censoring}{6}
-\contentsline {section}{\numberline {2}Fundamental survival estimators}{6}
-\contentsline {subsection}{\numberline {2.1}Why mean estimators are avoided}{6}
+\contentsline {section}{\numberline {2}Fundamental survival estimators}{7}
+\contentsline {subsection}{\numberline {2.1}Why mean estimators are avoided}{7}
 \contentsline {subsection}{\numberline {2.2}Univariate estimators}{7}
 \contentsline {subsubsection}{\numberline {2.2.1}Kaplan Meier curves}{7}
 \contentsline {subsubsection}{\numberline {2.2.2}NPMLE}{8}
 \contentsline {subsubsection}{\numberline {2.2.3}Parametric Models}{10}
 \contentsline {subsection}{\numberline {2.3}Regression models}{10}
-\contentsline {subsubsection}{\numberline {2.3.1}Cox proportional hazards}{10}
-\contentsline {subsubsection}{\numberline {2.3.2}Accelerated failure time}{10}
-\contentsline {subsubsection}{\numberline {2.3.3}Proportional odds}{10}
+\contentsline {subsubsection}{\numberline {2.3.1}Proportional hazards}{11}
+\contentsline {subsubsection}{\numberline {2.3.2}Accelerated failure time}{13}
+\contentsline {subsubsection}{\numberline {2.3.3}Proportional odds}{13}

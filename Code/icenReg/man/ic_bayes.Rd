@@ -65,8 +65,8 @@ flat_prior_model <- ic_bayes(cbind(l, u) ~ grp, data = miceData)
 
 priorFxn <- function(pars){
  ans <- 0
- ans <- ans + dnorm(pars[1], log = T)
- ans <- ans + dnorm(pars[3], sd = 0.25, log = T)
+ ans <- ans + dnorm(pars[1], log = TRUE)
+ ans <- ans + dnorm(pars[3], sd = 0.25, log = TRUE)
 }
 # Prior function puts N(0,1) prior on baseline shape parameter (first parameter)
 # flat prior on baseline scale parameter (second parameter)
@@ -84,4 +84,3 @@ summary(inform_prior_fit)
 \author{
 Clifford Anderson-Bergman
 }
-

@@ -643,7 +643,7 @@ predict.icenReg_fit <- function(object, type = 'response',
 #'  of the response variable, conditional on the response interval, 
 #'  covariates, and the random sample of the coefficients. 
 #'  
-#'  @examples 
+#' @examples 
 #' simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
 #'                       inspections = 6, inspectLength = 1)
 #'
@@ -683,9 +683,13 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
   }
   if(imputeType == 'fullSample'){
     isSP <- is(fit, 'sp_fit')
+    isBayes <- is(fit, 'bayes_fit')
     for(i in 1:numImputes){
       orgCoefs <- getSamplablePars(fit)
-      if(!isSP){
+      if(isBayes){
+        sampledCoefs <- sampBayesPar(fit)
+      }
+      else if(!isSP){
         coefVar <- getSamplableVar(fit)
         sampledCoefs <- sampPars(orgCoefs, coefVar)
       }
@@ -823,4 +827,37 @@ icqqplot <- function(par_fit){
       ylab = 'Parametric Survival', type = 's')
  lines(baseS, parLowerS, type = 's')
  lines(c(0,1), c(0,1), col = 'red')
+}
+
+
+#' Convert current status data into interval censored format
+#' 
+#' @param time           Time of inspection
+#' @param eventOccurred  Indicator if event has occurred. 0/FALSE implies event has not occurred by inspection time. 
+#' 
+#' @details Converts current status data to the interval censored format for 
+#' usage in icenReg.
+#' 
+#' @examples
+#' 
+#' simData <- simCS_weib()
+#' # Simulate current status data
+#' 
+#' head(cs2ic(simData$time, simData$event))
+#' # Converting data to current status format
+#' 
+#' fit <- ic_par(cs2ic(time, event) ~ x1 + x2, data = simData)
+#' # Can be used directly in formula
+#' 
+#' @export
+cs2ic <- function(time, 
+                  eventOccurred){
+  if(!all(eventOccurred == 0 | eventOccurred == 1)){stop("eventOccurred must be all 1's and 0's or TRUE's and FALSE's")} 
+  if(length(time) != length(eventOccurred)) stop('length(time) != length(eventOccurred)')
+  l = rep(0, length(time))
+  u = rep(Inf, length(time))
+  logical_event <- eventOccurred == 1
+  l[!eventOccurred] <- time[!eventOccurred]
+  u[eventOccurred]  <- time[eventOccurred]
+  return(cbind(l, u))
 }

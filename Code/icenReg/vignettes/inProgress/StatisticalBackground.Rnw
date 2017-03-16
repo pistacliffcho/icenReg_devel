@@ -120,7 +120,7 @@
   In order to make this problem more tractable, it is often assumed $T_i$ and $C_i$ are independent, conditional on two sets of parameters $\Theta_T$ (associated with the distribution of $T_i$) and $\Theta_C$ (associated with the distribution of $C_i$). Under this assumption of independence, the joint pdf of $\{Y_i, \delta_i\}$ can be factored into 
   
   \[
-  f_{Y_i, \delta_i}(y, \delta) = 
+  f_{Y, \delta_i}(y, \delta) = 
   \left( f_{T} (y, \Theta_T) \times \int_{-\infty}^{y} f_{C}(x, \Theta_C) dx\right) ^ {\delta}
   \left( \int_{y}^{\infty} f_{T} (x, \Theta) dx \times f_{C}(y, \Theta_C) \right) ^{(1-\delta)}
   \]
@@ -132,17 +132,18 @@
   
   \[
   =
-  f_{T}(y, \Theta_T) ^{\delta_i} S_{T}(y, \Theta_T) ^{1 - \delta_i} 
+  f_{T}(y, \Theta_T) ^{\delta} S_{T}(y, \Theta_T) ^{1 - \delta} 
   \times
-  f_C(y, \Theta_C)^{1 - \delta_i} (1 - S_C(y, \Theta_C) ^{\delta_i} )
+  f_C(y, \Theta_C)^{1 - \delta} (1 - S_C(y, \Theta_C) ^{\delta} )
   \]
 
   
-  When the assumption of independence of $T_i$ and $C_i$ is used, typically the researcher is only concerned with estimation of $\Theta_T$. As such, only the partial likelihood 
+  When the assumption of independence of $T_i$ and $C_i$ is used, typically the researcher is only concerned with estimation of $\Theta_T$. As such, only the partial log likelihood 
   
-  \[
-  f_T(y, \Theta_T)^{\delta_i} S_T(y, \Theta_T)^{1-\delta_i}
-  \]
+  \begin{equation}
+  \displaystyle \sum_{i = 1}^n \log \left( f_T(y_i, \Theta_T)^{\delta_i} S_T(y_i, \Theta_T)^{1-\delta_i} \right)
+  \end{equation}
+  \label{eq:right_llk}
 
 is relevant in the estimation of $\Theta_T$. 
 
@@ -152,12 +153,12 @@ is relevant in the estimation of $\Theta_T$.
   f_T(y, \Theta_T)^{\delta_i} (1-S_T(y, \Theta_T))^{1-\delta_i}
   \]
   
-  For interval censoring, the results are slightly more complicated. In this case, there is a sequence of inspection times $C_{i1}, C_{i2}, ...$ for each subject $i$. We observe $L_i = \max\{C_{ij}: C_{ij} \leq T_i\}$ and $R_i = \min \{C_{ij}: C_{ij} \geq T_i\}$. Note that it is possible for $L_i = R_i$, resulting in an uncensored observation. The simplifying assumption is that this sequence of inspection times is independent of $T_i$ (though clearly $L_i$ and $R_i$ will not be). We also define $\delta_i = I_{\{L_i = R_i\}}$. Then the relevant partial pdf of $\{L_i, R_i, \delta_i\}$ can be written as 
+  For interval censoring, the results are slightly more complicated. In this case, there is a sequence of inspection times $C_{i1}, C_{i2}, ...$ for each subject $i$. We observe $L_i = \max\{C_{ij}: C_{ij} \leq T_i\}$ and $R_i = \min \{C_{ij}: C_{ij} \geq T_i\}$. Note that it is possible for $L_i = R_i$, resulting in an uncensored observation. The simplifying assumption is that this sequence of inspection times is independent of $T_i$ (though clearly $L_i$ and $R_i$ will not be). We also define $\delta_i = I_{\{L_i = R_i\}}$ (an indicator function for whether the time was observed exactly). Then the relevant partial pdf can be written as 
   
-  \[
-  f_T(L_i) ^ {\delta_i} (S_T(L_i) - S_T(R_i)) ^ {1 -\delta_i}.
-  \]
-
+  \begin{equation}
+  \displaystyle \sum_{i = 1}^n \log \left( f_T(L_i) ^ {\delta_i} (S_T(L_i) - S_T(R_i)) ^ {1 -\delta_i} \right). 
+  \end{equation}
+  \label{eq:ic_llk}
   \subsection{Truncation}
   
   Another issue that can arise in surival studies is that of truncation. In this case, the event time affects the probability of a subject being in the sample. The difference between a censored subject and truncated subject is that a censored subject was in the sample, but only partial information about the event time is known (e.g., $T_i > C_i$). A truncated subject does not appear in the sample at all. 
@@ -184,7 +185,7 @@ head(retinopathy)
 
     \subsubsection{Interval censoring}
 
-    For interval censoring, we will consider the \texttt{IR\_diabetes} dataset found in \texttt{icenReg}. This includes data collected on based on semi-regular doctor checkups, inspecting for diabetic nephronpathy. Three variables are included: \texttt{gender}, \texttt{left} (last time subject was known not have diabetic nephronpathy) and \texttt{right} (first time subject was known to have diabetic nephronpathy). 
+    For interval censoring, we will consider the \texttt{IR\_diabetes} dataset found in {\bf icenReg}. This includes data collected on based on semi-regular doctor checkups, inspecting for diabetic nephronpathy. Three variables are included: \texttt{gender}, \texttt{left} (last time subject was known not have diabetic nephronpathy) and \texttt{right} (first time subject was known to have diabetic nephronpathy). 
     
 <<>>=
 library(icenReg)
@@ -294,7 +295,7 @@ We note that visually, there appears to be no issue with representational non-un
 
   \subsubsection{Parametric Models}
 
-  Using the likelihood functions presented in \ref{sec:llk}, standard fully parametric maximum likelihood (MLE) or Bayesian models can be fit for censored data. Typically parametric families use include the exponential distribution, Weibull, gamma, log-normal and log-logisitic to name a few. Note that for all these models, $S(0) = 1$, a standard assumption in survival analysis. This assumption is not ne
+  Using the likelihood functions presented in \ref{sec:llk}, standard fully parametric maximum likelihood (MLE) or Bayesian models can be fit for censored data. Commonly used parametric families include the exponential distribution, Weibull, gamma, log-normal and log-logisitic to name a few. Note that for all these models, $S(0) = 1$, a standard assumption in survival analysis. 
   
   In partice, the single parameter exponential distribution 
 
@@ -306,13 +307,102 @@ We note that visually, there appears to be no issue with representational non-un
   E[y_i | x_i, \beta] = g(x_i \beta)
   \]
   
-  where $g$ is the link function connecting the linear predictor ($x_i \beta$) to the conditional mean of $y_i$. Traditional survival regression models 
+  where $g$ is the link function connecting the linear predictor ($x_i \beta$) to the conditional mean of $y_i$. Traditional survival regression models are linear models, similar to GLM's, but the effect of the covariates can typically be most succinctly  described as an effect on various baseline survival functions rather than the expected value. As such, survival regression models will typically be defined so that they can be written as 
   
-    \subsubsection{Cox proportional hazards}
+  \[
+  S(t | x, \beta) = g(S_o(t), x \beta ) 
+  \]
+  
+  where $S$ represents the survival function conditional on the covariates and regression parameters and $S_o$ represents the baseline survival distribution, i.e. the survival distribution for a subject with all 0 covariates. 
+  
+    \subsubsection{Proportional hazards}
     
+    One of the most popular regression models is the proportional hazards model. The model can be defined as
+    
+    \[
+    h(t_i|x_i, \beta) = h_o(t_i) e^{x_i \beta}
+    \]
+    
+    where $h(t|x_i, \beta)$ is the hazard for subject $i$ conditional on covariates $x_i$ and $h_o(t)$ is a baseline hazard rate, \emph{i.e.} the hazard rate for a subject with covariates all equal to 0. In other words, for a subject with covariates $x_i$, their current hazard is $e^{x_i \beta}$ times higher than a baseline subject at any given time.
+    
+    Note that the relation between the hazards rates is constant as a function of time enforcing the \emph{proportional-hazards} assumption, which should be inspected.  For example, consider a hypothetical experiement with two groups of cancer patients, one treated with chemotherapy, one not receiving treatment. Chemotherapy is an extremely damaging treatment, so shortly after treatment, the chemotherapy group will have higher hazards than the untreated group. However, once the treated group recovers from the chemotherapy, they are at much lower risk than the untreated group. 
+    
+<<echo = F, fig = T>>=
+grid <- 1:100/10
+chem_haz <- 5 / (1+grid) / 20
+untrt_haz <- (1 + grid ^ 1.2 * .25)/ 20
+y_lims <- range( c(chem_haz, untrt_haz)  )
+plot(grid, chem_haz, type = 'l', lwd = 2, col = 'blue',
+     ylim = y_lims, xlab = 'Time from Treatment', ylab = 'Hazard Rate',
+     main = 'Hazard Rates for Chemo vs Untreated')
+lines(grid, untrt_haz, lwd = 2, col = 'red')
+legend('top', 
+       c('Chemotherapy', 'Untreated'), 
+       lwd = 2,
+       col = c('blue', 'red'))
+@
+    
+    A typical rule of thumb for assessing proportional hazards is that if the estimated survival curves cross, the hazards are likely non-proportional\footnote{An exception to the crossing survival curves rule is that crossing of the estimated extreme tails is less worrisome, as estimates of the extreme tails are typically very noisy.}. It's worth noting that crossing survival curves is a much stronger condition than non-proportional hazards. As such, crossing survival curves should be seen as evidence of \emph{very strong} violations of the proportional hazards assumption. Other methods for will be discussed shortly. 
+    
+    Using the relation 
+    $S(t) = e^{\int_{-\infty}^t -h(x) dx }$,
+    we calculate the survival curves from the hazard curves in the chemotherapy treatment example. We see that the survival curves do in fact cross for the two groups. 
+    
+    
+<<echo = F, fig = T>>=    
+hzd2surv <- function(hzd, time){
+  trp_hzd <- (hzd[-1] + hzd[-length(hzd)])/2
+  dt <- (time[-1] - time[-length(time)])
+  cum_hzd <- c(0, cumsum(trp_hzd * dt) )
+  return(exp(-cum_hzd))
+}
+
+chem_surv <- hzd2surv(chem_haz, grid)
+untrt_surv <- hzd2surv(untrt_haz, grid)
+
+plot(grid, chem_surv, ylim = c(0,1),
+     xlab = 'Time from Treatment',
+     ylab = 'Survival Probability',
+     lwd = 2, 
+     type = 'l', 
+     col = 'blue',
+     main = 'Survival Curves for Chemo vs Untreated')
+lines(grid, untrt_surv, 
+      lwd = 2, col = 'red')
+legend('top', 
+       c('Chemotherapy', 'Untreated'), 
+       lwd = 2,
+       col = c('blue', 'red'))
+
+@    
+
+  With a little bit of algebra, it can be shown that the proportional hazards assumption is equivalent to 
+  
+\[
+  S(t| x, \beta) = S_o(t)^{e^{x \beta}}
+\].
+
     \subsubsection{Accelerated failure time}
+   
+   The accelerated failure time (AFT) model is built on the relation
+   
+   \[
+   S(t | x, \beta) = S_o(t e^{-x \beta})
+   \].
+
+    In otherwords, subjects with $x = 1$ experience events $e^{-\beta}$ times faster than subjects with $x = 0$. One advantage of the AFT model is the ease of interpretation; it is very common for casual users of survival analysis to interpret a Cox-PH model as an AFT model, i.e. it is a common mistake to state that doubling the hazard implies events occur twice as fast. 
+    
+    If the baseline survival distribution $S_o$ is a Weibull distribution, then the AFT model is equivalent to the proportional hazards model, up to a linear transformation of the regression parameters. In such a case, it is recommended to use the AFT parameterization due to easier interpretation of regression coefficients. It does not hold that these models are generally equivalent, however. 
     
     \subsubsection{Proportional odds}
+  
+  The proportional odds model is built off the following relation:
+  
+  \[
+  \frac{S(t|x, \beta)}{1-S(t | x, \beta)} = e^{x \beta} \frac{S_o(t)}{1 - S_o(t)}
+  \].
+
+  In otherwords, the odds of survival at any given time is $e^{\beta}$ times higher for a subject with a one unit higher value of $x$. Interestingly, with the special case of current status data, it can be shown that fitting a proportional odds model is equivalent to using logistic regression with $\log(t)$ as a predictor. 
   
 
 \end{document}

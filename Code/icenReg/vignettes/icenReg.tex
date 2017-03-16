@@ -108,7 +108,7 @@ At this time, the following set of models can be fit (name in paratheses is func
           \item \texttt{"ph"} for proportional hazards 
           \end{itemize}
         \end{itemize}
-    \item Fully parametric model (\texttt{ic\_par})
+    \item Fully parametric frequentest model (\texttt{ic\_par}) or Bayesian model (\texttt{ic\_bayes})
       \begin{itemize}
         \item \texttt{model} for model type
           \begin{itemize}
@@ -152,7 +152,7 @@ The package includes 3 sources of example data: one function that simulates data
   
 \subsection{Non-parametric models}
   
-The non-parametric maximum likelihood estimator can be using \texttt{ic\_np}. If the data set is relatively small and the user is interested in non-parametric tests, such as the log-rank statistic, we actually advise using the {\bf interval} package, as this provides several testing functions. However, {\bf icenReg} is several fold faster than {\bf interval}, so if large datasets are used (i.e. n > 1,000), the user may have no choice but to use {\bf icenReg} to fit the NPMLE. And while hypothesis testing is not currently available for the NPMLE, these fits can still provide visual diagnostics for semi-parametric and fully parametric models. 
+The non-parametric maximum likelihood estimator (NPMLE) can be fit using \texttt{ic\_np}. If the data set is relatively small and the user is interested in non-parametric tests, such as the log-rank statistic, we actually advise using the {\bf interval} package, as this provides several testing functions. However, computing the NPMLE {\bf icenReg} is several fold faster than {\bf interval}, so if large datasets are used (i.e. n > 1,000), the user may have no choice but to use {\bf icenReg} to fit the NPMLE. And while hypothesis testing is not currently available for the NPMLE in {\bf icenReg}, these fits can still provide visual diagnostics for semi-parametric and fully parametric models. 
 
 %In discussions with the author of {\bf interval}, it was indicated that a user could build a wrapper around \texttt{ic\_np} to be used in {\bf interval}'s logrank tests, but this has not been done yet. 
 
@@ -201,7 +201,7 @@ The fits can be plotted as follows:
 \includegraphics{icenReg-005}
 
 
-Looking at the plots, we can see a unique feature about the NPMLE for interval censored data. That is, there are \emph{two} lines used to represent the survival curve. This is because with interval censored data, the NPMLE is not always unique (in fact, it usually is not); any curve that lies between the two lines has the same likelihood. For example, any curve that lies between the two blues lines maximizes the likelihood associated with \texttt{"ge"} group of mice. 
+Looking at the plots, we can see a unique feature about the NPMLE for interval censored data. That is, there are \emph{two} lines used to represent the survival curve. This is because with interval censored data, the NPMLE is not always unique; any curve that lies between the two lines has the same likelihood. For example, any curve that lies between the two blues lines maximizes the likelihood associated with \texttt{"ge"} group of mice. 
 
 %Formal statistical tests using the NPMLE are not currently supported by {\bf icenReg}. We recommend using the {\bf interval} package for this. 
 
@@ -227,13 +227,13 @@ We fit the model below. Note that this may be time consuming, as the semi-parame
 \begin{Schunk}
 \begin{Sinput}
 >   fit_ph <- ic_sp(cbind(left, right) ~ gender, model = 'ph', 
-+                   bs_samples = 10, data = IR_diabetes)
++                   bs_samples = 400, data = IR_diabetes)
 >   fit_po <- ic_sp(cbind(left, right) ~ gender, model = 'po',
-+                   bs_samples = 10, data = IR_diabetes)
++                   bs_samples = 400, data = IR_diabetes)
 \end{Sinput}
 \end{Schunk}
 
-The first model by default fits a Cox-PH model, while the second fits a proportional odds model. We can look at the results using either the \texttt{summary} function, or just directly looking at the results (what is displayed is the same). 
+The first model by default fits a Cox-PH model, while the second fits a proportional odds model, as controlled by the \texttt{model} argument. We can look at the results using either the \texttt{summary} function, or just directly looking at the results (what is displayed is the same). 
   
 \begin{Schunk}
 \begin{Sinput}
@@ -243,16 +243,14 @@ The first model by default fits a Cox-PH model, while the second fits a proporti
 Model:  Proportional Odds
 Baseline:  semi-parametric 
 Call: ic_sp(formula = cbind(left, right) ~ gender, data = IR_diabetes, 
-    model = "po", bs_samples = 10)
+    model = "po", bs_samples = 400)
 
-           Estimate Exp(Est) Std.Error z-value         p
-gendermale   0.4001    1.492    0.1204   3.325 0.0008855
+           Estimate Exp(Est) Std.Error z-value        p
+gendermale   0.4001    1.492    0.1391   2.876 0.004026
 
 final llk =  -1959.716 
 Iterations =  69 
-Bootstrap Samples =  10 
-WARNING: only  10  bootstrap samples used for standard errors. 
-Suggest using more bootstrap samples for inference
+Bootstrap Samples =  400 
 \end{Soutput}
 \begin{Sinput}
 >   fit_ph
@@ -261,16 +259,14 @@ Suggest using more bootstrap samples for inference
 Model:  Cox PH
 Baseline:  semi-parametric 
 Call: ic_sp(formula = cbind(left, right) ~ gender, data = IR_diabetes, 
-    model = "ph", bs_samples = 10)
+    model = "ph", bs_samples = 400)
 
-           Estimate Exp(Est) Std.Error z-value      p
-gendermale  -0.1393     0.87    0.1127  -1.236 0.2163
+           Estimate Exp(Est) Std.Error z-value       p
+gendermale  -0.1393     0.87   0.08131  -1.713 0.08663
 
 final llk =  -1962.272 
 Iterations =  91 
-Bootstrap Samples =  10 
-WARNING: only  10  bootstrap samples used for standard errors. 
-Suggest using more bootstrap samples for inference
+Bootstrap Samples =  400 
 \end{Soutput}
 \end{Schunk}
 
@@ -291,11 +287,11 @@ Below is a demonstration of how to plot the semi-parametric fit for males and fe
 
 \subsection{Parametric Models}
   
-We can fit parametric models in {\bf icenReg} using the \texttt{ic\_par} function. The syntax is essentially the same as above, except that the user needs to specify \texttt{dist}, the parametric family that the baseline distribution belongs to. The current choices are \texttt{"exponential", "weibull"} (default), \texttt{"gamma", "lnorm", "loglogistic"} and \texttt{"generalgamma"} (generalized gamma distribution). The user must also select \texttt{model = "ph"},  \texttt{"po"}, or \texttt{"aft"} as the model type. 
+We can fit parametric models in {\bf icenReg} using the \texttt{ic\_par} function. The syntax is essentially the same as above, except that the user needs to specify \texttt{dist}, the parametric family that the baseline distribution belongs to. The current choices are \texttt{"exponential", "weibull"} (default), \texttt{"gamma", "lnorm"} (log-normal), \texttt{"loglogistic"} and \texttt{"generalgamma"} (generalized gamma distribution). The user must also select \texttt{model = "ph"},  \texttt{"po"}, or \texttt{"aft"} as the model type. 
   
 It is not necessary to specify \texttt{bs\_samples} for parametric models, as inference is done using the asymptotic normality of the estimators. Fitting a parametric model is typically faster than the semi-parametric model, even if no bootstrap samples are taken for the semi-parametric model. This is because the fully-parametric model is of lower dimensional space without constraints. 
   
-Suppose we wanted to fit a proportional odds model to the \texttt{IR\_diabets} data with a generalized gamma distribution. This could be fit by
+Suppose we wanted to fit a proportional odds model to the \texttt{IR\_diabets} data with a baseline gamma distribution. This could be fit by
   
 \begin{Schunk}
 \begin{Sinput}
@@ -336,14 +332,14 @@ Iterations =  4
 \end{Schunk}
 \includegraphics{icenReg-012}
 
-  \subsubsection{Bayesian Parametric Models}
+  \subsection{Bayesian Parametric Models}
   
   The option for parametric Bayesian models is also permitted in {\bf icenReg} with the \texttt{ic\_bayes} function. If a flat prior is desired, the use is exactly identical to \texttt{ic\_par}. 
   
 \begin{Schunk}
 \begin{Sinput}
 > flatPrior_fit <- ic_bayes(cbind(left, right) ~ gender,
-+     data = IR_diabetes, model = "aft", dist = "gamma")
++     data = IR_diabetes, model = "po", dist = "gamma")
 \end{Sinput}
 \end{Schunk}
 
@@ -354,10 +350,10 @@ The standard methods work in the same manner as other {\bf icenReg} fits, althou
 > flatPrior_fit
 \end{Sinput}
 \begin{Soutput}
-Model:  Bayesian Accelerated Failure Time
+Model:  Bayesian Proportional Odds
 Baseline:  gamma 
 Call: ic_bayes(formula = cbind(left, right) ~ gender, data = IR_diabetes, 
-    model = "aft", dist = "gamma")
+    model = "po", dist = "gamma")
 
 
 Iterations = 3000:22995
@@ -368,21 +364,21 @@ Sample size per chain = 4000
 1. Empirical mean and standard deviation for each variable,
    plus standard error of the mean:
 
-              Mean      SD  Naive SE Time-series SE
-log_shape  1.99305 0.05433 0.0008591      0.0011923
-log_scale  0.83064 0.05559 0.0008790      0.0012588
-gendermale 0.03359 0.01358 0.0002147      0.0003313
+             Mean      SD  Naive SE Time-series SE
+log_shape  1.9950 0.05539 0.0008758       0.001228
+log_scale  0.8283 0.05646 0.0008927       0.001270
+gendermale 0.1710 0.06363 0.0010061       0.001564
 
 2. Quantiles for each variable:
 
-               2.5%     25%     50%     75%   97.5%
-log_shape  1.885452 1.95603 1.99406 2.02953 2.09740
-log_scale  0.724795 0.79302 0.82995 0.86746 0.93944
-gendermale 0.008032 0.02392 0.03358 0.04291 0.06041
+              2.5%    25%    50%    75%  97.5%
+log_shape  1.88650 1.9571 1.9954 2.0328 2.1015
+log_scale  0.72028 0.7895 0.8282 0.8667 0.9390
+gendermale 0.04969 0.1269 0.1694 0.2138 0.2957
 
 3. MAP estimates:
  log_shape  log_scale gendermale 
-   2.00100    0.82280    0.03236 
+    2.0020     0.8228     0.1671 
 \end{Soutput}
 \end{Schunk}
 
@@ -398,14 +394,14 @@ Markov Chain Monte Carlo (MCMC) output:
 Start = 3000 
 End = 3030 
 Thinning interval = 5 
-     log_shape log_scale   gendermale
-[1,]  2.010088 0.8117075  0.045016943
-[2,]  1.903010 0.9253811  0.029728420
-[3,]  1.930863 0.8927230  0.034182510
-[4,]  1.936305 0.8814818  0.016831772
-[5,]  1.895685 0.9119515 -0.003200325
-[6,]  1.957426 0.8405485  0.027213103
-[7,]  1.964651 0.8653514  0.040817723
+     log_shape log_scale gendermale
+[1,]  2.013014 0.7921288  0.1224253
+[2,]  2.016067 0.7975700  0.1208261
+[3,]  1.997728 0.8143404  0.1673912
+[4,]  2.019887 0.7940186  0.1537187
+[5,]  1.989291 0.8081181  0.2818061
+[6,]  1.929007 0.9012546  0.2579392
+[7,]  1.937887 0.8779747  0.2066531
 \end{Soutput}
 \end{Schunk}
 
@@ -418,7 +414,7 @@ The log posterior density at each iteration can be accessed through the \texttt{
 > head(flatPrior_fit$logPosteriorDensities)  
 \end{Sinput}
 \begin{Soutput}
-[1] -2007.494 -2008.750 -2007.899 -2008.487 -2012.413 -2009.045
+[1] -2007.813 -2007.228 -2006.937 -2006.978 -2009.714 -2008.644
 \end{Soutput}
 \end{Schunk}
 
@@ -427,7 +423,8 @@ Plotting calls are as standard. Important note: this plots the MAP estimates of 
 
 \begin{Schunk}
 \begin{Sinput}
->   plot(flatPrior_fit, newdata)
+>   plot(flatPrior_fit, newdata,
++        main = 'MAP Estimates')
 \end{Sinput}
 \end{Schunk}
 \includegraphics{icenReg-017}
@@ -441,7 +438,7 @@ MCMC diagnositic plots can be generated by accessing the \texttt{\$samples} fiel
 \end{Schunk}
 \includegraphics{icenReg-018}
 
-As noted earlier, default behavior is to use a flat prior. If a user wants to use an informative prior, they can provide whichever custom writen prior they choose. This function must take in a vector of values corresponding to all the parameters of the model (i.e. first baseline parameters and then regression parameters) and return the log-prior, calculated up to a additive constant. 
+As noted earlier, default behavior is to use a flat prior. If a user wants to use an informative prior, they can provide whichever custom written prior they choose. This function must take in a vector of values corresponding to all the parameters of the model (i.e. first baseline parameters and then regression parameters) and return the log-prior, calculated up to a additive constant. 
 
 This is illustrated with an example where we decide to put a tight prior about the shape parameter (i.e. first baseline parameter) and the regression parameter, and a diffuse prior about the scale parameter. 
 
@@ -458,17 +455,17 @@ This is illustrated with an example where we decide to put a tight prior about t
 +    return(ans)
 +  }    
 > informPrior_fit <- ic_bayes(cbind(left, right) ~ gender,
-+     data = IR_diabetes, model = "aft", dist = "gamma",
++     data = IR_diabetes, model = "po", dist = "gamma",
 +     logPriorFxn = logPriorFunction)
 > # Fitting model with prior. 
 > 
 > informPrior_fit
 \end{Sinput}
 \begin{Soutput}
-Model:  Bayesian Accelerated Failure Time
+Model:  Bayesian Proportional Odds
 Baseline:  gamma 
 Call: ic_bayes(formula = cbind(left, right) ~ gender, data = IR_diabetes, 
-    logPriorFxn = logPriorFunction, model = "aft", dist = "gamma")
+    logPriorFxn = logPriorFunction, model = "po", dist = "gamma")
 
 
 Iterations = 3000:22995
@@ -479,41 +476,42 @@ Sample size per chain = 4000
 1. Empirical mean and standard deviation for each variable,
    plus standard error of the mean:
 
-             Mean      SD  Naive SE Time-series SE
-log_shape  1.4505 0.05677 0.0008975      0.0014955
-log_scale  1.3666 0.05937 0.0009387      0.0016079
-gendermale 0.0312 0.01780 0.0002814      0.0004696
+              Mean      SD  Naive SE Time-series SE
+log_shape  1.45266 0.05674 0.0008972       0.001395
+log_scale  1.36374 0.05864 0.0009272       0.001459
+gendermale 0.08754 0.05276 0.0008342       0.001152
 
 2. Quantiles for each variable:
 
-               2.5%     25%     50%     75%   97.5%
-log_shape   1.34021 1.41216 1.45058 1.48807 1.56280
-log_scale   1.25281 1.32653 1.36681 1.40562 1.48322
-gendermale -0.00449 0.01975 0.03113 0.04298 0.06547
+               2.5%    25%    50%    75%  97.5%
+log_shape   1.34046 1.4141 1.4534 1.4917 1.5623
+log_scale   1.25075 1.3235 1.3623 1.4026 1.4798
+gendermale -0.01307 0.0515 0.0864 0.1235 0.1898
 
 3. MAP estimates:
  log_shape  log_scale gendermale 
-   1.45300    1.36400    0.02997 
+   1.45100    1.36400    0.08773 
 \end{Soutput}
 \end{Schunk}
 
-Note that posterior mean for \texttt{log\_scale} is pulled down significantly. 
+Note that the posterior mean for \texttt{log\_shape} is pulled down significantly. 
 
-Default behavior for \texttt{ic\_bayes} is to use an adaptive MH block updater, started from the MLE (not MAP) estimate to seed the starting point of the chain and starting proposal covariance. The proposal covariance is updated as more samples are taken. This should work well with informative likelihoods and relatively weak priors. On the other hand, it can be quite problematic with weak likelihoods and relatively strong priors. In such cases, a user may prefer to turn off the MLE initialization. This can be done with \texttt{bayesControl} function. 
+Default behavior for \texttt{ic\_bayes} is to use an adaptive MH block updater, started from the MLE (not MAP) estimate to seed the starting point of the chain and starting proposal covariance. The proposal covariance is updated as more samples are taken. This should work well with informative likelihoods and relatively weak priors. On the other hand, it can be quite problematic with weak likelihoods and relatively strong priors. In such cases, a user may prefer to turn off the MLE initialization. This can be done with the \texttt{bayesControl} function. 
 
 \begin{Schunk}
 \begin{Sinput}
 > weak_data <- IR_diabetes[1:2,]
 > weakData_fit <- ic_bayes(cbind(left, right) ~ gender,
 +     data = weak_data,
-+     model = "aft", dist = "gamma",
++     model = "po", dist = "gamma",
 +     logPriorFxn = logPriorFunction,
 +     controls = bayesControls(useMLE_start = F))
 > plot(weakData_fit$samples)
-> 
 \end{Sinput}
 \end{Schunk}
 \includegraphics{icenReg-020}
+
+Note that in this sample, we see evidence that the chain has not properly mixed, especially in regards to the \texttt{log\_scale} parameter. Using \texttt{bayesControls}, we could increase both the samples and burnIn to address this issue. 
 
 \section{Inspecting model fit}
 

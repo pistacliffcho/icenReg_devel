@@ -48,4 +48,3 @@ estP <- getFitEsts(fit, q = 400)
 \author{
 Clifford Anderson-Bergman
 }
-

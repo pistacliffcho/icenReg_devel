@@ -4,8 +4,8 @@
 \alias{bayesControls}
 \title{Control parameters for ic_bayes}
 \usage{
-bayesControls(samples = 10001, useMLE_start = TRUE, burnIn = 2499,
-  iterationsPerUpdate = 250, initSD = 0.1, updateChol = T,
+bayesControls(samples = 4000, useMLE_start = TRUE, burnIn = 2999,
+  samplesPerUpdate = 1000, initSD = 0.1, updateChol = TRUE,
   acceptRate = 0.44, thin = 5)
 }
 \arguments{
@@ -15,7 +15,7 @@ bayesControls(samples = 10001, useMLE_start = TRUE, burnIn = 2499,
 
 \item{burnIn}{Number of samples discarded for burn in}
 
-\item{iterationsPerUpdate}{Number of iterations between updates of proposal covariance matrix}
+\item{samplesPerUpdate}{Number of iterations between updates of proposal covariance matrix}
 
 \item{initSD}{If \code{useMLE_start == FALSE}, initial standard deviation used}
 
@@ -31,8 +31,9 @@ Control parameters for ic_bayes
 \details{
 Control parameters for the MH block updater used by \code{ic_bayes}.
 
-The \code{samples} argument dictates how many MCMC samples are taken and
-a total of \code{samples/thin} samples are finally saved. 
+The \code{samples} argument dictates how many MCMC samples are taken. One 
+sample will be saved every \code{thin} iterations, so there will a total of
+\code{thin * samples + burnIn} iterations. The burn in samples are not saved at all. 
 
 Default behavior is to first calculate the MLE (not the MAP) estimate and use 
 Hessian at the MLE to seed the proposal covariance matrix. After this, an updative 
@@ -43,4 +44,3 @@ In this case, it suggested to use a cold start by setting \code{useMLE_start = F
 for the \code{controls} argument. In this case, the initial starting proposal
  covariance matrix will be a diagonal matrix with \code{initSD} standard deviations.
 }
-

@@ -48,8 +48,8 @@
 #' 
 #' priorFxn <- function(pars){
 #'  ans <- 0
-#'  ans <- ans + dnorm(pars[1], log = T)
-#'  ans <- ans + dnorm(pars[3], sd = 0.25, log = T)
+#'  ans <- ans + dnorm(pars[1], log = TRUE)
+#'  ans <- ans + dnorm(pars[3], sd = 0.25, log = TRUE)
 #' }
 #' # Prior function puts N(0,1) prior on baseline shape parameter (first parameter)
 #' # flat prior on baseline scale parameter (second parameter)
@@ -128,6 +128,9 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
   ans$terms <- mt
   ans$xlevels <- .getXlevels(mt, mf)
   ans$formula <- formula
+  dataEnv <- new.env()
+  dataEnv$data <- data
+  ans$.dataEnv <- dataEnv
   return(ans)
 }
 
@@ -136,7 +139,7 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
 #' @param samples               Number of samples. 
 #' @param useMLE_start          Should MLE used for starting point? 
 #' @param burnIn                Number of samples discarded for burn in
-#' @param iterationsPerUpdate   Number of iterations between updates of proposal covariance matrix
+#' @param samplesPerUpdate      Number of iterations between updates of proposal covariance matrix
 #' @param initSD                If \code{useMLE_start == FALSE}, initial standard deviation used 
 #' @param updateChol            Should cholesky decomposition be updated?
 #' @param acceptRate            Target acceptance rate
@@ -163,7 +166,7 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
 bayesControls <- function(samples = 4000, 
                           useMLE_start = TRUE, burnIn = 2999, 
                           samplesPerUpdate = 1000, initSD = 0.1,
-                          updateChol = T, acceptRate = 0.44,
+                          updateChol = TRUE, acceptRate = 0.44,
                           thin = 5){
   ans <- list(useMLE_start        = useMLE_start,
               samples             = samples,
@@ -194,7 +197,7 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
   allParNames            = c(parList$bnames, parList$regnames)
   mat_samples            = c_fit$samples 
   colnames(mat_samples)  = allParNames
-  mcmc_samples           = mcmc(mat_samples, 
+  mcmc_samples           = coda::mcmc(mat_samples, 
                                 thin = bayesList$thin, 
                                 start = bayesList$burnIn + 1)
   logPostDens            = c_fit$logPosteriorDensity

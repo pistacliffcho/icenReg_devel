@@ -32,4 +32,3 @@ be provided to newdata, which will result in multiple S_curves.
 \author{
 Clifford Anderson-Bergman
 }
-

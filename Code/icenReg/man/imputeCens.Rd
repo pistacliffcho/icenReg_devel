@@ -30,9 +30,9 @@ If \code{newdata} is left blank, will provide estimates for original data set.
  \code{imputeType = 'fullSample'} first takes a random sample of the coefficients,
  (assuming asymptotic normality) and then takes a random sample 
  of the response variable, conditional on the response interval, 
- covariates, and the random sample of the coefficients. 
- 
- @examples 
+ covariates, and the random sample of the coefficients.
+}
+\examples{
 simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
                       inspections = 6, inspectLength = 1)
 
@@ -44,4 +44,3 @@ imputedValues <- imputeCens(fit)
 \author{
 Clifford Anderson-Bergman
 }
-

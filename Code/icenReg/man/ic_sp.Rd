@@ -95,9 +95,6 @@ summary(po_fit)
 
 
 }
-\author{
-Clifford Anderson-Bergman
-}
 \references{
 Pan, W., (1999), Extending the iterative convex minorant algorithm to the Cox model for interval-censored data, \emph{Journal of Computational and Graphical Statistics}, Vol 8(1), pp109-120
 
@@ -105,4 +102,6 @@ Wellner, J. A., and Zhan, Y. (1997) A hybrid algorithm for computation of the ma
 
 Anderson-Bergman, C. (preprint) Revisiting the iterative convex minorant algorithm for interval censored survival regression models
 }
-
+\author{
+Clifford Anderson-Bergman
+}

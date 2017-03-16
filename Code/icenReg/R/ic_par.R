@@ -133,20 +133,20 @@ fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po',
   fit$par           <- parFam
   
   recenterCovar <- FALSE
-  if(recenterCovar == TRUE){
-    fit$pca_coefs <- fit$reg_pars
-    fit$pca_hessian  <- fit$hessian
-    fit$pca_info <- prcomp_xmat
-    
-    allPars <- c(fit$baseline, fit$reg_pars)
-    
-    transformedPar <- PCAFit2OrgParFit(prcomp_xmat, fit$pca_hessian, allPars, k_base)
-    fit$baseline   <- transformedPar$pars[1:k_base]
-    fit$reg_pars   <- transformedPar$pars[-1:-k_base]
-    fit$var        <- transformedPar$var	
-    fit$hessian    <- solve(fit$var)
-    fit$baseOffset <- as.numeric(fit$reg_pars %*% prcomp_xmat$center)
-  }
+#   if(recenterCovar == TRUE){
+#     fit$pca_coefs <- fit$reg_pars
+#     fit$pca_hessian  <- fit$hessian
+#     fit$pca_info <- prcomp_xmat
+#     
+#     allPars <- c(fit$baseline, fit$reg_pars)
+#     
+#     transformedPar <- PCAFit2OrgParFit(prcomp_xmat, fit$pca_hessian, allPars, k_base)
+#     fit$baseline   <- transformedPar$pars[1:k_base]
+#     fit$reg_pars   <- transformedPar$pars[-1:-k_base]
+#     fit$var        <- transformedPar$var	
+#     fit$hessian    <- solve(fit$var)
+#     fit$baseOffset <- as.numeric(fit$reg_pars %*% prcomp_xmat$center)
+#   }
   
   names(fit$reg_pars)    <- parList$regnames
   names(fit$baseline)    <- parList$bnames

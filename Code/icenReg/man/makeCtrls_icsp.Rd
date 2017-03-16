@@ -34,4 +34,3 @@ The option to turn it off is only in place to help demonstrate it's utility.
 \author{
 Clifford Anderson-Bergman
 }
-

@@ -60,4 +60,3 @@ summary(logist_po_fit)
 \author{
 Clifford Anderson-Bergman
 }
-

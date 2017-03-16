@@ -107,9 +107,12 @@ simIC_weib <- function (n = 100, b1 = 0.5, b2 = -0.5, model = "ph", shape = 2,
 #' exact same conditional distribution as event time (so each event time necessarily has 
 #' probability 0.5 of being right censored). 
 #' 
+#' Returns data in current status format, i.e. inspection time and event indicator. 
+#' Use \code{cs2ic} to convert to interval censored format (see example).
+#' 
 #' @examples 
 #' simData <- simCS_weib()
-#' fit <- ic_par(cbind(l, u) ~ x1 + x2, data = simData)
+#' fit <- ic_par(cs2ic(time, event) ~ x1 + x2, data = simData)
 #' @export
 simCS_weib <- function (n = 100, b1 = 0.5, b2 = -0.5, model = "ph", shape = 2, 
                         scale = 2) 
@@ -117,18 +120,12 @@ simCS_weib <- function (n = 100, b1 = 0.5, b2 = -0.5, model = "ph", shape = 2,
   x1 <- runif(n, -1, 1)
   x2 <- 1 - 2 * rbinom(n, 1, 0.5)
   linPred <- x1 * b1 + x2 * b2
-  trueTimes <- simEventTime(linPred, model = model, dist = qweibull, 
+  eventTimes <- simEventTime(linPred, model = model, dist = qweibull, 
                             paramList = list(shape = shape, scale = scale))
-  censTimes <- simEventTime(linPred, model = model, dist = qweibull, 
+  inspectTimes <- simEventTime(linPred, model = model, dist = qweibull, 
                             paramList = list(shape = shape, scale = scale))
-  leftCen <- trueTimes < censTimes
-  l <- numeric()
-  u <- numeric()
-  l[leftCen] <- 0
-  u[leftCen] <- censTimes[leftCen]
-  l[!leftCen] <- censTimes[!leftCen]
-  u[!leftCen] <- Inf
-  ans <- data.frame(l = l, u = u, x1 = x1, x2 = x2)
+  event <- eventTimes < inspectTimes
+  ans <- data.frame(time = inspectTimes, event = event, x1 = x1, x2 = x2)
   return(ans)
 }
 

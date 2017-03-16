@@ -29,10 +29,12 @@ Exact event times are simulated according to the given survival regression model
 Two covariates are used; \code{x1 = rnorm(n), x2 = 1 - 2 * rbinom(n, 1, .5)}. After
 event times are simulated, current status inspection times are simulated following the 
 exact same conditional distribution as event time (so each event time necessarily has 
-probability 0.5 of being right censored).
+probability 0.5 of being right censored). 
+
+Returns data in current status format, i.e. inspection time and event indicator. 
+Use \code{cs2ic} to convert to interval censored format (see example).
 }
 \examples{
 simData <- simCS_weib()
-fit <- ic_par(cbind(l, u) ~ x1 + x2, data = simData)
+fit <- ic_par(cs2ic(time, event) ~ x1 + x2, data = simData)
 }
-

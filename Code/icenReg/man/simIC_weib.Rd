@@ -62,4 +62,3 @@ diag_covar(Surv(l, u, type = 'interval2') ~ x1 + x2,
 \author{
 Clifford Anderson-Bergman
 }
-

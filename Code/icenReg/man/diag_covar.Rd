@@ -78,4 +78,3 @@ If \code{lgdLocation = NULL}, will use standard placement given \code{yType}. Se
 \author{
 Clifford Anderson-Bergman
 }
-

@@ -18,6 +18,7 @@ Mice were placed in two different groups: conventional environment or germ free 
 
 \item{\code{grp}}{Group for mouse. Either ce (conventional environment) or ge (grem-free environment)}
 }}
+
 \examples{
 data(miceData)
  
@@ -34,4 +35,3 @@ summary(coxph_fit)
 Hoel D. and Walburg, H.,(1972), Statistical analysis of survival experiments, \emph{The Annals of Statistics}, 
 	18, 1259-1294
 }
-
