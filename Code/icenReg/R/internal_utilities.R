@@ -94,15 +94,13 @@ make_par_fitList <- function(y_mat, x_mat, parFam = "gamma",
                              uncenTol = 10^-6, regnames,
                              weights, callText){
   k_reg <- getNumCovars(x_mat)
-  recenterCovar = FALSE
-  if(k_reg > 0)	recenterCovar <- TRUE
   etaOffset = 0
   if(!is.matrix(x_mat))
     x_mat <- matrix(x_mat, ncol = 1)
-  if(recenterCovar == TRUE){
-    prcomp_xmat <- prcomp(x_mat, center = TRUE, scale. = TRUE)
-    x_mat <- prcomp_xmat$x
-  }
+#  if(recenterCovar == TRUE){
+#    prcomp_xmat <- prcomp(x_mat, center = TRUE, scale. = TRUE)
+#    x_mat <- prcomp_xmat$x
+#  }
   
   isUncen <- abs(y_mat[,2] - y_mat[,1]) < uncenTol
   mean_uncen_t <- (y_mat[isUncen,1] + y_mat[isUncen,2])/2

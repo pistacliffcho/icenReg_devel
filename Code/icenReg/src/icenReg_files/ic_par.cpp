@@ -651,6 +651,7 @@ void IC_parOpt::optimize(){
         NR_reg_pars();
         lk_new = calcLike_baseReady();   
     }
+        
 }
 
 Rcpp::List ic_par(SEXP R_s_t, SEXP R_d_t, SEXP covars,
