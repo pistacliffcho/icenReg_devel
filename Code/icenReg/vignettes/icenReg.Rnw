@@ -205,10 +205,10 @@ We fit the model below. Note that this may be time consuming, as the semi-parame
   
 <<>>=
   fit_ph <- ic_sp(cbind(left, right) ~ gender, model = 'ph', 
-                  bs_samples = 400, data = IR_diabetes)
+                  bs_samples = 100, data = IR_diabetes)
       
   fit_po <- ic_sp(cbind(left, right) ~ gender, model = 'po',
-                  bs_samples = 400, data = IR_diabetes)
+                  bs_samples = 100, data = IR_diabetes)
 @
 
 The first model by default fits a Cox-PH model, while the second fits a proportional odds model, as controlled by the \texttt{model} argument. We can look at the results using either the \texttt{summary} function, or just directly looking at the results (what is displayed is the same). 

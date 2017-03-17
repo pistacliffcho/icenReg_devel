@@ -624,8 +624,8 @@ getSurvTimes <- function(p, etas, baselineInfo, regMod, baseMod){
 
 
 getSamplablePars <- function(fit){
-  if(is(fit, 'sp_fit')) return(fit$coefficients)
-  else if(is(fit, 'par_fit')) return(fit$coefficients)
+  if(is(fit, 'sp_fit') | is(fit, 'par_fit') | is(fit, 'bayes_fit')) 
+    return(fit$coefficients)
 }
 
 getSamplableVar <- function(fit){

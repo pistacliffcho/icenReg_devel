@@ -663,18 +663,31 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
   ans <- matrix(nrow = length(p1), ncol = numImputes)
   storage.mode(ans) <- 'double'
   if(imputeType == 'median'){
+    isBayes <- is(fit, 'bayes_fit')
+    if(isBayes){
+      orgCoefs <- getSamplablePars(fit)
+      map_ests <- c(fit$MAP_baseline, fit$MAP_reg_pars)
+      setSamplablePars(fit, map_ests)
+    }
     p_med <- (p1 + p2)/2
     ans <- getFitEsts(fit, newdata, p = p_med)
     isLow <- ans < yMat[,1]
     ans[isLow] <- yMat[isLow,1]
     isHi <- ans > yMat[,2]
     ans[isHi] <- yMat[isHi]
+    if(isBayes) setSamplablePars(fit, orgCoefs)
     rownames(ans) <- rownames(newdata)
     return(ans)
   }
   if(imputeType == 'fixedParSample'){
+    isBayes <- is(fit, 'bayes_fit')
+    if(isBayes){
+      orgCoefs <- getSamplablePars(fit)
+      map_ests <- c(fit$MAP_baseline, fit$MAP_reg_pars)
+      setSamplablePars(fit, map_ests)
+    }
     for(i in 1:numImputes){
-      p_samp <- runif(length(p1), p2, p1)
+      p_samp <- runif(length(p1), p1, p2)
       theseImputes <- getFitEsts(fit, newdata, p = p_samp)
       isLow <- theseImputes < yMat[,1]
       theseImputes[isLow] <- yMat[isLow,1]
@@ -683,6 +696,8 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
       rownames(ans) <- rownames(newdata)
       ans <- fastMatrixInsert(theseImputes, ans, colNum = i)
     }
+    if(isBayes) setSamplablePars(fit, orgCoefs)
+    rownames(ans) <- rownames(newdata)
     return(ans)
   }
   if(imputeType == 'fullSample'){
@@ -752,20 +767,26 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
 #'
 #' newdata = data.frame(x1 = c(0, 1), x2 = c(1,1))
 #'
-#' sampleResponses <- ir_sample(fit, newdata = newdata, samples = 100)
+#' sampleResponses <- ic_sample(fit, newdata = newdata, samples = 100)
 #' @author Clifford Anderson-Bergman
 #' @export
-ir_sample <- function(fit, newdata = NULL, sampleType = 'fullSample', samples = 5){
+ic_sample <- function(fit, newdata = NULL, sampleType = 'fullSample', samples = 5){
   if(is.null(newdata)) newdata <- fit$getRawData()
-#  yMat <- expandY(fit$formula, newdata, fit)
   yMat <- cbind(rep(-Inf, nrow(newdata)), rep(Inf, nrow(newdata)))
   p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
   p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
   ans <- matrix(nrow = length(p1), ncol = samples)
   storage.mode(ans) <- 'double'
+  isSP <- is(fit, 'sp_fit')
+  isBayes <- is(fit, 'bayes_fit')
   if(sampleType == 'fixedParSample'){
+    if(isBayes){
+      orgCoefs <- getSamplablePars(fit)
+      map_ests <- c(fit$MAP_baseline, fit$MAP_reg_pars)
+      setSamplablePars(fit, map_ests)
+    }
     for(i in 1:samples){
-      p_samp <- runif(length(p1), p2, p1)
+      p_samp <- runif(length(p1), p1, p2)
       theseImputes <- getFitEsts(fit, newdata, p = p_samp)
       isLow <- theseImputes < yMat[,1]
       theseImputes[isLow] <- yMat[isLow,1]
@@ -773,12 +794,11 @@ ir_sample <- function(fit, newdata = NULL, sampleType = 'fullSample', samples = 
       theseImputes[isHi] <- yMat[isHi,2]
       ans <- fastMatrixInsert(theseImputes, ans, colNum = i)
     }
+    if(isBayes) setSamplablePars(fit, orgCoefs)
     rownames(ans) <- rownames(newdata)
     return(ans)
   }
   if(sampleType == 'fullSample'){
-    isSP <- is(fit, 'sp_fit')
-    isBayes <- is(fit, 'bayes_fit')
     for(i in 1:samples){
       orgCoefs <- getSamplablePars(fit)
       if(isBayes){ sampledCoefs <- sampBayesPar(fit) }
