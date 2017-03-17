@@ -506,13 +506,16 @@ getFitEsts <- function(fit, newdata, p, q){
   else stop('model not recognized in getFitEsts')
   
   if(type == 'q'){
-    ans <- getSurvProbs(xs, surv_etas, baselineInfo = baselineInfo, regMod = regMod, baseMod = baseMod)
-    ans <- ans * scale_etas
+    ans <- getSurvProbs(xs /scale_etas, surv_etas, 
+                        baselineInfo = baselineInfo, regMod = regMod, baseMod = baseMod)
+#    ans <- ans * scale_etas
     return(ans)
   }
   else if(type == 'p'){
-    xs <- xs / scale_etas
-    ans <- getSurvTimes(xs, surv_etas, baselineInfo = baselineInfo, regMod = regMod, baseMod = baseMod)
+#    xs <- xs / scale_etas
+    ans <- getSurvTimes(xs, surv_etas, 
+                        baselineInfo = baselineInfo, regMod = regMod, baseMod = baseMod)
+    ans <- ans * scale_etas
   return(ans)
   }
 }
@@ -667,7 +670,7 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
     ans[isLow] <- yMat[isLow,1]
     isHi <- ans > yMat[,2]
     ans[isHi] <- yMat[isHi]
-    return()
+    return(ans)
   }
   if(imputeType == 'fixedParSample'){
     for(i in 1:numImputes){
@@ -712,6 +715,90 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
   }
   stop('imputeType type not recognized.')
 }
+
+#' Draw samples from an icenReg model
+#' 
+#' @param fit         icenReg model fit 
+#' @param newdata     \code{data.frame} containing covariates. If blank, will use data from model
+#' @param sampleType  type of samples See details for options
+#' @param samples  Number of samples 
+#' 
+#' @description
+#' Samples response values from an icenReg fit conditional on covariates. 
+#'  
+#' @details 	
+#'  If \code{newdata} is left blank, will provide estimates for original data set. 
+#' 
+#'  There are several options for how to sample. To get random samples without accounting
+#'  for error in the estimated parameters \code{imputeType ='fixedParSample'} takes a 
+#'  random sample of the response variable, conditional on the response interval, 
+#'  covariates and estimated parameters at the MLE. Alternatively, 
+#'  \code{imputeType = 'fullSample'} first takes a random sample of the coefficients,
+#'  (assuming asymptotic normality for the ic_par) and then takes a random sample 
+#'  of the response variable, conditional on the response interval, 
+#'  covariates, and the random sample of the coefficients. 
+#'  
+#' @examples 
+#' simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
+#'                       inspections = 6, inspectLength = 1)
+#'
+#' fit <- ic_par(cbind(l, u) ~ x1 + x2,
+#'               data = simdata)
+#'
+#' newdata = data.frame(x1 = c(0, 1), x2 = c(1,1))
+#'
+#' sampleResponses <- ir_sample(fit, newdata = newdata, samples = 100)
+#' @author Clifford Anderson-Bergman
+#' @export
+ir_sample <- function(fit, newdata = NULL, sampleType = 'fullSample', samples = 5){
+  if(is.null(newdata)) newdata <- fit$getRawData()
+#  yMat <- expandY(fit$formula, newdata, fit)
+  yMat <- cbind(rep(-Inf, nrow(newdata)), rep(Inf, nrow(newdata)))
+  p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
+  p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
+  ans <- matrix(nrow = length(p1), ncol = samples)
+  storage.mode(ans) <- 'double'
+  if(sampleType == 'fixedParSample'){
+    for(i in 1:samples){
+      p_samp <- runif(length(p1), p2, p1)
+      theseImputes <- getFitEsts(fit, newdata, p = p_samp)
+      isLow <- theseImputes < yMat[,1]
+      theseImputes[isLow] <- yMat[isLow,1]
+      isHi <- theseImputes > yMat[,2]
+      theseImputes[isHi] <- yMat[isHi,2]
+      ans <- fastMatrixInsert(theseImputes, ans, colNum = i)
+    }
+    return(ans)
+  }
+  if(sampleType == 'fullSample'){
+    isSP <- is(fit, 'sp_fit')
+    isBayes <- is(fit, 'bayes_fit')
+    for(i in 1:samples){
+      orgCoefs <- getSamplablePars(fit)
+      if(isBayes){ sampledCoefs <- sampBayesPar(fit) }
+      else if(!isSP){
+        coefVar <- getSamplableVar(fit)
+        sampledCoefs <- sampPars(orgCoefs, coefVar)
+      }
+      else{ sampledCoefs <- getBSParSample(fit) }
+      setSamplablePars(fit, sampledCoefs)
+      p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
+      p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
+      p_samp <- runif(length(p1), p1, p2)
+      theseImputes <- getFitEsts(fit, newdata, p = p_samp)
+      isLow <- theseImputes < yMat[,1]
+      theseImputes[isLow] <- yMat[isLow,1]
+      isHi <- theseImputes > yMat[,2]
+      theseImputes[isHi] <- yMat[isHi,2]
+      fastMatrixInsert(theseImputes, ans, colNum = i)
+      setSamplablePars(fit, orgCoefs)
+    }
+    return(ans)
+  }
+  stop('sampleType type not recognized.')
+}
+
+
 
 plot.sp_curves <- function(x, sname = 'baseline', xRange = NULL, ...){
   if(is.null(xRange))

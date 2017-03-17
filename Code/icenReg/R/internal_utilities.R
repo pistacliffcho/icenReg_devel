@@ -813,3 +813,13 @@ default_reg_pars <- function(fit){
   if(!inherits(fit, 'fit_bayes')) return(fit$reg_pars)
   return(fit$MAP_reg_pars)
 }
+
+
+sample_in_interval <- function(fit, newdata, lower_time, upper_time){
+  p_l <- getFitEsts(fit, newdata, q = lower_time)
+  p_u <- getFitEsts(fit, newdata, q = upper_time)
+  raw_p <- runif(length(p_l), min = p_l, max = p_u)
+  ans <- getFitEsts(fit, newdata, p = raw_p)
+  return(ans)
+}
+
