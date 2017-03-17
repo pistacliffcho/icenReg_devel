@@ -19,7 +19,11 @@ ir_sample(fit, newdata = NULL, sampleType = "fullSample", samples = 5)
 Samples response values from an icenReg fit conditional on covariates.
 }
 \details{
-If \code{newdata} is left blank, will provide estimates for original data set. 
+Returns a matrix of samples. Each row of the matrix corresponds with a subject with the 
+ covariates of the corresponding row of \code{newdata}. For each column of the matrix, 
+ the same sampled parameters are used to sample response variables. 
+ 
+ If \code{newdata} is left blank, will provide estimates for original data set. 
 
  There are several options for how to sample. To get random samples without accounting
  for error in the estimated parameters \code{imputeType ='fixedParSample'} takes a 
@@ -31,8 +35,7 @@ If \code{newdata} is left blank, will provide estimates for original data set.
  covariates, and the random sample of the coefficients.
 }
 \examples{
-simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
-                      inspections = 6, inspectLength = 1)
+simdata <- simIC_weib(n = 500)
 
 fit <- ic_par(cbind(l, u) ~ x1 + x2,
               data = simdata)

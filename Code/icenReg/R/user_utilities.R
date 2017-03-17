@@ -647,8 +647,7 @@ predict.icenReg_fit <- function(object, type = 'response',
 #'  covariates, and the random sample of the coefficients. 
 #'  
 #' @examples 
-#' simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
-#'                       inspections = 6, inspectLength = 1)
+#' simdata <- simIC_weib(n = 500)
 #'
 #' fit <- ic_par(cbind(l, u) ~ x1 + x2,
 #'               data = simdata)
@@ -670,6 +669,7 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
     ans[isLow] <- yMat[isLow,1]
     isHi <- ans > yMat[,2]
     ans[isHi] <- yMat[isHi]
+    rownames(ans) <- rownames(newdata)
     return(ans)
   }
   if(imputeType == 'fixedParSample'){
@@ -680,6 +680,7 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
       theseImputes[isLow] <- yMat[isLow,1]
       isHi <- theseImputes > yMat[,2]
       theseImputes[isHi] <- yMat[isHi,2]
+      rownames(ans) <- rownames(newdata)
       ans <- fastMatrixInsert(theseImputes, ans, colNum = i)
     }
     return(ans)
@@ -711,6 +712,7 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
       fastMatrixInsert(theseImputes, ans, colNum = i)
       setSamplablePars(fit, orgCoefs)
     }
+    rownames(ans) <- rownames(newdata)
     return(ans)
   }
   stop('imputeType type not recognized.')
@@ -727,6 +729,10 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
 #' Samples response values from an icenReg fit conditional on covariates. 
 #'  
 #' @details 	
+#'  Returns a matrix of samples. Each row of the matrix corresponds with a subject with the 
+#'  covariates of the corresponding row of \code{newdata}. For each column of the matrix, 
+#'  the same sampled parameters are used to sample response variables. 
+#'  
 #'  If \code{newdata} is left blank, will provide estimates for original data set. 
 #' 
 #'  There are several options for how to sample. To get random samples without accounting
@@ -739,8 +745,7 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
 #'  covariates, and the random sample of the coefficients. 
 #'  
 #' @examples 
-#' simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
-#'                       inspections = 6, inspectLength = 1)
+#' simdata <- simIC_weib(n = 500)
 #'
 #' fit <- ic_par(cbind(l, u) ~ x1 + x2,
 #'               data = simdata)
@@ -768,6 +773,7 @@ ir_sample <- function(fit, newdata = NULL, sampleType = 'fullSample', samples = 
       theseImputes[isHi] <- yMat[isHi,2]
       ans <- fastMatrixInsert(theseImputes, ans, colNum = i)
     }
+    rownames(ans) <- rownames(newdata)
     return(ans)
   }
   if(sampleType == 'fullSample'){
@@ -793,6 +799,7 @@ ir_sample <- function(fit, newdata = NULL, sampleType = 'fullSample', samples = 
       fastMatrixInsert(theseImputes, ans, colNum = i)
       setSamplablePars(fit, orgCoefs)
     }
+    rownames(ans) <- rownames(newdata)
     return(ans)
   }
   stop('sampleType type not recognized.')

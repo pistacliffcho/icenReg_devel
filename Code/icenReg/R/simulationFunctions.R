@@ -147,7 +147,7 @@ simCS_weib <- function (n = 100, b1 = 0.5, b2 = -0.5, model = "ph", shape = 2,
 #' event times are simulated, all values less than \code{lowerLimit} are left censored
 #' and all values less than \code{upperLimit} are right censored.  
 #' @examples 
-#' simData <- simCS_weib()
+#' simData <- simDC_weib()
 #' fit <- ic_par(cbind(l, u) ~ x1 + x2, data = simData)
 #' @export
 simDC_weib <- function (n = 100, b1 = 0.5, b2 = -0.5, model = "ph", shape = 2, 

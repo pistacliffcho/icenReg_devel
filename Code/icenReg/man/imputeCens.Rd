@@ -33,8 +33,7 @@ If \code{newdata} is left blank, will provide estimates for original data set.
  covariates, and the random sample of the coefficients.
 }
 \examples{
-simdata <- simIC_weib(n = 500, b1 = .3, b2 = -.3,
-                      inspections = 6, inspectLength = 1)
+simdata <- simIC_weib(n = 500)
 
 fit <- ic_par(cbind(l, u) ~ x1 + x2,
               data = simdata)

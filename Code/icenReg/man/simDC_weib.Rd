@@ -35,6 +35,6 @@ event times are simulated, all values less than \code{lowerLimit} are left censo
 and all values less than \code{upperLimit} are right censored.
 }
 \examples{
-simData <- simCS_weib()
+simData <- simDC_weib()
 fit <- ic_par(cbind(l, u) ~ x1 + x2, data = simData)
 }
