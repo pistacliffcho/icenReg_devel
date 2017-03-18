@@ -14,6 +14,8 @@ set.seed(1)
 
 In this situation, customers approach a service center and are given a ticket. When the service center is ready, they call the customer's ticket. However, some of the customers leave before their ticket is called. We don't observe the time when the customers leave, but we do record the service time and whether the customer has left, along with other variables that may affect both service time and customer patience. 
 
+## Simulating the data
+
 We start by writing a function that simulates some customer data. In our simulation, 
 each subject has a patience time (how long they will stay until they decide to leave) 
 and a service time (how long they had to wait for service). 
@@ -22,7 +24,7 @@ but we see the service time (just named "time" in the dataset produced) and whet
 
 In addition, we have two covariates; "busy" (whether the center was busy when the customers
 approached) and "numServers" (number of servers working at a center). In our simulation, when
-its busy, service takes longer, but customers are slightly more patient. The number of servers
+it is busy, service takes longer, but customers are slightly more patient. The number of servers
 does not affect a subject's patience, but does reduce service time. 
 
 We note that this is an overly simplistic/naive model. For example, number of servers working
@@ -32,25 +34,45 @@ is independent of whether the center is busy. But this naive model should work f
 simWaits <- function(n = 100, 
                      busyEffectOnService =  log(3),
                      busyEffectOnPatience = log(1.5),
-                     numServersEffectOnService = log(0.7) ){
+                     numServersEffectOnService = log(0.7),
+                     probTalk = 0.0){
+  # Simulating covariates
   isBusy <- rbinom(n, size = 1, prob = 0.5)
   numServers <- rpois(n, lambda = 1) + 1
+  
+  # Simulating patience and service time
   patience_time_adj <- exp(isBusy * busyEffectOnPatience)
   patience_time <- rexp(n) * patience_time_adj * 2
   service_adj <- exp(isBusy * busyEffectOnService + 
                        numServers * numServersEffectOnService)
   service_time <- rexp(n) * service_adj 
+  left <- service_time > patience_time
+  
+  # Simulating biasing effect; discussed later
+  if(probTalk > 0){
+    left_ind <- which(left)
+    talked <- rbinom(length(left_ind), size = 1, prob = probTalk)
+    talked_ind <- left_ind[talked == 1]
+    service_time[talked_ind] <- patience_time[talked_ind] 
+  }
   res <- data.frame(time = service_time, 
-                    left = service_time > patience_time,
+                    left = left,
                     numServers = numServers,
                     busy = isBusy)
   return(res)
 }
 
+# True values of parameters used in simulation model
+true_patience_params <- c(0,log(2),0, log(1.5))
+true_service_params  <- c(0,0,log(0.7), log(3))
+
+# Data we will use
 exampleData <- simWaits(n = 4000)
 
 head(exampleData)
 ```
+
+## Fitting models
 
 Next, we fit the survival model for subject's patience. The dataset is in current status 
 format, so we can use the `cs2ic` function to convert this into current status format. 
@@ -75,6 +97,34 @@ service_fit <- ic_bayes(cbind(time,time) ~ numServers + busy,
                         model = 'aft')
 ```
 
+Because this is a simulation, we can look and see how our estimates compared to the true parameters used to simulate the data. 
+
+```{r}
+coef_res <- list()
+patience_results <- rbind(coef(patience_fit),
+                          sqrt(diag(vcov(patience_fit))),
+                          true_patience_params)
+rownames(patience_results) <- c('Estimated Parameters',
+                                'Posterior SD', 
+                                'True Parameters')
+
+service_results  <- rbind(coef(service_fit),
+                    sqrt(diag(vcov(service_fit))),
+                    true_service_params)
+rownames(service_results) <- c('Estimated Parameters', 
+                                'Posterior SD', 
+                                'True Parameters')
+
+coef_res[['Patience Model']] <- patience_results
+coef_res[['Service Model']] <- service_results
+
+print(coef_res, digits = 3)
+```
+
+It's worth noting that the posterior standard deviation is considerably smaller for the service model compared with the patience model. This is natural; we observed the service times exactly, where as the patience time we only know up to a potentially very large interval. So it makes sense that our data is more informative about the distribution of service time than about the patience time. 
+
+## Estimating the probability of abandoment
+
 Now suppose we want to know the probability of abandonment under various scenarios. 
 We can make a new dataset with the covariate settings we are interested in. 
 
@@ -92,8 +142,9 @@ service time, we have an estimate for the probability of abandonment.
 ```{r}
 patience_samples <- ic_sample(patience_fit, newdata, samples = 1000)
 service_samples <- ic_sample(service_fit, newdata, samples = 1000)                      
-                      
-rowMeans(patience_samples < service_samples)
+res <- list(`Estimated Probabilities of Abandonment` =  
+              rowMeans(patience_samples < service_samples) )
+res
 ```
 
 The default behavior for `ic_sample` is to first take a sample from the posterior of the distribution of model parameters and then take a sample of the response variables conditional on the parameters. As such, this produces the posterior probability of abandonment. Alternatively, we can just use the MAP estimates for the model parameters for every sample by setting `sampleType = 'fixedParSample'`. 
@@ -104,5 +155,51 @@ patience_samples <- ic_sample(patience_fit, newdata, samples = 1000,
 service_samples <- ic_sample(service_fit, newdata, samples = 1000,
                              sampleType = 'fixedParSample')                      
                       
-rowMeans(patience_samples < service_samples)
+res <- list(`Estimated Probabilities of Abandonment` =  
+              rowMeans(patience_samples < service_samples) )
+res
 ```
+
+
+## Potential confounder: non-independence 
+
+Our model makes the assumption that service time and patience time are *conditionally* independent. This is one of the very common assumptions of interval censored models; that the process that generates the inspection times is conditionally independent of the event times. Note that the service time and patience time certainly are not marginally indepedent; when it is busy, both the service time and patience times are larger. But since "busy" is captured in the model, this does not affect inference. 
+
+But let's consider a scenario where this could happen. Suppose that some of our customers leave and tell the servers to cancel their ticket. For the sake of ruining our data, let's assume the server then marks this as the service time (the ticket is removed) and does not tell us what happened. In this case, there is a dependency between the service time and patience time which is not captured in the data itself. This will bias our results. The extent of the bias is depedent on how inapproriate our model is. 
+
+To demonstrate, we will simulate two datasets. In the first, we will simulate that of the subjects who left, 10% talked with servers (i.e. service time == patience time, but in the data we see, these are right censored). We also simulate a dataset where 75% talked with servers. 
+
+```{r}
+light_bias_data <- simWaits(n = 4000,
+                            probTalk = 0.1)
+heavy_bias_data <- simWaits(n = 4000,
+                            probTalk = 0.75)
+
+light_bias_patience_fit <- ic_bayes(cs2ic(time, left) ~ numServers + busy, 
+                         data = light_bias_data, 
+                         model = 'aft')
+heavy_bias_patience_fit <- ic_bayes(cs2ic(time, left) ~ numServers + busy, 
+                         data = heavy_bias_data, 
+                         model = 'aft')
+
+
+coef_res <- list()
+light_bias_results <- rbind(coef(light_bias_patience_fit),
+                          sqrt(diag(vcov(light_bias_patience_fit))),
+                          true_patience_params)
+rownames(light_bias_results) <- c('Estimated Parameters',
+                                'Posterior SD', 
+                                'True Parameters')
+heavy_bias_results <- rbind(coef(heavy_bias_patience_fit),
+                          sqrt(diag(vcov(heavy_bias_patience_fit))),
+                          true_patience_params)
+rownames(heavy_bias_results) <- c('Estimated Parameters',
+                                'Posterior SD', 
+                                'True Parameters')
+
+res <- list(`Light Dependence` = light_bias_results,
+            `Heavy Dependence` = heavy_bias_results)
+print(res, digits = 3)
+```
+
+Sure enough, we see that if we have a depedence between the censoring mechanism (i.e. service) and the event time (i.e. customer's patience limit) that is *not* captured in the model, we can have bias in our estimated parameters. 
