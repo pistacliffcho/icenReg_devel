@@ -1,4 +1,9 @@
 #' Non-Parametric Estimator for Interval Censored Data
+#'
+#' @description
+#'  Fits the non-parametric maximum likelihood estimator (NPMLE) for univariate interval censored data. 
+#'  This is a generalization of the Kaplan-Meier curves that allows for interval censoring. 
+#'  Also referred to as the Turnbull estimator.
 #' 
 #' @param formula   Formula for stratification. If only one group, can be left blank and 
 #' data must be entered as n x 2 matrix.
@@ -7,10 +12,6 @@
 #' @param tol       Numeric tolerance
 #' @param B         Should intervals be open or closed? See details.
 #'
-#'  @description
-#'  Fits the non-parametric maximum likelihood estimator (NPMLE) for univariate interval censored data. 
-#'  This is a generalization of the Kaplan-Meier curves that allows for interval censoring. 
-#'  Also referred to as the Turnbull estimator.
 #'  
 #' @details 
 #' \code{data} must be an n x 2 matrix or data.frame containing two columns of data representing 

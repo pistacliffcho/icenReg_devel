@@ -16,15 +16,12 @@ data must be entered as n x 2 matrix.}
 
 \item{tol}{Numeric tolerance}
 
-\item{B}{Should intervals be open or closed? See details.
-
- @description
- Fits the non-parametric maximum likelihood estimator (NPMLE) for univariate interval censored data. 
- This is a generalization of the Kaplan-Meier curves that allows for interval censoring. 
- Also referred to as the Turnbull estimator.}
+\item{B}{Should intervals be open or closed? See details.}
 }
 \description{
-Non-Parametric Estimator for Interval Censored Data
+Fits the non-parametric maximum likelihood estimator (NPMLE) for univariate interval censored data. 
+ This is a generalization of the Kaplan-Meier curves that allows for interval censoring. 
+ Also referred to as the Turnbull estimator.
 }
 \details{
 \code{data} must be an n x 2 matrix or data.frame containing two columns of data representing 

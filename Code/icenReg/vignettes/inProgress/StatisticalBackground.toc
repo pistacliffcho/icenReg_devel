@@ -12,9 +12,9 @@
 \contentsline {subsection}{\numberline {2.1}Why mean estimators are avoided}{7}
 \contentsline {subsection}{\numberline {2.2}Univariate estimators}{7}
 \contentsline {subsubsection}{\numberline {2.2.1}Kaplan Meier curves}{7}
-\contentsline {subsubsection}{\numberline {2.2.2}NPMLE}{8}
-\contentsline {subsubsection}{\numberline {2.2.3}Parametric Models}{10}
-\contentsline {subsection}{\numberline {2.3}Regression models}{10}
-\contentsline {subsubsection}{\numberline {2.3.1}Proportional hazards}{11}
-\contentsline {subsubsection}{\numberline {2.3.2}Accelerated failure time}{13}
-\contentsline {subsubsection}{\numberline {2.3.3}Proportional odds}{13}
+\contentsline {subsubsection}{\numberline {2.2.2}NPMLE}{9}
+\contentsline {subsubsection}{\numberline {2.2.3}Parametric Models}{11}
+\contentsline {subsection}{\numberline {2.3}Regression models}{11}
+\contentsline {subsubsection}{\numberline {2.3.1}Proportional hazards}{12}
+\contentsline {subsubsection}{\numberline {2.3.2}Accelerated failure time}{16}
+\contentsline {subsubsection}{\numberline {2.3.3}Proportional odds}{17}

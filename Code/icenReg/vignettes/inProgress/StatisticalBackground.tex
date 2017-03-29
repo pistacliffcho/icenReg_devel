@@ -9,6 +9,7 @@
 \usepackage{natbib}
 \usepackage{float}
 \restylefloat{table}
+\usepackage{caption}
 
 \usepackage{amssymb}
 \usepackage{multirow}
@@ -35,7 +36,7 @@
 
   Survival analysis is the modeling of time-to-event data. For example, a researcher may be interested in modeling the distribution of time until engine failure in a car or time until full recovery after a surgery. ``Time" can be generalized to exposure; in the engine failure example, modeling miles driven until failure may prove more precise than time until failure and would still be considered a survival analysis problem. All that is required to be a survival problem is that we have a measure such that for each subject, if the measure is below some value, the event has not occurred and if it is greater than or equal to this value, it has occurred. The term ``survival" originates from the fact that in many studies, the response of interest is time until death. 
   
-  In theory, traditional statistical models (linear regression, ANOVA, etc.) can be applied to model time-to-event data. In practice, it is found that there are very frequently issues in the collected data that invalidate such models. These include \emph{censoring}, \emph{truncation} (both to be explained soon) and to a lesser extent, non-normality. As such, survival analysis tools are typically built to be robust to non-normality, censoring and (less frequently) truncation. 
+  In theory, traditional statistical models (linear regression, ANOVA, etc.) can be applied to model time-to-event data. In practice, it is found that there are very frequently issues in the collected data that invalidate such models. These include \emph{censoring}, \emph{truncation} (both to be explained soon) and non-normality. As such, survival analysis tools are typically built to be robust to non-normality, censoring and (less frequently) truncation. 
   
 
 \subsubsection{Important Functions}
@@ -252,7 +253,9 @@ Note that some of this data is recorded as exact observations, such as subjects 
     The Kaplan Meier estimator produces a step function, much like the EDF. Unlike the EDF, these steps can get much larger toward the tails if heavy censoring is observed. 
     
     Below, we plot the Kaplan Meier curves for the treated and untreated eyes in the eye treatment dataset. This first involves creating a \texttt{Surv} response object. 
-    
+
+\begin{figure}    
+\begin{center}    
 \begin{Schunk}
 \begin{Sinput}
 > # Creating Surv response object
@@ -272,6 +275,10 @@ Note that some of this data is recorded as exact observations, such as subjects 
 \end{Sinput}
 \end{Schunk}
 \includegraphics{StatisticalBackground-003}
+\caption{Retinopathy Kaplan Meier curves}
+\label{fig:retinoKM}
+\end{center}
+\end{figure}
 
 Visually examining these curves, we can see right away that untreated eyes are experiencing diabetic retinopathy at a much higher rate than treated eyes. Note that these curves do not go below 0.6 and 0.3. This is because a large percentage of the subjects never experienced diabetic retinopathy during the course of the study, so one cannot obtain non-parametric estimates of the tails from the data alone. 
     
@@ -294,7 +301,9 @@ Visually examining these curves, we can see right away that untreated eyes are e
   It can be shown that with only right censored data, the NPMLE will result in the Kaplan Meier estimator. In the general case, the NPMLE is not in closed form and must be solved for iteratively. 
 
   The NPMLE assigns probability mass only to \emph{Turnbull intervals}. A Turnbull interval is an interval $[L_i, R_j]$ made up of the left and right side of (potentially different) observation intervals such that no other end points lie inbetween. How the probability is assigned within these intervals does not affect the likelihood function, so the NPMLE is defined only up to an interval (although with ties in the data, these intervals can be of length 0). This is sometimes referred to as \emph{representational non-uniqueness}. To demonstrate this, we borrow the \texttt{bcos} from the \texttt{interval} package. 
-  
+
+\begin{figure}[H]  
+\begin{center}  
 \begin{Schunk}
 \begin{Sinput}
 > library(interval)
@@ -306,19 +315,29 @@ Visually examining these curves, we can see right away that untreated eyes are e
 \end{Sinput}
 \end{Schunk}
 \includegraphics{StatisticalBackground-004}
+\caption{NPMLEs for breast cancer dataset}
+\label{fig:NPMLE_intro}
+\end{center}
+\end{figure}
 
   Note that for some sections of each estimated survival curve, the estimated survival probability is given up to an interval, rather than a single point estimate. This is a realization of representational non-uniqueness. 
   
   For the remainder of this work, we will use the \texttt{IR\_diabetes} data set for demonstrational purposes. Below is the plotted NPMLE. 
-  
+
+\begin{figure}[H]
+\begin{center}
 \begin{Schunk}
 \begin{Sinput}
 > npmle_fit <- ic_np(cbind(left, right) ~ gender, 
 +                    data = IR_diabetes)
-> plot(npmle_fit, col = c('purple', 'orange') )
+> plot(npmle_fit, col = c('red', 'blue') )
 \end{Sinput}
 \end{Schunk}
 \includegraphics{StatisticalBackground-005}
+\caption{NPMLE for diabetes dataset}
+\label{fig:NPMLE_diab}
+\end{center}
+\end{figure}
 
 We note that visually, there appears to be no issue with representational non-uniqueness in this example. This is due to the many ties in the data, which collapse the Turnbull intervals down to a single point for any given $t$. 
 
@@ -326,7 +345,7 @@ We note that visually, there appears to be no issue with representational non-un
 
   Using the likelihood functions presented in \ref{sec:llk}, standard fully parametric maximum likelihood (MLE) or Bayesian models can be fit for censored data. Commonly used parametric families include the exponential distribution, Weibull, gamma, log-normal and log-logisitic to name a few. Note that for all these models, $S(0) = 1$, a standard assumption in survival analysis. 
   
-  In partice, the single parameter exponential distribution 
+  In partice, the single parameter exponential distribution [TO BE COMPLETED]
 
   \subsection{Regression models}
   
@@ -352,38 +371,89 @@ We note that visually, there appears to be no issue with representational non-un
     h(t_i|x_i, \beta) = h_o(t_i) e^{x_i \beta}
     \]
     
-    where $h(t|x_i, \beta)$ is the hazard for subject $i$ conditional on covariates $x_i$ and $h_o(t)$ is a baseline hazard rate, \emph{i.e.} the hazard rate for a subject with covariates all equal to 0. In other words, for a subject with covariates $x_i$, their current hazard is $e^{x_i \beta}$ times higher than a baseline subject at any given time.
+    where $h(t|x_i, \beta)$ is the hazard for subject $i$ conditional on covariates $x_i$ and $h_o(t)$ is a baseline hazard rate, \emph{i.e.} the hazard rate for a subject with covariates all equal to 0. In other words, for a subject with covariates $x_i$, their current hazard is $e^{x_i \beta}$ times higher than a baseline subject at any given time. With a little bit of algebra, it can be shown that the proportional hazards assumption is equivalent to 
+  
+\[
+  S(t_i| x_i, \beta) = S_o(t_i)^{e^{x_i \beta}}
+\].
+
     
     Note that the relation between the hazards rates is constant as a function of time enforcing the \emph{proportional-hazards} assumption, which should be inspected.  For example, consider a hypothetical experiement with two groups of cancer patients, one treated with chemotherapy, one not receiving treatment. Chemotherapy is an extremely damaging treatment, so shortly after treatment, the chemotherapy group will have higher hazards than the untreated group. However, once the treated group recovers from the chemotherapy, they are at much lower risk than the untreated group. 
     
+\begin{figure}[H]
+\begin{center}
 \includegraphics{StatisticalBackground-006}
+\caption{Hazard functions for chemotherapy vs untreated subject. The proportional hazards assumption for the Cox-PH model is clearly inappropriate.}
+\end{center}
+\end{figure}
     
-    A typical rule of thumb for assessing proportional hazards is that if the estimated survival curves cross, the hazards are likely non-proportional\footnote{An exception to the crossing survival curves rule is that crossing of the estimated extreme tails is less worrisome, as estimates of the extreme tails are typically very noisy.}. It's worth noting that crossing survival curves is a much stronger condition than non-proportional hazards. As such, crossing survival curves should be seen as evidence of \emph{very strong} violations of the proportional hazards assumption. Other methods for will be discussed shortly. 
+    A typical rule of thumb for assessing proportional hazards is that if the estimated survival curves cross, the hazards are likely non-proportional\footnote{An exception to the crossing survival curves rule is that crossing of the estimated extreme tails is less worrisome, as estimates of the extreme tails are typically very noisy.}. It's worth noting that crossing survival curves is a much stronger condition than non-proportional hazards. As such, crossing survival curves should be seen as evidence of \emph{very strong} violations of the proportional hazards assumption. In fact, crossing survival functions is a strong violation of \emph{any} of regression models discussed in this work. Other methods for model inspection will be discussed later. 
     
     Using the relation 
     $S(t) = e^{\int_{-\infty}^t -h(x) dx }$,
     we calculate the survival curves from the hazard curves in the chemotherapy treatment example. We see that the survival curves do in fact cross for the two groups. 
     
-    
+\begin{figure}[H]
+\begin{center}
 \includegraphics{StatisticalBackground-007}
+\caption{Survival curves for chemo and untreated patients}
+\label{fig:ChemoSurv}
+\end{center}
+\end{figure}
 
-  With a little bit of algebra, it can be shown that the proportional hazards assumption is equivalent to 
-  
-\[
-  S(t| x, \beta) = S_o(t)^{e^{x \beta}}
-\].
+  Now let's consider a case where the proportional hazards model \emph{is}  more appropriate; lung cancer rates between smokers and non-smokers. Over time, the hazard rates for \emph{each} group is non-constant, as the current risk of cancer increases as subjects age. But it seems quite reasonable that the risk of cancer is, say, twice as high for smokers at any given time. On figure \ref{fig:SmokeHaz}, we see what might be reasonable hazard functions for smokers and non-smokers. 
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{StatisticalBackground-008}
+\caption{Hazard functions for smokers vs non-smokers. The proportional hazards assumption holds true for this data.}
+\label{fig:SmokeHaz}
+\end{center}
+\end{figure}
+
+On figure \ref{fig:SmokeSurv}, we see the survival curves generated from the hazard functions on figure \ref{fig:SmokeHaz}.
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{StatisticalBackground-009}
+\caption{Survival functions for lung cancer for smokers and non-smokers.}
+\label{fig:SmokeSurv}
+\end{center}
+\end{figure}
+
 
     \subsubsection{Accelerated failure time}
    
    The accelerated failure time (AFT) model is built on the relation
    
    \[
-   S(t | x, \beta) = S_o(t e^{-x \beta})
+   S(t_i | x_i, \beta) = S_o(t_i e^{-x_i \beta})
    \].
 
-    In otherwords, subjects with $x = 1$ experience events $e^{-\beta}$ times faster than subjects with $x = 0$. One advantage of the AFT model is the ease of interpretation; it is very common for casual users of survival analysis to interpret a Cox-PH model as an AFT model, i.e. it is a common mistake to state that doubling the hazard implies events occur twice as fast. 
+    In otherwords, a subject with covariates $x_i$ experience events $e^{-x_i \beta}$ times faster than subjects with $x_i = 0$. One advantage of the AFT model is the ease of interpretation; it is very common for casual users of survival analysis to interpret a Cox-PH model as an AFT model, i.e. it is a common mistake to state that doubling the hazard implies events occur twice as fast. 
     
     If the baseline survival distribution $S_o$ is a Weibull distribution, then the AFT model is equivalent to the proportional hazards model, up to a linear transformation of the regression parameters. In such a case, it is recommended to use the AFT parameterization due to easier interpretation of regression coefficients. It does not hold that these models are generally equivalent, however. 
+    
+  As a motivating example, consider a crew of workers working on a task. An AFT model may do a good job of capturing the relation between crew size and time to completion of task; a (somewhat overly optimisitic) model may be that a crew of 4 is twice as fast as a crew of 2, which is twice as fast as a crew of 1. That could be represented with an AFT model in which one covariate was log(crew size) with $\beta = 1$. We can then see that the time to completion for a crew of size $x$ would be 
+  
+  \[
+  e^{\log(x) \times 1} = x
+  \]
+
+  times faster than a crew of size 1. Economists would point out that this model is overly optimistic, as it defies the law of dimensioning returns. As such, they may argue that $\beta < 1$. 
+  
+  For visual representation, we plot the survival curve for an AFT model relating log crew size to completion time with $\beta = 1$. 
+  
+\begin{figure}[H]
+\begin{center}
+\includegraphics{StatisticalBackground-010}
+\caption{Survival curve for completion time by crew size with an AFT model.}
+\label{fig:AFTcrew}
+\end{center}
+\end{figure}
+
+Close examination of figure \ref{fig:AFTcrew} will reveal that at any given quantile of crew size two will be twice that of crew size four and half that of crew size one. 
+    
     
     \subsubsection{Proportional odds}
   

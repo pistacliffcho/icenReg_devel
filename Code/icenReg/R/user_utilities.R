@@ -676,7 +676,7 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
     isHi <- ans > yMat[,2]
     ans[isHi] <- yMat[isHi]
     if(isBayes) setSamplablePars(fit, orgCoefs)
-    rownames(ans) <- rownames(newdata)
+#    rownames(ans) <- rownames(newdata)
     return(ans)
   }
   if(imputeType == 'fixedParSample'){
