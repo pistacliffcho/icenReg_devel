@@ -1,6 +1,6 @@
 ###			SEMIPARAMETRIC UTILITIES
 
-adjustIntervals <- function(B = c(0,1), yMat, eps = 10^-15){
+adjustIntervals <- function(B = c(0,1), yMat, eps = 10^-10){
   isCensored <- yMat[,2] - yMat[,1] > (2 * eps)
   if(B[1] == 0) yMat[isCensored,1] = yMat[isCensored,1] + eps
   if(B[2] == 0) yMat[isCensored,2] = yMat[isCensored,2] - eps

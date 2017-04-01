@@ -3,6 +3,7 @@ UPDATES:
 
 v2.0.1
 Fixed rownames bug for imputeCens when imputeType = ‘median’
+Fixed open/closed interval bug pointed out by Prof Bogaerts 
 
 v2.0.0
 Added coef active binding for regression models (i.e. fit$coef is allowed)
