@@ -398,7 +398,7 @@ get_etas <- function(fit, newdata = NULL, reg_pars = NULL){
 	new_x <- expandX(reducFormula, newdata, fit)
 	log_etas <- as.numeric( new_x %*% reg_pars - fit$baseOffset) 	
 	etas <- exp(log_etas)
-	names(etas) <- grpNames
+	if(length(grpNames) == length(etas)){ names(etas) <- grpNames }
 	return(etas)
 }
 
@@ -659,7 +659,15 @@ getBSParSample <- function(fit){
 }
 
 setSamplablePars <- function(fit, coefs){
-  if(!inherits(fit, 'ic_np')) fit$coefficients <- coefs
+  if(!inherits(fit, 'ic_np')){ 
+    fit$coefficients <- coefs
+    if(!inherits(fit, 'sp_fit')){
+      n_base <- length(fit$baseline)
+      fit$baseline[1:n_base] <- coefs[1:n_base]
+    }
+    else n_base = 0
+    fit$reg_pars[1:(length(coefs) - n_base)] <- coefs[(n_base+1):length(coefs)]
+  }
 }
 
 
@@ -823,3 +831,20 @@ sample_in_interval <- function(fit, newdata, lower_time, upper_time){
   return(ans)
 }
 
+sample_pars <- function(fit, samples = 100){
+  if(is(fit, 'par_fit')){
+    chol_var <- chol(vcov(fit))
+    mean_coefs <- fit$coefficients
+    k <- length(mean_coefs)
+    norm_samps <- matrix(rnorm(samples * k), nrow = samples)
+    ans <- norm_samps %*% chol_var + rep(1, samples) %*% t(mean_coefs)
+    return(ans)
+  }
+  if(is(fit, 'bayes_fit')){
+    n_samps <- nrow(fit$samples)
+    resamp = samples > n_samps
+    samp_inds <- sample(1:n_samps, samples, replace = resamp)
+    ans <- fit$samples[samp_inds,]
+    return(ans)
+  }
+}

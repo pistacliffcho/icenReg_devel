@@ -738,7 +738,7 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
 #' @param fit         icenReg model fit 
 #' @param newdata     \code{data.frame} containing covariates. If blank, will use data from model
 #' @param sampleType  type of samples See details for options
-#' @param samples  Number of samples 
+#' @param samples     Number of samples 
 #' 
 #' @description
 #' Samples response values from an icenReg fit conditional on covariates. 
@@ -770,7 +770,8 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
 #' sampleResponses <- ic_sample(fit, newdata = newdata, samples = 100)
 #' @author Clifford Anderson-Bergman
 #' @export
-ic_sample <- function(fit, newdata = NULL, sampleType = 'fullSample', samples = 5){
+ic_sample <- function(fit, newdata = NULL, sampleType = 'fullSample',
+                      samples = 5){
   if(is.null(newdata)) newdata <- fit$getRawData()
   yMat <- cbind(rep(-Inf, nrow(newdata)), rep(Inf, nrow(newdata)))
   p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
@@ -816,7 +817,8 @@ ic_sample <- function(fit, newdata = NULL, sampleType = 'fullSample', samples = 
       theseImputes[isLow] <- yMat[isLow,1]
       isHi <- theseImputes > yMat[,2]
       theseImputes[isHi] <- yMat[isHi,2]
-      fastMatrixInsert(theseImputes, ans, colNum = i)
+      ans[,i] <- theseImputes
+#      fastMatrixInsert(theseImputes, ans, colNum = i)
       setSamplablePars(fit, orgCoefs)
     }
     rownames(ans) <- rownames(newdata)
@@ -825,6 +827,55 @@ ic_sample <- function(fit, newdata = NULL, sampleType = 'fullSample', samples = 
   stop('sampleType type not recognized.')
 }
 
+#' Samples fitted survival function
+#' 
+#' @param fit       Either an ic_bayes or ic_par fit
+#' @param newdata   A data.frame with a single row of covariates
+#' @param p         A set of survival probabilities to sample corresponding time for
+#' @param q         A set of times to sample corresponding survival probability for
+#' @param samples   Number of samples to draw
+#' @details 
+#' @author Clifford Anderson-Bergman
+#' @export
+sampleSurv <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
+  if(nrow(newdata) > 1) stop('newdata must be a single row')
+  # Checking what type of look up to do 
+  input_type = NULL
+  nCol = 0
+  if(!is.null(p)){
+    input_type = 'p'
+    nCol = length(p)
+  }
+  if(!is.null(q)){
+    input_type = 'q'
+    nCol = length(q)
+  }
+  if(is.null(input_type)){ 
+    input_type = 'p'
+    p = c(0.1, .25, .5, .75, .9)
+    nCol = length(p)
+  }
+  is_np <- is(fit, 'sp_fit') | is(fit, 'np_fit')
+  if(is_np) stop("Can only sample survival estimates for parametric/Bayesian models")
+  isBayes <- is(fit, 'bayes_fit')
+  ans <- matrix(nrow = samples, ncol = nCol)
+  for(i in 1:samples){
+    orgCoefs <- getSamplablePars(fit)
+    if(isBayes){ sampledCoefs <- sampBayesPar(fit) }
+    else{
+      coefVar <- getSamplableVar(fit)
+      sampledCoefs <- sampPars(orgCoefs, coefVar)
+    }
+    setSamplablePars(fit, sampledCoefs)
+    if(input_type == 'p') theseSamples <- getFitEsts(fit, newdata, p = p)
+    else theseSamples <- getFitEsts(fit, newdata, q = q)
+    ans[i,] <- theseSamples
+    setSamplablePars(fit, orgCoefs)
+  }
+  if(input_type == 'p') these_colnames <- paste("p =", p)
+  else these_colnames <- paste("t =", q)
+  return(ans)
+}
 
 
 plot.sp_curves <- function(x, sname = 'baseline', xRange = NULL, ...){

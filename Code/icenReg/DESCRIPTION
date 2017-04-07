@@ -3,8 +3,7 @@ Type: Package
 Title: Regression Models for Interval Censored Data
 Version: 2.0.1
 Date: 2017-3-13
-Author: Clifford Anderson-Bergman; uses Marloes Maathuis's HeightMap algorithm
-    (MLEcens::reduc)
+Author: Clifford Anderson-Bergman
 Depends:
     survival,
     Rcpp,
