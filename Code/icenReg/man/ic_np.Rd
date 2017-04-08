@@ -34,6 +34,13 @@ The exception is that if \code{l == u}, it is assumed that the event is uncensor
 
 The NPMLE is fit using an efficient implementation of the EMICM algorithm.
 }
+\examples{
+data(miceData)
+fit <- ic_np(cbind(l, u) ~ grp, data = miceData)
+# Stratifies fits by group
+
+plot(fit) 
+}
 \references{
 Turnbull, B. (1976) The empricial distribution with arbitrarily grouped and censored data 
 \emph{Journal of the Royal Statistical Society B}, vol 38 p290-295

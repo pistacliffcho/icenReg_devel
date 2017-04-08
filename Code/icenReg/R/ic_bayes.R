@@ -16,7 +16,7 @@
 #' @details Currently supported distributions choices are "exponential", "weibull", "gamma", 
 #' "lnorm", "loglogistic" and "generalgamma" (i.e. generalized gamma distribution). 
 #'
-#' The \code{logPriorFxn} should taken in the a vector of values corresponding to \emph{all}
+#' The \code{logPriorFxn} should take in the a vector of values corresponding to \emph{all}
 #' the parameters of the model (baseline parameters first, regression parameters second) and returns the
 #' log prior, calculated up to an additive constant. Default behavior is to use a flat prior. 
 #' See examples for an example of using the log prior function.

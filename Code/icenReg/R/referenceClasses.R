@@ -272,6 +272,13 @@ surv_cis <- setRefClass("surv_cis",
                               if(nCols == 0){ cols = 1:nCIs; nCols = length(cols) }
                               if(nCols == 1){ cols = rep(cols, nCIs); nCols = length(cols) }
                               if(nCols != nCIs) stop("number colors provided does not match up with number of CI's to plot")
-                              for(i in seq_along(cis)){ one_lines(i, cols[i], ...)}
+                              argList <- list(...)
+                              
+                              for(i in seq_along(cis)){ 
+                                argList$index = i
+                                argList$this_col = cols[i]
+                                argList$cols <- NULL
+                                do.call(.self$one_lines, argList)
+                                }
                             }
                           ))

@@ -436,9 +436,12 @@ diag_covar <- function(object, varName,
 #' @param p        Percentiles
 #' @param q        Quantiles
 #' @description 
-#' Gets probability or quantile estimates from a \code{ic_par} or \code{ic_sp} object. 
-#' Provided estimates conditional on regression parameters found in \code{newdata}.
+#' Gets probability or quantile estimates from a \code{ic_sp}, \code{ic_par} or \code{ic_bayes} object. 
+#' Provided estimates conditional on regression parameters found in \code{newdata}. 
 #' @details
+#' For the \code{ic_sp} and \code{ic_par}, the MLE estimate is returned. For \code{ic_bayes}, 
+#' the MAP estimate is returned. To compute the posterior means, use \code{sampleSurv}.
+#' 
 #' If \code{newdata} is left blank, baseline estimates will be returned (i.e. all covariates = 0). 
 #' If \code{p} is provided, will return the estimated F^{-1}(p | x). If \code{q} is provided, 
 #' will return the estimated F(q | x). If neither \code{p} nor \code{q} are provided, 
@@ -892,7 +895,7 @@ sampleSurv_slow <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
 #' time_samps <- sampleSurv(fit, newdata, 
 #'                          p = c(0.5, .9), 
 #'                          samples = 100)
-#' # 100 samples of the median and 90th percentil for males                        
+#' # 100 samples of the median and 90th percentile for males                        
 #' 
 #' prob_samps <- sampleSurv(fit, newdata, 
 #'                          q = c(10, 20),
@@ -1101,7 +1104,7 @@ cs2ic <- function(time,
   return(cbind(l, u))
 }
 
-#' Confidence intervals for survival curves
+#' Confidence/Credible intervals for survival curves
 #' 
 #' @param fit Fitted model from \code{ic_par} or \code{ic_bayes}
 #' @param p Percentiles of distribution to sample
@@ -1123,7 +1126,8 @@ cs2ic <- function(time,
 #' @author Clifford Anderson-Bergman
 #' @examples 
 #' data("IR_diabetes")
-#' fit <- ic_bayes(cbind(left, right) ~ gender, data = IR_diabetes)
+#' fit <- ic_bayes(cbind(left, right) ~ gender, 
+#'                 data = IR_diabetes)
 #' 
 #' # Getting credible intervals for survival curves
 #' # for males and females
@@ -1133,7 +1137,8 @@ cs2ic <- function(time,
 #' diab_cis
 #' 
 #' # Can add this to any plot
-#' plot(fit, cis = FALSE)
+#' plot(fit, newdata = newdata, 
+#'      cis = FALSE)
 #' # Would have been included by default
 #' lines(diab_cis, cols = c("black", "red"))
 #' @export

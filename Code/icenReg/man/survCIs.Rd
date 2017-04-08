@@ -2,7 +2,7 @@
 % Please edit documentation in R/user_utilities.R
 \name{survCIs}
 \alias{survCIs}
-\title{Confidence intervals for survival curves}
+\title{Confidence/Credible intervals for survival curves}
 \usage{
 survCIs(fit, newdata, p = c(0:9 * 0.1 + 0.05), ci_level = 0.95,
   MC_samps = 40000)
@@ -19,7 +19,7 @@ survCIs(fit, newdata, p = c(0:9 * 0.1 + 0.05), ci_level = 0.95,
 \item{MC_samps}{Number of Monte Carlo samples taken}
 }
 \description{
-Confidence intervals for survival curves
+Confidence/Credible intervals for survival curves
 }
 \details{
 Creates a set of confidence intervals for the survival curves conditional
@@ -37,7 +37,8 @@ of the baseline distribution of these estimators is still an open question.
 }
 \examples{
 data("IR_diabetes")
-fit <- ic_bayes(cbind(left, right) ~ gender, data = IR_diabetes)
+fit <- ic_bayes(cbind(left, right) ~ gender, 
+                data = IR_diabetes)
 
 # Getting credible intervals for survival curves
 # for males and females
@@ -47,7 +48,8 @@ diab_cis <- survCIs(fit, newdata)
 diab_cis
 
 # Can add this to any plot
-plot(fit, cis = FALSE)
+plot(fit, newdata = newdata, 
+     cis = FALSE)
 # Would have been included by default
 lines(diab_cis, cols = c("black", "red"))
 }

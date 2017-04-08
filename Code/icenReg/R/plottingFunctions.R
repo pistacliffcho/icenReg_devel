@@ -1,4 +1,4 @@
-plot.icenReg_fit <- function(x, y, fun = 'surv', 
+plot.icenReg_fit <- function(x, y, newdata = NULL, fun = 'surv', 
                              plot_legend = T,
                              cis = T, 
                              lgdLocation = 'topright', 
@@ -6,7 +6,7 @@ plot.icenReg_fit <- function(x, y, fun = 'surv',
   if(inherits(x, 'impute_par_icph'))	stop('plot currently not supported for imputation model')
   argList <- list(...)
   colors <- argList$col
-  if(missing(y)) y <- argList$newdata	
+  if(missing(y)) y <- newdata	
   newdata <- y
   nRows <- 1
   if(!is.null(newdata)) nRows <- icr_nrow(newdata)
@@ -52,15 +52,13 @@ plot.icenReg_fit <- function(x, y, fun = 'surv',
   }
 }
 
-lines.surv_cis <- function(x, y,...){
-  if(missing(y)) y <- NULL
-  x$all_lines(cols = y, ...)
-}
+lines.surv_cis <- function(x, y,...){ x$all_lines(...) }
 
-lines.icenReg_fit <- function(x, y, fun = 'surv', cis = F, ...){
+lines.icenReg_fit <- function(x, y, newdata = NULL, 
+                              fun = 'surv', cis = F, ...){
   argList <- list(...)
   colors <- argList$col
-  if(missing(y)) y <- argList$newdata	
+  if(missing(y)) y <- newdata	
   newdata <- y
   nRows <- 1
   if(!is.null(newdata)) nRows <- icr_nrow(newdata)

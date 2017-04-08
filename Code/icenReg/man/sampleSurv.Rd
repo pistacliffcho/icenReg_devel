@@ -38,7 +38,7 @@ newdata <- data.frame(gender = "male")
 time_samps <- sampleSurv(fit, newdata, 
                          p = c(0.5, .9), 
                          samples = 100)
-# 100 samples of the median and 90th percentil for males                        
+# 100 samples of the median and 90th percentile for males                        
 
 prob_samps <- sampleSurv(fit, newdata, 
                          q = c(10, 20),

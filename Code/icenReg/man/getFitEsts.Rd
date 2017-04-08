@@ -16,10 +16,13 @@ getFitEsts(fit, newdata, p, q)
 \item{q}{Quantiles}
 }
 \description{
-Gets probability or quantile estimates from a \code{ic_par} or \code{ic_sp} object. 
+Gets probability or quantile estimates from a \code{ic_sp}, \code{ic_par} or \code{ic_bayes} object. 
 Provided estimates conditional on regression parameters found in \code{newdata}.
 }
 \details{
+For the \code{ic_sp} and \code{ic_par}, the MLE estimate is returned. For \code{ic_bayes}, 
+the MAP estimate is returned. To compute the posterior means, use \code{sampleSurv}.
+
 If \code{newdata} is left blank, baseline estimates will be returned (i.e. all covariates = 0). 
 If \code{p} is provided, will return the estimated F^{-1}(p | x). If \code{q} is provided, 
 will return the estimated F(q | x). If neither \code{p} nor \code{q} are provided, 
