@@ -8,7 +8,6 @@
 
 #include "regressionTransforms.h"
 
-
 SEXP s_regTrans(SEXP times, SEXP etas,
                 SEXP bli, SEXP regType, SEXP baseType){
     condProbCal rtObj(regType, baseType, bli);

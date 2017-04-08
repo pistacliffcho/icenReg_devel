@@ -1,5 +1,6 @@
 plot.icenReg_fit <- function(x, y, fun = 'surv', 
                              plot_legend = T,
+                             cis = T, 
                              lgdLocation = 'topright', 
                              xlab = "time", ...){
   if(inherits(x, 'impute_par_icph'))	stop('plot currently not supported for imputation model')
@@ -38,20 +39,25 @@ plot.icenReg_fit <- function(x, y, fun = 'surv',
     ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.95 )
     
     addList <- list(xlab = xlab, ylab = yName, 
-                    xlim = range(as.numeric(ranges), finite = TRUE), ylim = c(0,1))
+                    xlim = range(as.numeric(ranges), finite = TRUE), 
+                    ylim = c(0,1))
     firstPlotList<- addListIfMissing(addList, firstPlotList)
     do.call(plot, firstPlotList)
   }
   
-  lines(x, newdata, ...)
+  lines(x, newdata, cis = cis, ...)
   if(nRows > 1 & plot_legend){
     grpNames <- rownames(newdata)
     legend(lgdLocation, legend = grpNames, lwd = rep(1, length(grpNames) ), col = colors)
   }
 }
 
+lines.surv_cis <- function(x, y,...){
+  if(missing(y)) y <- NULL
+  x$all_lines(cols = y, ...)
+}
 
-lines.icenReg_fit <- function(x, y, fun = 'surv', ...){
+lines.icenReg_fit <- function(x, y, fun = 'surv', cis = F, ...){
   argList <- list(...)
   colors <- argList$col
   if(missing(y)) y <- argList$newdata	
@@ -111,6 +117,10 @@ lines.icenReg_fit <- function(x, y, fun = 'surv', ...){
       argList[['y']] <- s_trans(est.s)
       argList[['col']] <- colors[i]
       do.call(lines, argList)
+    }
+    if(cis){
+      cis <- survCIs(x, newdata)
+      lines(cis, colors)
     }
   }
 }

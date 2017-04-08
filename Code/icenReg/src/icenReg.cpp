@@ -28,6 +28,7 @@ using namespace std;
 
 #include "icenReg_files/experimentalCode.cpp"
 #include "icenReg_files/regressionTransforms.cpp"
+#include "icenReg_files/regressionTransforms_2.cpp"
 
 #include "icenReg_files/EMICM.h"
 #include "icenReg_files/EMICM.cpp"
@@ -58,3 +59,17 @@ Rcpp::List ic_parList(Rcpp::List R_parList);
 // [[Rcpp::export]]
 Rcpp::List R_ic_bayes(Rcpp::List R_bayesList, Rcpp::Function priorFxn, 
 					  Rcpp::List R_ic_parList);
+					  
+					  //[[Rcpp::export]]
+Rcpp::NumericVector computeConditional_p(Rcpp::NumericVector q,
+										 Rcpp::NumericVector etas,
+										 Rcpp::NumericMatrix baselineParams,
+										 Rcpp::CharacterVector reg_model,
+										 Rcpp::CharacterVector base_dist);
+										 
+//[[Rcpp::export]]
+Rcpp::NumericVector computeConditional_q(Rcpp::NumericVector p,
+										 Rcpp::NumericVector etas,
+										 Rcpp::NumericMatrix baselineParams,
+										 Rcpp::CharacterVector reg_model,
+										 Rcpp::CharacterVector base_dist);

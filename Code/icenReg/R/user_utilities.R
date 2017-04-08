@@ -827,21 +827,11 @@ ic_sample <- function(fit, newdata = NULL, sampleType = 'fullSample',
   stop('sampleType type not recognized.')
 }
 
-#' Samples fitted survival function
-#' 
-#' @param fit       Either an ic_bayes or ic_par fit
-#' @param newdata   A data.frame with a single row of covariates
-#' @param p         A set of survival probabilities to sample corresponding time for
-#' @param q         A set of times to sample corresponding survival probability for
-#' @param samples   Number of samples to draw
-#' @details 
-#' @author Clifford Anderson-Bergman
-#' @export
-sampleSurv <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
+
+sampleSurv_slow <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
   if(nrow(newdata) > 1) stop('newdata must be a single row')
   # Checking what type of look up to do 
   input_type = NULL
-  nCol = 0
   if(!is.null(p)){
     input_type = 'p'
     nCol = length(p)
@@ -876,6 +866,90 @@ sampleSurv <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
   else these_colnames <- paste("t =", q)
   return(ans)
 }
+
+#' Samples fitted survival function
+#' 
+#' @param fit       Either an ic_bayes or ic_par fit
+#' @param newdata   A data.frame with a single row of covariates
+#' @param p         A set of survival probabilities to sample corresponding time for
+#' @param q         A set of times to sample corresponding cumulative probability for
+#' @param samples   Number of samples to draw
+#' @details For Bayesian models, draws samples from the survival distribution with a given set of covariates.
+#' Does this by first drawing a set of parameters (both regression and baseline) from \code{fit$samples} and then computing the quantiles of 
+#' the distribution (if \code{p} is provided) or the CDF at \code{q}. 
+#' 
+#' If a \code{ic_par} model is provided, the procedure is the same, but the sampled parameters are drawn using
+#' the normal approximation.
+#' 
+#' Not compatible with \code{ic_np} or \code{ic_sp} objects.
+#' @author Clifford Anderson-Bergman
+#' 
+#' @examples 
+#' data("IR_diabetes")
+#' fit <- ic_par(cbind(left, right) ~ gender, data = IR_diabetes)
+#' 
+#' newdata <- data.frame(gender = "male")
+#' time_samps <- sampleSurv(fit, newdata, 
+#'                          p = c(0.5, .9), 
+#'                          samples = 100)
+#' # 100 samples of the median and 90th percentil for males                        
+#' 
+#' prob_samps <- sampleSurv(fit, newdata, 
+#'                          q = c(10, 20),
+#'                          samples = 100)
+#' # 100 samples of the cumulative probability at t = 10 and 20 for males                        
+#' @export
+sampleSurv <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
+  if(nrow(newdata) > 1) stop('newdata must be a single row')
+  # Checking what type of look up to do 
+  input_type = NULL
+  if(!is.null(p)){
+    input_type = 'p'
+    input = p
+    nCol = length(p)
+  }
+  if(!is.null(q)){
+    input_type = 'q'
+    input = q
+    nCol = length(q)
+  }
+  if(is.null(input_type)){ 
+    input_type = 'p'
+    input = c(0.1, .25, .5, .75, .9)
+    nCol = length(input)
+  }
+  is_np <- is(fit, 'sp_fit') | is(fit, 'np_fit')
+  if(is_np) stop("Can only sample survival estimates for parametric/Bayesian models")
+  isBayes <- is(fit, 'bayes_fit')
+  ans <- matrix(nrow = samples, ncol = nCol)
+  etas_and_base <- sample_etas_and_base(fit, samples = samples, newdata = newdata)
+  etas <- etas_and_base$etas
+  baseMat <- etas_and_base$baseMat
+  if(nrow(baseMat) != samples) stop("nrow(baseMat) != samples")
+  if(length(etas)  != samples) stop("nrow(baseMat) != samples")
+  for(i in 1:nCol){
+    this_input = rep(input[i], samples)
+    if(input_type == 'p'){ 
+      ans[,i] <- computeConditional_q(this_input, 
+                                      etas,
+                                      baseMat, 
+                                      fit$model,
+                                      fit$par) 
+    }
+    if(input_type == 'q'){ 
+      ans[,i] <- computeConditional_p(this_input, 
+                                      etas,
+                                      baseMat, 
+                                      fit$model,
+                                      fit$par) 
+    }
+    
+  }
+  if(input_type == 'p') these_colnames <- paste("p =", p)
+  else these_colnames <- paste("t =", q)
+  return(ans)
+}
+
 
 
 plot.sp_curves <- function(x, sname = 'baseline', xRange = NULL, ...){
@@ -1026,3 +1100,52 @@ cs2ic <- function(time,
   u[eventOccurred]  <- time[eventOccurred]
   return(cbind(l, u))
 }
+
+#' Confidence intervals for survival curves
+#' 
+#' @param fit Fitted model from \code{ic_par} or \code{ic_bayes}
+#' @param p Percentiles of distribution to sample
+#' @param newdata \code{data.frame} containing covariates for survival curves
+#' @param ci_level Confidence/credible level
+#' @param MC_samps Number of Monte Carlo samples taken
+#' @details Creates a set of confidence intervals for the survival curves conditional
+#' on the covariates provided in \code{newdata}. Several rows can be provided in newdata;
+#' this will lead to several sets of confidence/credible intervals. 
+#' 
+#' For Bayesian models, these are draws directly from the posterior; a set of parameters drawn 
+#' from those saved in \code{fit$samples} repeatedly and then for each set of parameters, 
+#' the given set of quantiles is calculated. For parametric models, the procedure is virtually the 
+#' same, but rather than randomly drawing rows from saved samples, random samples are drawn using
+#' the asymptotic normal approximation of the estimator. 
+#' 
+#' This function is not compatible with \code{ic_np} or \code{ic_sp} objects, as the distribution 
+#' of the baseline distribution of these estimators is still an open question. 
+#' @author Clifford Anderson-Bergman
+#' @examples 
+#' data("IR_diabetes")
+#' fit <- ic_bayes(cbind(left, right) ~ gender, data = IR_diabetes)
+#' 
+#' # Getting credible intervals for survival curves
+#' # for males and females
+#' newdata <- data.frame(gender = c("male", "female"))
+#' rownames(newdata) <- c("Males", "Females")
+#' diab_cis <- survCIs(fit, newdata)
+#' diab_cis
+#' 
+#' # Can add this to any plot
+#' plot(fit, cis = FALSE)
+#' # Would have been included by default
+#' lines(diab_cis, cols = c("black", "red"))
+#' @export
+survCIs <- function(fit, newdata, 
+                    p = c(0:9 * .1 + 0.05), 
+                    ci_level = 0.95,
+                    MC_samps = 40000){
+  if(!(inherits(fit, 'par_fit') | inherits(fit, 'bayes_fit')))
+     stop("fit must be either from ic_par() or ic_bayes()")
+  ans <- surv_cis(fit = fit, newdata = newdata, 
+                  p = p, ci_level = ci_level, 
+                  MC_samps = MC_samps)
+  return(ans)
+}
+

@@ -1,13 +1,18 @@
+/*
+
 #include <R.h>
 #include <Rinternals.h>
 #include <stdlib.h> // for NULL
 #include <R_ext/Rdynload.h>
 
+ */
+ 
 /* FIXME: 
    Check these declarations against the C/Fortran source code.
 */
 
 /* .Call calls */
+/*
 extern SEXP dGeneralGamma(SEXP, SEXP, SEXP, SEXP);
 extern SEXP EMICM(SEXP, SEXP, SEXP);
 extern SEXP fastNumericInsert(SEXP, SEXP, SEXP);
@@ -40,3 +45,5 @@ void R_init_icenReg(DllInfo *dll)
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
+
+*/

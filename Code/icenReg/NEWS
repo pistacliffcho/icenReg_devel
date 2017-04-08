@@ -3,13 +3,15 @@ UPDATES:
 
 v2.0.1
 Fixed rownames bug for imputeCens when imputeType = ‘median’
-Fixed open/closed interval bug pointed out by Prof Bogaerts 
+Fixed open/closed interval bug pointed out by Dr Bogaerts 
+Added sampling from posterior survival curves
+Added confidence intervals
 
 v2.0.0
 Added coef active binding for regression models (i.e. fit$coef is allowed)
 Fixed issue with fitting model with no regression parameters
 Reorganized code files
-Added bases models
+Added Bayes models
 
 v1.3.6
 Allow for declaration of whether intervals are open or closed for 

@@ -719,7 +719,7 @@ Rcpp::List IC_parOpt::exportAns(){
 	Rcpp::NumericVector base_est( b_pars.size() );
 	Rcpp::NumericVector final_llk(1);	
 	Rcpp::NumericVector iters(1);
-	
+		
 	fillFullHessianAndScore(outHessian, score);
     for(int i = 0; i < LENGTH(reg_est); i++)    reg_est[i] = betas[i];
     for(int i = 0; i < LENGTH(base_est); i++)   base_est[i] = b_pars[i];

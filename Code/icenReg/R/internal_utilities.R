@@ -48,6 +48,7 @@ expandX <- function(formula, data, fit){
 	Terms <- delete.response(tt)
 	 m <- model.frame(Terms, as.data.frame(data), na.action = na.pass, xlev = fit$xlevels)
 	 x <- model.matrix(Terms, m)
+	 if(length(x) == 0) return(NULL)
 	 ans <- as.matrix(x[,-1])
 	 if(nrow(ans) != nrow(x)){
 	   ans <- t(ans)
@@ -396,6 +397,13 @@ get_etas <- function(fit, newdata = NULL, reg_pars = NULL){
 	reducFormula <- fit$formula
 	reducFormula[[2]] <- NULL
 	new_x <- expandX(reducFormula, newdata, fit)
+	if(is.null(new_x)){
+	  if(is.matrix(reg_pars))
+  	  ans <- rep(1, nrow(reg_pars))
+	  else
+	    ans <- rep(1, length(reg_pars))
+	  return(ans)
+	}
 	log_etas <- as.numeric( new_x %*% reg_pars - fit$baseOffset) 	
 	etas <- exp(log_etas)
 	if(length(grpNames) == length(etas)){ names(etas) <- grpNames }
@@ -666,7 +674,7 @@ setSamplablePars <- function(fit, coefs){
       fit$baseline[1:n_base] <- coefs[1:n_base]
     }
     else n_base = 0
-    fit$reg_pars[1:(length(coefs) - n_base)] <- coefs[(n_base+1):length(coefs)]
+    if(length(coefs) > n_base) fit$reg_pars[1:(length(coefs) - n_base)] <- coefs[(n_base+1):length(coefs)]
   }
 }
 
@@ -832,9 +840,9 @@ sample_in_interval <- function(fit, newdata, lower_time, upper_time){
 }
 
 sample_pars <- function(fit, samples = 100){
-  if(is(fit, 'par_fit')){
-    chol_var <- chol(vcov(fit))
-    mean_coefs <- fit$coefficients
+  if(is(fit, 'par_fit') | is(fit, 'sp_fit')){
+    chol_var <- chol(vcov.icenReg_fit(fit))
+    mean_coefs <- as.numeric( fit$coefficients )
     k <- length(mean_coefs)
     norm_samps <- matrix(rnorm(samples * k), nrow = samples)
     ans <- norm_samps %*% chol_var + rep(1, samples) %*% t(mean_coefs)
@@ -847,4 +855,17 @@ sample_pars <- function(fit, samples = 100){
     ans <- fit$samples[samp_inds,]
     return(ans)
   }
+}
+
+sample_etas_and_base <- function(fit, samples, newdata){
+  all_pars <- sample_pars(fit, samples)
+  nBase <- length(fit$baseline)
+  basePars <- all_pars[,1:nBase]
+  if(nBase == 1) basePars <- as.matrix(basePars, ncol = 1)
+  regPars  <- all_pars[,-(1:nBase)]
+  etas <- get_etas(fit, newdata, reg_pars = regPars)
+  if(length(etas) == 0) etas <- rep(1, samples)
+  ans <- list(baseMat = basePars, 
+              etas = etas)
+  return(ans)
 }

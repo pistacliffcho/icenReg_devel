@@ -203,5 +203,75 @@ ic_npList <- setRefClass(Class = 'ic_npList',
                              cat("\nGroup Counts:\n")
                              print(nGrp)
                            }
-                         )
-                         )
+                         ))
+
+
+surv_cis <- setRefClass("surv_cis",
+                          fields = c('cis', 'call', 'newdata'),
+                          methods = list(
+                            fit_one_row = function(fit, newdata_row,
+                                                   p, p_ends, MC_samps){
+                              samp <- sampleSurv(fit, newdata_row, 
+                                               p = p, samples = MC_samps)
+                              ans <- matrix(nrow = length(p), ncol = 2)
+                              for(i in 1:length(p)){ ans[i,] <- quantile(samp[,i], probs = p_ends)}
+                              ans <- cbind(p, ans)
+                              colnames(ans) <- c("Percentile", "lower", "upper")
+                              rownames(ans) <- round(p, 3)
+                              return(ans)
+                            },
+                            initialize = function(fit, 
+                                                  newdata = NULL,
+                                                  p = c(0:9 * .1 + 0.05),
+                                                  ci_level = 0.95, 
+                                                  MC_samps = 40000){
+                              call <<- fit$call
+                              if(ci_level < 0 | ci_level > 1) stop('invalid ci_level')
+                              alpha <- (1 - ci_level)/2
+                              p_low = alpha
+                              p_hi  = 1 - alpha
+                              ci_list <- list()
+                              rowNames <- rownames(newdata)
+                              if(is.null(rowNames)){
+                                if(nrow(newdata) > 0){
+                                  rownames(newdata) <<- 1:nrow(newdata)
+                                  rowNames <- rownames(newdata)
+                                }
+                              }
+                              for(i in seq_along(rowNames)){
+                                this_name <- rowNames[i]
+                                ci_list[[this_name]] <- fit_one_row(fit, newdata_row = get_dataframe_row(newdata, i), 
+                                                                    p = p, p_ends = c(p_low, p_hi), 
+                                                                    MC_samps = MC_samps)
+                              }
+                              cis <<- ci_list
+                            },
+                            show = function(){
+                              cat("Model call:\n  ")
+                              print(call,) 
+                              for(i in seq_along(cis)){
+                                this_name <- names(cis)[i]
+                                cat("Rowname: ", this_name, "\n")
+                                print(cis[[i]])
+                              }
+                            },
+                            one_lines = function(index = 1, this_col, ...){
+                              argList <- list(...)
+                              argList$col = this_col
+                              argList$lty = 2
+                              these_cis <- cis[[index]]
+                              argList$x = these_cis[,2]
+                              argList$y = 1 - these_cis[,1]
+                              do.call(lines, argList)
+                              argList$x = these_cis[,3]
+                              do.call(lines, argList)
+                            },
+                            all_lines = function(cols = NULL, ...){
+                              nCIs = length(cis)
+                              nCols <- length(cols)
+                              if(nCols == 0){ cols = 1:nCIs; nCols = length(cols) }
+                              if(nCols == 1){ cols = rep(cols, nCIs); nCols = length(cols) }
+                              if(nCols != nCIs) stop("number colors provided does not match up with number of CI's to plot")
+                              for(i in seq_along(cis)){ one_lines(i, cols[i], ...)}
+                            }
+                          ))

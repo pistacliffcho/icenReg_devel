@@ -2,7 +2,7 @@
 % Please edit documentation in R/user_utilities.R
 \name{sampleSurv}
 \alias{sampleSurv}
-\title{Sample fitted survival function}
+\title{Samples fitted survival function}
 \usage{
 sampleSurv(fit, newdata, p = NULL, q = NULL, samples = 100)
 }
@@ -13,12 +13,37 @@ sampleSurv(fit, newdata, p = NULL, q = NULL, samples = 100)
 
 \item{p}{A set of survival probabilities to sample corresponding time for}
 
-\item{q}{A set of times to sample corresponding survival probability for}
+\item{q}{A set of times to sample corresponding cumulative probability for}
 
 \item{samples}{Number of samples to draw}
 }
 \description{
-Sample fitted survival function
+Samples fitted survival function
+}
+\details{
+For Bayesian models, draws samples from the survival distribution with a given set of covariates.
+Does this by first drawing a set of parameters (both regression and baseline) from \code{fit$samples} and then computing the quantiles of 
+the distribution (if \code{p} is provided) or the CDF at \code{q}. 
+
+If a \code{ic_par} model is provided, the procedure is the same, but the sampled parameters are drawn using
+the normal approximation.
+
+Not compatible with \code{ic_np} or \code{ic_sp} objects.
+}
+\examples{
+data("IR_diabetes")
+fit <- ic_par(cbind(left, right) ~ gender, data = IR_diabetes)
+
+newdata <- data.frame(gender = "male")
+time_samps <- sampleSurv(fit, newdata, 
+                         p = c(0.5, .9), 
+                         samples = 100)
+# 100 samples of the median and 90th percentil for males                        
+
+prob_samps <- sampleSurv(fit, newdata, 
+                         q = c(10, 20),
+                         samples = 100)
+# 100 samples of the cumulative probability at t = 10 and 20 for males                        
 }
 \author{
 Clifford Anderson-Bergman
