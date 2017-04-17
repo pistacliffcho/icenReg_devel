@@ -2,7 +2,7 @@ Package: icenReg
 Type: Package
 Title: Regression Models for Interval Censored Data
 Version: 2.0.1
-Date: 2017-3-13
+Date: 2017-4-16
 Author: Clifford Anderson-Bergman
 Depends:
     survival,
