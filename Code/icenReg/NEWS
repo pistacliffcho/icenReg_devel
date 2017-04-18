@@ -6,6 +6,7 @@ Fixed rownames bug for imputeCens when imputeType = ‘median’
 Fixed open/closed interval bug pointed out by Dr Bogaerts 
 Added sampling from posterior survival curves
 Added confidence intervals
+Added names(fit) method
 
 v2.0.0
 Added coef active binding for regression models (i.e. fit$coef is allowed)

@@ -1,5 +1,6 @@
 
 vcov.icenReg_fit <- function(object,...) object$var
+names.icenReg_fit <- function(x) ls(x)
 
 #' Get Estimated Survival Curves from Semi-parametric Model for Interval Censored Data
 #' 
