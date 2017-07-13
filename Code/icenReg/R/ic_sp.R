@@ -143,7 +143,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
   fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)
   dataEnv <- list()
   dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
-  if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- as.character(formula[[3]])
+  if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- colnames(mf)[2]
   dataEnv[['y']] <- yMat
   seeds = as.integer( runif(bs_samples, 0, 2^31) )
   bsMat <- numeric()

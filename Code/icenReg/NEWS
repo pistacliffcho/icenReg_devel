@@ -1,5 +1,7 @@
 
 UPDATES:
+v2.0.2
+Fixed bug regarding releveling with a single covariate with only two levels inside formula
 
 v2.0.1
 Fixed rownames bug for imputeCens when imputeType = ‘median’
