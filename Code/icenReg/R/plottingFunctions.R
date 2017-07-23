@@ -105,7 +105,12 @@ lines.icenReg_fit <- function(x, y, newdata = NULL,
   }
   else if(inherits(x, 'par_fit') | inherits(x, 'bayes_fit')){
     cis_est <- survCIs(x, newdata)
-    lines(cis_est, colors, include_cis = cis)
+    argList <- list(...)
+    argList$col = NULL
+    argList$x = cis_est
+    argList$col = colors
+    argList$include_cis = cis
+    do.call(lines, argList)
   }
 }
 
@@ -139,7 +144,7 @@ lines.ic_npList <- function(x, fitNames = NULL, ...){
 plot.ic_npList <- function(x, fitNames = NULL, lgdLocation = 'bottomleft', ... ){
   addList <- list(xlim = x$xRange,
                   ylim = c(0,1),
-                  xlab = 't', 
+                  xlab = 'time', 
                   ylab = 'S(t)', 
                   x = NA)
   dotList <- list(...)
