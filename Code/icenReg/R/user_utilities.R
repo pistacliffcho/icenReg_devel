@@ -903,7 +903,7 @@ sampleSurv_slow <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
 #'                          samples = 100)
 #' # 100 samples of the cumulative probability at t = 10 and 20 for males                        
 #' @export
-sampleSurv <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
+sampleSurv <- function(fit, newdata = NULL, p = NULL, q = NULL, samples = 100){
   if(!is.null(newdata)){
     if(nrow(newdata) > 1) stop('newdata must be a single row')
   }
@@ -952,8 +952,9 @@ sampleSurv <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
     }
     
   }
-  if(input_type == 'p') these_colnames <- paste("p =", p)
-  else these_colnames <- paste("t =", q)
+  if(input_type == 'p') these_colnames <- paste("Q(p) =", input)
+  else these_colnames <- paste("F(t) =", input)
+  colnames(ans) <- these_colnames
   return(ans)
 }
 
@@ -1085,14 +1086,17 @@ cs2ic <- function(time,
 #' # Would have been included by default
 #' lines(diab_cis, cols = c("black", "red"))
 #' @export
-survCIs <- function(fit, newdata, 
-                    p = c(0:19 * .05 + 0.025), 
+survCIs <- function(fit, newdata = NULL, 
+                    p = NULL, 
+                    q = NULL, 
                     ci_level = 0.95,
                     MC_samps = 40000){
+  if(is.null(p) & is.null(q)){ p = c(0:19 * .05 + 0.025) }
+  if(!is.null(p) & !is.null(q)){ stop('Need to provide p OR q, not both') }
   if(!(inherits(fit, 'par_fit') | inherits(fit, 'bayes_fit')))
      stop("fit must be either from ic_par() or ic_bayes()")
   ans <- surv_cis(fit = fit, newdata = newdata, 
-                  p = p, ci_level = ci_level, 
+                  p = p, q = q, ci_level = ci_level, 
                   MC_samps = MC_samps)
   return(ans)
 }

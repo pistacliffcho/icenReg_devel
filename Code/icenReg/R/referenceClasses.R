@@ -210,26 +210,38 @@ surv_cis <- setRefClass("surv_cis",
                           fields = c('cis', 'call', 'newdata'),
                           methods = list(
                             fit_one_row = function(fit, newdata_row,
-                                                   p, p_ends, MC_samps){
+                                                   p, q, p_ends, MC_samps){
                               samp <- sampleSurv(fit, newdata_row, 
-                                               p = p, samples = MC_samps)
-                              q_ests <- matrix(nrow = length(p), ncol = 3)
+                                               p = p, q = q, 
+                                               samples = MC_samps)
+                              
+                              use_input <- 'p'
+                              inputLength <- length(p)
+                              inputVals <- p
+                              if(is.null(p)){
+                                use_input = 'q'
+                                inputLength = length(q)
+                                inputVals <- q
+                              }
+                              q_ests <- matrix(nrow = inputLength, ncol = 3)
                               mean_ests <- NULL 
                               p_use <- c(0.5, p_ends)
-                              for(i in 1:length(p)){ 
+                              for(i in 1:inputLength){ 
                                 q_ests[i,] <- quantile(samp[,i], probs = p_use) 
                                 mean_ests[i] <- mean(samp[,i])
                               }
-                              ans <- cbind(p, mean_ests, q_ests)
-                              colnames(ans) <- c("Percentile", 
+                              ans <- cbind(inputVals, mean_ests, q_ests)
+                              firstColName <- 'Percentile'
+                              if(is.null(p)) firstColName <- 'Time'
+                              colnames(ans) <- c(firstColName, 
                                                  'estimate (mean)', 'estimate (median)', 
                                                  "lower", "upper")
-                              rownames(ans) <- round(p, 3)
                               return(ans)
                             },
                             initialize = function(fit, 
                                                   newdata = NULL,
                                                   p = c(0:9 * .1 + 0.05),
+                                                  q = NULL, 
                                                   ci_level = 0.95, 
                                                   MC_samps = 40000){
                               call <<- fit$call
@@ -251,7 +263,8 @@ surv_cis <- setRefClass("surv_cis",
                               for(i in seq_along(rowNames)){
                                 this_name <- rowNames[i]
                                 ci_list[[this_name]] <- fit_one_row(fit, newdata_row = get_dataframe_row(newdata, i), 
-                                                                    p = p, p_ends = c(p_low, p_hi), 
+                                                                    p = p, q = q, 
+                                                                    p_ends = c(p_low, p_hi), 
                                                                     MC_samps = MC_samps)
                               }
                               cis <<- ci_list
