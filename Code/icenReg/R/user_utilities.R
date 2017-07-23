@@ -904,7 +904,9 @@ sampleSurv_slow <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
 #' # 100 samples of the cumulative probability at t = 10 and 20 for males                        
 #' @export
 sampleSurv <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
-  if(nrow(newdata) > 1) stop('newdata must be a single row')
+  if(!is.null(newdata)){
+    if(nrow(newdata) > 1) stop('newdata must be a single row')
+  }
   # Checking what type of look up to do 
   input_type = NULL
   if(!is.null(p)){
@@ -928,9 +930,10 @@ sampleSurv <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
   ans <- matrix(nrow = samples, ncol = nCol)
   etas_and_base <- sample_etas_and_base(fit, samples = samples, newdata = newdata)
   etas <- etas_and_base$etas
+  if(length(etas) == 1) etas <- rep(etas, samples)
   baseMat <- etas_and_base$baseMat
   if(nrow(baseMat) != samples) stop("nrow(baseMat) != samples")
-  if(length(etas)  != samples) stop("nrow(baseMat) != samples")
+  if(length(etas)  != samples) stop("length(etas) != samples")
   for(i in 1:nCol){
     this_input = rep(input[i], samples)
     if(input_type == 'p'){ 
@@ -956,67 +959,6 @@ sampleSurv <- function(fit, newdata, p = NULL, q = NULL, samples = 100){
 
 
 
-plot.sp_curves <- function(x, sname = 'baseline', xRange = NULL, ...){
-  if(is.null(xRange))
-    xRange <- range(c(x[[1]][,1], x[[1]][,2]), finite = TRUE)
-  dotList <- list(...)
-  addList <- list(xlim = xRange, ylim = c(0,1), x = NA)
-  dotList <- addListIfMissing(addList, dotList)
-  do.call(plot, dotList)
-  lines(x, sname = sname, ...)
-}
-
-lines.ic_npList <- function(x, fitNames = NULL, ...){
-  if(is.null(fitNames)){
-    fitNames <- names(x$scurves)
-    lines(x, fitNames, ...)
-  }
-  dotList <- list(...)
-  cols <- dotList$col
-
-  for(i in seq_along(fitNames)){
-    thisName <- fitNames[i]
-    dotList$col <- cols[i]
-    dotList$x <- x$scurves[[thisName]]
-    do.call(lines, dotList)
-  }
-}
-
-plot.ic_npList <- function(x, fitNames = NULL, lgdLocation = 'bottomleft', ... ){
-  addList <- list(xlim = x$xRange,
-                  ylim = c(0,1),
-                  xlab = 't', 
-                  ylab = 'S(t)', 
-                  x = NA)
-  dotList <- list(...)
-  dotList <- addListIfMissing(addList, dotList)
-  do.call(plot, dotList)  
-  grpNames <- names(x$fitList)
-  cols <- dotList$col
-  if(is.null(cols)) cols = 2:(length(grpNames) + 1)
-  if(length(cols) != length(grpNames)) 
-    stop('length of number of strata not equal to number of colors')
-  dotList$col <- cols
-  dotList$fitNames = fitNames
-  dotList$x <- x
-  do.call(lines, dotList)
-  legend(lgdLocation, legend = grpNames, col = cols, lty = 1)
-}
-
-lines.sp_curves <- function(x, sname = 'baseline',...){
-  firstTimeObs <- x[[1]][1,1]
-  firstTimeAssume <- firstTimeObs
-  if(firstTimeObs > 0)
-    firstTimeAssume <- 0
-  lines(c(firstTimeAssume, firstTimeObs), c(1,1), ...)
-  lines(x[[1]][,1], x[[2]][[sname]], ..., type = 's')
-  lines(x[[1]][,2], x[[2]][[sname]],   ..., type = 's')
-  lastObs <- nrow(x[[1]])
-  lastTimes <- x[[1]][lastObs,]
-  if(lastTimes[2] == Inf) lastTimes[2] <- lastTimes[1]
-  lastTimes[2] <- lastTimes[2] + (lastTimes[2] - firstTimeObs)
-  lines(lastTimes, c(0,0), ... ) 
-}
 
 dGeneralGamma <- function(x, mu, s, Q){
   max_n <- getMaxLength(list(x, mu, s, Q) )
@@ -1144,7 +1086,7 @@ cs2ic <- function(time,
 #' lines(diab_cis, cols = c("black", "red"))
 #' @export
 survCIs <- function(fit, newdata, 
-                    p = c(0:9 * .1 + 0.05), 
+                    p = c(0:19 * .05 + 0.025), 
                     ci_level = 0.95,
                     MC_samps = 40000){
   if(!(inherits(fit, 'par_fit') | inherits(fit, 'bayes_fit')))

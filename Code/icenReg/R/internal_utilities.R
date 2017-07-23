@@ -812,6 +812,7 @@ icr_colMeans <- function(x){
 }
 
 get_dataframe_row <- function(df, row){
+  if(is.null(df)) return(NULL)
   if(ncol(df) == 0) return(NULL)
   if(ncol(df)  > 1) return(df[row, ])
   ans <- as.data.frame( df[row,] )

@@ -213,10 +213,17 @@ surv_cis <- setRefClass("surv_cis",
                                                    p, p_ends, MC_samps){
                               samp <- sampleSurv(fit, newdata_row, 
                                                p = p, samples = MC_samps)
-                              ans <- matrix(nrow = length(p), ncol = 2)
-                              for(i in 1:length(p)){ ans[i,] <- quantile(samp[,i], probs = p_ends)}
-                              ans <- cbind(p, ans)
-                              colnames(ans) <- c("Percentile", "lower", "upper")
+                              q_ests <- matrix(nrow = length(p), ncol = 3)
+                              mean_ests <- NULL 
+                              p_use <- c(0.5, p_ends)
+                              for(i in 1:length(p)){ 
+                                q_ests[i,] <- quantile(samp[,i], probs = p_use) 
+                                mean_ests[i] <- mean(samp[,i])
+                              }
+                              ans <- cbind(p, mean_ests, q_ests)
+                              colnames(ans) <- c("Percentile", 
+                                                 'estimate (mean)', 'estimate (median)', 
+                                                 "lower", "upper")
                               rownames(ans) <- round(p, 3)
                               return(ans)
                             },
@@ -232,7 +239,10 @@ surv_cis <- setRefClass("surv_cis",
                               p_hi  = 1 - alpha
                               ci_list <- list()
                               rowNames <- rownames(newdata)
-                              if(is.null(rowNames)){
+                              if(is.null(newdata)){
+                                rowNames <- 'baseline'
+                              }
+                              else if(is.null(rowNames)){
                                 if(nrow(newdata) > 0){
                                   rownames(newdata) <<- 1:nrow(newdata)
                                   rowNames <- rownames(newdata)
@@ -255,25 +265,34 @@ surv_cis <- setRefClass("surv_cis",
                                 print(cis[[i]])
                               }
                             },
-                            one_lines = function(index = 1, this_col, ...){
+                            one_lines = function(index = 1, this_col, include_cis, ...){
                               argList <- list(...)
                               argList$col = this_col
-                              argList$lty = 2
+                              argList$lty = 1
                               these_cis <- cis[[index]]
-                              argList$x = these_cis[,2]
-                              argList$y = 1 - these_cis[,1]
+                              perc = these_cis[,1]
+                              est = these_cis[,3]
+                              lower = these_cis[,4]
+                              upper = these_cis[,5]
+                              argList$y = 1 - perc
+                              argList$x = est
                               do.call(lines, argList)
-                              argList$x = these_cis[,3]
-                              do.call(lines, argList)
+                              if(include_cis){
+                                argList$lty = 2
+                                argList$x = lower
+                                do.call(lines, argList)
+                                argList$x = upper
+                                do.call(lines, argList)
+                              }
                             },
-                            all_lines = function(cols = NULL, ...){
+                            all_lines = function(cols = NULL, include_cis, ...){
                               nCIs = length(cis)
                               nCols <- length(cols)
                               if(nCols == 0){ cols = 1:nCIs; nCols = length(cols) }
                               if(nCols == 1){ cols = rep(cols, nCIs); nCols = length(cols) }
                               if(nCols != nCIs) stop("number colors provided does not match up with number of CI's to plot")
                               argList <- list(...)
-                              
+                              argList$include_cis = include_cis
                               for(i in seq_along(cis)){ 
                                 argList$index = i
                                 argList$this_col = cols[i]
