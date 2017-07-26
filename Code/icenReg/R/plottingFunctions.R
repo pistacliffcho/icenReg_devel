@@ -5,11 +5,11 @@ plot.icenReg_fit <- function(x, y, newdata = NULL, fun = 'surv',
                              xlab = "time", ...){
   if(inherits(x, 'impute_par_icph'))	stop('plot currently not supported for imputation model')
   argList <- list(...)
-  colors <- argList$col
   if(missing(y)) y <- newdata	
   newdata <- y
   nRows <- 1
   if(!is.null(newdata)) nRows <- icr_nrow(newdata)
+  colors <- argList$col
   if(is.null(colors)) colors = 1:nRows
   if(fun == 'surv'){ s_trans <- function(x){x}; yName = 'S(t)'}
   else if(fun == 'cdf'){ s_trans <- function(x){1-x}; yName = 'F(t)' }
@@ -53,7 +53,14 @@ plot.icenReg_fit <- function(x, y, newdata = NULL, fun = 'surv',
     do.call(plot, firstPlotList)
   }
   
-  lines(x, newdata, cis = cis, ci_level = ci_level,...)
+  newLinesList = list(...)
+  newLinesList$x = x
+  newLinesList$y = newdata
+  newLinesList$cis = cis
+  newLinesList$ci_level = ci_level
+  newLinesList$col = colors
+  do.call(lines, newLinesList)
+  # lines(x, newdata, cis = cis, ci_level = ci_level,...)
   if(nRows > 1 & plot_legend){
     grpNames <- rownames(newdata)
     legend(lgdLocation, legend = grpNames, lwd = rep(1, length(grpNames) ), col = colors)

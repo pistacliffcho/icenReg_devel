@@ -55,7 +55,7 @@ par_class <- setRefClass(Class = 'par_fit',
 
 bayes_fit <- setRefClass(Class = 'bayes_fit',
                          contains = 'icenReg_fit',
-                         fields = c('samples',
+                         fields = c('mcmcList',
                                     'baseline',
                                     'logPosteriorDensities',
                                     'nSamples',
@@ -64,7 +64,8 @@ bayes_fit <- setRefClass(Class = 'bayes_fit',
                                     'finalChol', 
                                     'MAP_ind',
                                     'MAP_reg_pars',
-                                    'MAP_baseline'))
+                                    'MAP_baseline', 
+                                    'samples'))
 
 
 surv_trans_models <- c('po', 'ph', 'aft', 'none')
@@ -106,9 +107,8 @@ setRefClass('icenRegSummary',
                 colNames <- c('Estimate', 'Exp(Est)', 'Std.Error', 'z-value', 'p')
                 coefs <- fit$coefficients
                 if(is(fit, 'bayes_fit')){
-                  sumPars <- summary(fit$samples)
+                  sumPars <- summary(fit$mcmcList)
                   otherList[['MAP']] <- signif( fullFit$samples[fullFit$MAP_ind,], sigFigs)
-#                  names(otherList[['MAP']]) <- colnames(fullFit$samples)
                 }
                 else{
                   sumPars <- matrix(nrow = length(coefs), ncol = length(colNames))

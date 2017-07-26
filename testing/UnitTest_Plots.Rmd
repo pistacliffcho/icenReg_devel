@@ -1,0 +1,36 @@
+---
+title: "Unit Test for Plots"
+author: "Clifford Anderson-Bergman"
+date: "7/22/2017"
+output: html_document
+---
+
+```{r}
+## Unit tests for plotting
+
+library(icenReg)
+data(miceData)
+
+fit_bayes <- ic_bayes(cbind(l, u) ~ grp, data = miceData)
+fit_np    <- ic_np(cbind(l, u) ~ grp, data = miceData)
+fit_par   <- ic_par(cbind(l, u) ~ grp, data = miceData)
+fit_sp    <- ic_sp(cbind(l, u) ~ grp, data = miceData)
+
+fit_list <- list(bayes = fit_bayes, 
+                 np = fit_np, 
+                 par = fit_par, 
+                 sp = fit_sp)
+
+newdata = data.frame(grp = 'ce')
+newdata2 = data.frame(grp = c('ce', 'ge'))
+rownames(newdata2)  = c("Conventional Env", "Germ Free Env")
+cols = c("orange", "purple")
+for(i in seq_along(fit_list)){
+  cat("Fit Type: ", names(fit_list)[i], '\n')
+  this_fit <- fit_list[[i]]
+  plot(this_fit, main = "No Data Provided Plot")
+  plot(this_fit, newdata = newdata, main = "Single Row Provided")
+  plot(this_fit, newdata = newdata2, 
+       col = cols, main = "Two Rows Provided")
+}
+```
