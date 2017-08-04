@@ -4,12 +4,14 @@
 \alias{bayesControls}
 \title{Control parameters for ic_bayes}
 \usage{
-bayesControls(samples = 4000, useMLE_start = TRUE, burnIn = 2999,
-  samplesPerUpdate = 1000, initSD = 0.1, updateChol = TRUE,
-  acceptRate = 0.44, thin = 5)
+bayesControls(samples = 4000, chains = 4, useMLE_start = TRUE,
+  burnIn = 1000, samplesPerUpdate = 1000, initSD = 0.1,
+  updateChol = TRUE, acceptRate = 0.25, thin = 5)
 }
 \arguments{
 \item{samples}{Number of samples.}
+
+\item{chains}{Number of MCMC chains to run}
 
 \item{useMLE_start}{Should MLE used for starting point?}
 

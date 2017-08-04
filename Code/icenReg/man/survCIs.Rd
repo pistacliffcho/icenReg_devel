@@ -4,7 +4,7 @@
 \alias{survCIs}
 \title{Confidence/Credible intervals for survival curves}
 \usage{
-survCIs(fit, newdata, p = c(0:9 * 0.1 + 0.05), ci_level = 0.95,
+survCIs(fit, newdata = NULL, p = NULL, q = NULL, ci_level = 0.95,
   MC_samps = 40000)
 }
 \arguments{

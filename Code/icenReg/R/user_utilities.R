@@ -632,7 +632,7 @@ predict.icenReg_fit <- function(object, type = 'response',
 #' @param fit         icenReg model fit 
 #' @param newdata     \code{data.frame} containing covariates and censored intervals. If blank, will use data from model
 #' @param imputeType  type of imputation. See details for options
-#' @param numImputes  Number of imputations (ignored if \code{imputeType = "median"}) 
+#' @param samples  Number of imputations (ignored if \code{imputeType = "median"}) 
 #' 
 #' @description
 #' Imputes censored responses from data. 
@@ -659,12 +659,12 @@ predict.icenReg_fit <- function(object, type = 'response',
 #' imputedValues <- imputeCens(fit)
 #' @author Clifford Anderson-Bergman
 #' @export
-imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes = 5){
+imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', samples = 5){
   if(is.null(newdata)) newdata <- fit$getRawData()
   yMat <- expandY(fit$formula, newdata, fit)
   p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
   p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
-  ans <- matrix(nrow = length(p1), ncol = numImputes)
+  ans <- matrix(nrow = length(p1), ncol = samples)
   storage.mode(ans) <- 'double'
   if(imputeType == 'median'){
     isBayes <- is(fit, 'bayes_fit')
@@ -690,7 +690,7 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
       map_ests <- c(fit$MAP_baseline, fit$MAP_reg_pars)
       setSamplablePars(fit, map_ests)
     }
-    for(i in 1:numImputes){
+    for(i in 1:samples){
       p_samp <- runif(length(p1), p1, p2)
       theseImputes <- getFitEsts(fit, newdata, p = p_samp)
       isLow <- theseImputes < yMat[,1]
@@ -707,7 +707,7 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', numImputes
   if(imputeType == 'fullSample'){
     isSP <- is(fit, 'sp_fit')
     isBayes <- is(fit, 'bayes_fit')
-    for(i in 1:numImputes){
+    for(i in 1:samples){
       orgCoefs <- getSamplablePars(fit)
       if(isBayes){
         sampledCoefs <- sampBayesPar(fit)

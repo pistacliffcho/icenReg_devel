@@ -5,7 +5,8 @@
 \title{Bayesian Regression  Models for Interval Censored Data}
 \usage{
 ic_bayes(formula, data, logPriorFxn = function(x) return(0), model = "ph",
-  dist = "weibull", weights = NULL, controls = bayesControls())
+  dist = "weibull", weights = NULL, controls = bayesControls(),
+  useMCores = F)
 }
 \arguments{
 \item{formula}{Regression formula. Response must be a \code{Surv} object of type
@@ -23,6 +24,8 @@ ic_bayes(formula, data, logPriorFxn = function(x) return(0), model = "ph",
 \item{weights}{vector of case weights. Not standardized; see details}
 
 \item{controls}{Control parameters passed to samplers}
+
+\item{useMCores}{Should multiple cores be used? Each core is used to run a single chain.}
 }
 \description{
 Fits a Bayesian regression model for interval censored data. 

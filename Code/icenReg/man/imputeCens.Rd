@@ -4,7 +4,7 @@
 \alias{imputeCens}
 \title{Impute Interval Censored Data from icenReg Regression Model}
 \usage{
-imputeCens(fit, newdata = NULL, imputeType = "fullSample", numImputes = 5)
+imputeCens(fit, newdata = NULL, imputeType = "fullSample", samples = 5)
 }
 \arguments{
 \item{fit}{icenReg model fit}
@@ -13,7 +13,7 @@ imputeCens(fit, newdata = NULL, imputeType = "fullSample", numImputes = 5)
 
 \item{imputeType}{type of imputation. See details for options}
 
-\item{numImputes}{Number of imputations (ignored if \code{imputeType = "median"})}
+\item{samples}{Number of imputations (ignored if \code{imputeType = "median"})}
 }
 \description{
 Imputes censored responses from data.

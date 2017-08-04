@@ -9,7 +9,6 @@
 #' @param weights        vector of case weights. Not standardized; see details
 #' @param logPriorFxn    An R function that computes the log prior
 #' @param controls       Control parameters passed to samplers 
-#' @param chains         Number of MCMC chains to run
 #' @param useMCores      Should multiple cores be used? Each core is used to run a single chain.
 #' 
 #' @description Fits a Bayesian regression model for interval censored data. 
@@ -69,8 +68,7 @@
 #' @export
 ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
                      model = 'ph', dist = 'weibull', weights = NULL,
-                     controls = bayesControls(), useMCores = F, 
-                     chains = 4){
+                     controls = bayesControls(), useMCores = F){
   if(missing(data)) data <- environment(formula)
   cl <- match.call()
   mf <- match.call(expand.dots = FALSE)
@@ -127,7 +125,7 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
                    regnames = xNames, weights = weights,
                    callText = callText, logPriorFxn = logPriorFxn,
                    bayesList = controls, modelName = modelName,
-                   chains = chains, use_m_cores = useMCores)
+                   chains = controls$chains, use_m_cores = useMCores)
   ans$model = model
   ans$terms <- mt
   ans$xlevels <- .getXlevels(mt, mf)
@@ -141,6 +139,7 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
 #' Control parameters for ic_bayes
 #' 
 #' @param samples               Number of samples. 
+#' @param chains                Number of MCMC chains to run
 #' @param useMLE_start          Should MLE used for starting point? 
 #' @param burnIn                Number of samples discarded for burn in
 #' @param samplesPerUpdate      Number of iterations between updates of proposal covariance matrix
@@ -167,12 +166,13 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
 #'  covariance matrix will be a diagonal matrix with \code{initSD} standard deviations. 
 #' 
 #' @export
-bayesControls <- function(samples = 4000, 
-                          useMLE_start = TRUE, burnIn = 2999, 
+bayesControls <- function(samples = 4000, chains = 4,
+                          useMLE_start = TRUE, burnIn = 1000, 
                           samplesPerUpdate = 1000, initSD = 0.1,
-                          updateChol = TRUE, acceptRate = 0.44,
+                          updateChol = TRUE, acceptRate = 0.25,
                           thin = 5){
   ans <- list(useMLE_start        = useMLE_start,
+              chains              = chains,
               samples             = samples,
               thin                = thin,
               samplesPerUpdate    = samplesPerUpdate,
@@ -195,10 +195,11 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
                              link = link, leftCen = 0, rightCen = Inf,
                              uncenTol = 10^-6, regnames = regnames,
                              weights = weights, callText = modelName)
+  bayesList$samples <- ceiling(bayesList$samples / chains)
   `%myDo%` <- `%do%`
   if(use_m_cores) `%myDo%` <- `%dopar%`
   seeds = runif(chains, 1, 10000)
-#  c_fit                  = R_ic_bayes(bayesList, logPriorFxn, parList)
+
   c_fit_list <- foreach(this_seed = seeds) %myDo% {
     set.seed(this_seed)
     R_ic_bayes(bayesList, logPriorFxn, parList)
@@ -206,7 +207,7 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
   c_fit = c_fit_list[[1]]
   mcmc_samples = mcmc.list()
   allParNames = c(parList$bnames, parList$regnames)
-  logPostDens <- NULL
+  logPostDens <- list()
   for(i in 1:chains){
     these_samps <- c_fit_list[[i]]$samples
     colnames(these_samps) = allParNames
@@ -214,16 +215,9 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
                               thin = bayesList$thin, 
                               start = bayesList$burnIn + 1)
     mcmc_samples[[i]] = these_samps
-    logPostDens <- c(logPostDens, c_fit_list[[i]]$logPosteriorDensity)
+    logPostDens[[i]]  = c_fit_list[[i]]$logPosteriorDensity
   }
-  # mat_samples            = c_fit$samples 
-  # colnames(mat_samples)  = allParNames
-  # mcmc_samples           = coda::mcmc(mat_samples, 
-  #                               thin = bayesList$thin, 
-  #                               start = bayesList$burnIn + 1)
-  # logPostDens            = c_fit$logPosteriorDensity
-  # colnames(mcmc_samples) = allParNames
-  
+
   nBase             <- length(parList$bnames)
   nRegPar           <- length(parList$regnames)
   
@@ -245,7 +239,11 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
   fit$call          <- callText
   fit$logPrior      <- logPriorFxn
   fit$finalChol     <- c_fit$finalChol
-  fit$MAP_ind       <- which(logPostDens == max(logPostDens) )[1]
+  MAP_info          <- getMaxPostDensInfo(logPostDens)
+  MAP_dens          <- MAP_info[1]
+  MAP_ind           <- MAP_info[2]
+  fit$MAP_ind       <- MAP_ind
+  fit$MAP_dens      <- MAP_dens
   fit$MAP_reg_pars  <- mat_samples[fit$MAP_ind, nBase + 1:nRegPar]
   fit$MAP_baseline  <- mat_samples[fit$MAP_ind, 1:nBase]
   fit$samples   <- mat_samples
@@ -256,4 +254,27 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
   fit$coefficients <- c(fit$baseline, fit$reg_pars)
   fit$baseOffset   <- 0
   return(fit)
+}
+
+
+getMaxPostDensInfo <- function(maxDensList){
+  vals <- NULL
+  for(i in seq_along(maxDensList)){
+    these_dens <- maxDensList[[i]]
+    vals <- c(vals, these_dens)
+  }  
+  maxVal <- max(vals)
+  maxValInd <- which(maxVal == maxVal)[1]
+  ans <- c(maxVal, maxValInd)
+  names(ans) <- c('maxVal', 'maxValInd')
+  return(ans)
+}
+
+postDens_at_mle <- function(mle_fit, priorFxn){
+  mle_vals <- coef(mle_fit)
+  llk <- mle_fit$llk
+  prior_dens <- priorFxn(mle_vals)
+  post_dens <- llk + prior_dens
+  ans <- c(post_dens, mle_vals)
+  return(ans)
 }

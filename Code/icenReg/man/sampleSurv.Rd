@@ -4,7 +4,7 @@
 \alias{sampleSurv}
 \title{Samples fitted survival function}
 \usage{
-sampleSurv(fit, newdata, p = NULL, q = NULL, samples = 100)
+sampleSurv(fit, newdata = NULL, p = NULL, q = NULL, samples = 100)
 }
 \arguments{
 \item{fit}{Either an ic_bayes or ic_par fit}

@@ -62,6 +62,7 @@ bayes_fit <- setRefClass(Class = 'bayes_fit',
                                     'ess',
                                     'logPrior',
                                     'finalChol', 
+                                    'MAP_dens',
                                     'MAP_ind',
                                     'MAP_reg_pars',
                                     'MAP_baseline', 
@@ -109,6 +110,7 @@ setRefClass('icenRegSummary',
                 if(is(fit, 'bayes_fit')){
                   sumPars <- summary(fit$mcmcList)
                   otherList[['MAP']] <- signif( fullFit$samples[fullFit$MAP_ind,], sigFigs)
+                  otherList[["Gelman"]] <- coda::gelman.diag(fit$mcmcList)
                 }
                 else{
                   sumPars <- matrix(nrow = length(coefs), ncol = length(colNames))
@@ -168,6 +170,8 @@ setRefClass('icenRegSummary',
                 if(inherits(fullFit, 'bayes_fit')){
                   cat('3. MAP estimates:\n') 
                   print( other[['MAP']] )
+                  cat('\n4. Gelman Diagnostics:\n')
+                  print(other[['Gelman']])
                 }
                 if(sampSizeWarn){
                   cat("WARNING: only ", other[['bs_samps']], " bootstrap samples used for standard errors. \nSuggest using more bootstrap samples for inference\n")
@@ -207,7 +211,7 @@ ic_npList <- setRefClass(Class = 'ic_npList',
 
 
 surv_cis <- setRefClass("surv_cis",
-                          fields = c('cis', 'call', 'newdata'),
+                          fields = c('cis', 'call', 'newdata', 'ci_level'),
                           methods = list(
                             fit_one_row = function(fit, newdata_row,
                                                    p, q, p_ends, MC_samps){
@@ -245,6 +249,7 @@ surv_cis <- setRefClass("surv_cis",
                                                   ci_level = 0.95, 
                                                   MC_samps = 40000){
                               call <<- fit$call
+                              ci_level <<- ci_level
                               if(ci_level < 0 | ci_level > 1) stop('invalid ci_level')
                               alpha <- (1 - ci_level)/2
                               p_low = alpha
@@ -272,6 +277,7 @@ surv_cis <- setRefClass("surv_cis",
                             show = function(){
                               cat("Model call:\n  ")
                               print(call,) 
+                              cat("Credible Level =", ci_level, "\n")
                               for(i in seq_along(cis)){
                                 this_name <- names(cis)[i]
                                 cat("Rowname: ", this_name, "\n")
