@@ -385,13 +385,19 @@ s_loglgst <- function(x, par){
 
 get_etas <- function(fit, newdata = NULL, reg_pars = NULL){
   if(fit$par == 'non-parametric'){ans <- 1; names(ans) <- 'baseline'; return(ans)}
-	if(is.null(newdata)){ans <- exp(-fit$baseOffset); names(ans) <- 'baseline'; return(ans)}
+  if(is.null(reg_pars)){ reg_pars <- default_reg_pars(fit) }
+  if(!is.matrix(reg_pars)) reg_pars <- matrix(reg_pars, ncol = length(default_reg_pars(fit)))
+  if(is.null(newdata)){
+#	  ans <- exp(-fit$covarOffset %*% t(reg_pars) )
+    ans <- 1
+	  names(ans) <- 'baseline'
+	  return(ans)
+	}
 	if(identical(newdata, 'midValues')){
   	ans <- 1
   	names(ans) <- 'Mean Covariate Values'
   	return(ans)
 	}
-  if(is.null(reg_pars)){ reg_pars <- default_reg_pars(fit) }
   if(identical(rownames(newdata), NULL) ) {rownames(newdata) <- as.character(1:icr_nrow(newdata))}
 	grpNames <- rownames(newdata)
 	reducFormula <- fit$formula
@@ -404,7 +410,9 @@ get_etas <- function(fit, newdata = NULL, reg_pars = NULL){
 	    ans <- rep(1, length(reg_pars))
 	  return(ans)
 	}
-	log_etas <- as.numeric( new_x %*% reg_pars - fit$baseOffset) 	
+	covarOffset <- fit$covarOffset
+	new_x <- new_x - covarOffset
+	log_etas <- as.numeric( new_x %*% t(reg_pars) ) 	
 	etas <- exp(log_etas)
 	if(length(grpNames) == length(etas)){ names(etas) <- grpNames }
 	return(etas)

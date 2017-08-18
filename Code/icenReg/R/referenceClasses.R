@@ -9,12 +9,10 @@ icenReg_fit <- setRefClass(Class = 'icenReg_fit',
                                   'reg_pars',
                                   'terms',
                                   'xlevels',
-                                  'pca_coefs',
-                                  'pca_info',
-                                  'baseOffset',
                                   'llk',
                                   'iterations',
-                                  'score'
+                                  'score', 
+                                  'covarOffset'
                        ),
                        methods = list(
                          show = function(){
@@ -110,7 +108,7 @@ setRefClass('icenRegSummary',
                 if(is(fit, 'bayes_fit')){
                   sumPars <- summary(fit$mcmcList)
                   otherList[['MAP']] <- signif( fullFit$samples[fullFit$MAP_ind,], sigFigs)
-                  otherList[["Gelman"]] <- coda::gelman.diag(fit$mcmcList)
+                  # otherList[["Gelman"]] <- coda::gelman.diag(fit$mcmcList)
                 }
                 else{
                   sumPars <- matrix(nrow = length(coefs), ncol = length(colNames))
@@ -170,8 +168,8 @@ setRefClass('icenRegSummary',
                 if(inherits(fullFit, 'bayes_fit')){
                   cat('3. MAP estimates:\n') 
                   print( other[['MAP']] )
-                  cat('\n4. Gelman Diagnostics:\n')
-                  print(other[['Gelman']])
+                  # cat('\n4. Gelman Diagnostics:\n')
+                  # print(other[['Gelman']])
                 }
                 if(sampSizeWarn){
                   cat("WARNING: only ", other[['bs_samps']], " bootstrap samples used for standard errors. \nSuggest using more bootstrap samples for inference\n")

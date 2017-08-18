@@ -200,6 +200,8 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
   if(use_m_cores) `%myDo%` <- `%dopar%`
   seeds = runif(chains, 1, 10000)
 
+  # fooling CRAN check...because it gets fooled by foreach
+  this_seed = NULL
   c_fit_list <- foreach(this_seed = seeds) %myDo% {
     set.seed(this_seed)
     R_ic_bayes(bayesList, logPriorFxn, parList)

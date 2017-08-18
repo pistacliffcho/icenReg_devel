@@ -139,7 +139,11 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
                      updateCovars = controls$updateReg,
                      recenterCovars = recenterCovars, 
                      regStart = regStart)  
-  
+
+  # Recentering covariates
+  covarOffset <- icColMeans(x)
+  x <- t(t(x) - covarOffset)
+
   fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)
   dataEnv <- list()
   dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
@@ -181,6 +185,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
     covar <- NULL
   }
   names(fitInfo$coefficients) <- xNames
+  fitInfo$covarOffset <- covarOffset
   fitInfo$bsMat <- bsMat
   fitInfo$var <- covar
   fitInfo$call = cl
@@ -237,8 +242,8 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){
   useFullHess <- other_info$useFullHess
   updateCovars <- other_info$updateCovars
   regStart <- other_info$regStart
-  recenterCovars = FALSE
-  if(getNumCovars(covars) == 0)	recenterCovars <- FALSE
+  # recenterCovars = FALSE
+  # if(getNumCovars(covars) == 0)	recenterCovars <- FALSE
   mi_info <- findMaximalIntersections(obsMat[,1], obsMat[,2])
   k = length(mi_info[['mi_l']])
   covars <- as.matrix(covars)
@@ -246,11 +251,11 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){
   else if(callText == 'ic_po'){fitType = as.integer(2)}
   else {stop('callText not recognized in fit_ICPH')}
   
-  if(recenterCovars){
-    pca_info <- prcomp(covars, scale. = TRUE)
-    covars <- as.matrix(pca_info$x)
-    regStart <- solve(pca_info$rotation, (regStart * pca_info$scale) )
-  }
+  # if(recenterCovars){
+  #   pca_info <- prcomp(covars, scale. = TRUE)
+  #   covars <- as.matrix(pca_info$x)
+  #   regStart <- solve(pca_info$rotation, (regStart * pca_info$scale) )
+  # }
   
   c_ans <- .Call('ic_sp_ch', mi_info$l_inds, mi_info$r_inds, 
                  covars, fitType, as.numeric(weights), useGA, 
@@ -266,12 +271,11 @@ fit_ICPH <- function(obsMat, covars, callText = 'ic_ph', weights, other_info){
   myFit$score <- c_ans$score
   myFit[['T_bull_Intervals']] <- rbind(mi_info[['mi_l']], mi_info[['mi_r']])
   myFit$p_hat <- myFit$p_hat / sum(myFit$p_hat) 
-  myFit$baseOffset <- 0
-  if(recenterCovars == TRUE){
-    myFit$pca_coefs <- myFit$coefficients
-    myFit$pca_info <- pca_info
-    myFit$coefficients <- as.numeric( myFit$pca_info$rotation %*% myFit$coefficients) / myFit$pca_info$scale		
-    myFit$baseOffset = as.numeric(myFit$coefficients %*% myFit$pca_info$center)
-  }
+  # if(recenterCovars == TRUE){
+  #   myFit$pca_coefs <- myFit$coefficients
+  #   myFit$pca_info <- pca_info
+  #   myFit$coefficients <- as.numeric( myFit$pca_info$rotation %*% myFit$coefficients) / myFit$pca_info$scale		
+  #   myFit$baseOffset = as.numeric(myFit$coefficients %*% myFit$pca_info$center)
+  # }
   return(myFit)
 }

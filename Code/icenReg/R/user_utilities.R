@@ -1052,6 +1052,7 @@ cs2ic <- function(time,
 #' 
 #' @param fit Fitted model from \code{ic_par} or \code{ic_bayes}
 #' @param p Percentiles of distribution to sample
+#' @param q Times of disitribution to sample. Only p OR q should be specified, not p AND q
 #' @param newdata \code{data.frame} containing covariates for survival curves
 #' @param ci_level Confidence/credible level
 #' @param MC_samps Number of Monte Carlo samples taken
@@ -1084,13 +1085,13 @@ cs2ic <- function(time,
 #' plot(fit, newdata = newdata, 
 #'      cis = FALSE)
 #' # Would have been included by default
-#' lines(diab_cis, cols = c("black", "red"))
+#' lines(diab_cis, col = c("black", "red"))
 #' @export
 survCIs <- function(fit, newdata = NULL, 
                     p = NULL, 
                     q = NULL, 
                     ci_level = 0.95,
-                    MC_samps = 40000){
+                    MC_samps = 4000){
   if(is.null(p) & is.null(q)){ p = c(0:19 * .05 + 0.025) }
   if(!is.null(p) & !is.null(q)){ stop('Need to provide p OR q, not both') }
   if(!(inherits(fit, 'par_fit') | inherits(fit, 'bayes_fit')))

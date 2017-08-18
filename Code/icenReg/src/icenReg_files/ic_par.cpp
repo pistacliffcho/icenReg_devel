@@ -43,7 +43,7 @@ void IC_parOpt::update_dobs_detas(){
     int w_ind = -1;
     int thisSize = uc.size();
     
-    double this_h = h * 0.1;
+    double this_h = h ;
     
     for(int i = 0; i < thisSize; i++){
         w_ind++;
@@ -53,8 +53,8 @@ void IC_parOpt::update_dobs_detas(){
         con0 = log(lnkFn->con_d(this_d, this_sl, exp(thisEta) ) ) * w[w_ind] ;
         con_h = log(lnkFn->con_d(this_d, this_sl, exp(thisEta + this_h) ) ) * w[w_ind] ;
         con_l = log(lnkFn->con_d(this_d, this_sl, exp(thisEta - this_h) ) ) * w[w_ind] ;
-        dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
-        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
+        dobs_deta[w_ind] = (con_h - con_l) / (2.0 * this_h);
+        d2obs_d2eta[w_ind] = (con_h + con_l - 2.0 * con0) / (this_h * this_h);
         
     }
     thisSize = gic.size();
@@ -76,9 +76,8 @@ void IC_parOpt::update_dobs_detas(){
         con_l = log(lnkFn->con_s(this_sl, thisExpEta)
                     -lnkFn->con_s(this_sr, thisExpEta) ) * w[w_ind];
 
-        thisExpEta = exp(thisEta + 2 * this_h);
-        dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
-        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
+        dobs_deta[w_ind] = (con_h - con_l) / (2.0 * this_h);
+        d2obs_d2eta[w_ind] = (con_h + con_l - 2.0 * con0) / (this_h * this_h);
         
     }
     thisSize = lc.size();
@@ -89,8 +88,8 @@ void IC_parOpt::update_dobs_detas(){
         con0 = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta) ) ) * w[w_ind];        
         con_h = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta + this_h) ) ) * w[w_ind];
         con_l = log(1.0 - lnkFn->con_s(this_sl, exp(thisEta - this_h) ) ) * w[w_ind];
-        dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
-        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
+        dobs_deta[w_ind] = (con_h - con_l) / (2.0 * this_h);
+        d2obs_d2eta[w_ind] = (con_h + con_l - 2.0 * con0) / (this_h * this_h);
 
     }
     thisSize = rc.size();
@@ -101,8 +100,8 @@ void IC_parOpt::update_dobs_detas(){
         con0 = log(lnkFn->con_s(this_sr, exp(thisEta) ) ) * w[w_ind];
         con_h = log(lnkFn->con_s(this_sr, exp(thisEta + this_h) ) ) * w[w_ind];
         con_l = log(lnkFn->con_s(this_sr, exp(thisEta - this_h) ) ) * w[w_ind];
-        dobs_deta[w_ind] = (con_h - con_l) / (2 * this_h);
-        d2obs_d2eta[w_ind] = (con_h + con_l - 2 * con0) / (this_h * this_h);
+        dobs_deta[w_ind] = (con_h - con_l) / (2.0 * this_h);
+        d2obs_d2eta[w_ind] = (con_h + con_l - 2.0 * con0) / (this_h * this_h);
     }
   
 }
@@ -295,7 +294,7 @@ void IC_parOpt::numericCovar_dervs(){
                 lk_ll = calcLike_baseReady();
                 betas[i] += h;
                 betas[j] += h;
-                rho = (lk_hh + lk_ll + 2 * lk_0 - lk_h[i] - lk_h[j] - lk_l[i] - lk_l[j])/(2.0 * h * h);
+                rho = (lk_hh + lk_ll + 2.0 * lk_0 - lk_h[i] - lk_h[j] - lk_l[i] - lk_l[j])/(2.0 * h * h);
                 d2_betas(i,j) = rho;
                 d2_betas(j,i) = rho;
             }
@@ -388,36 +387,20 @@ void IC_parOpt::NR_reg_pars(){
 //    numericCovar_dervs();
     
     double lk_0 = calcLike_baseReady();
-    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> esolve(d2_betas);
-    Eigen::VectorXd evals(1);
-    evals[0] = 1;
-    
-    if(esolve.info() == Eigen::Success)
-        evals = esolve.eigenvalues();
-    int tries = 0;
-    double delta = 1;
-    while(max(evals) > -0.000001 && tries < 10){
-        tries++;
-        for(int i = 0; i < k; i++)
-            d2_betas(i,i) -= delta;
-        delta *= 2.0;
-        esolve.compute(d2_betas);
-        if(esolve.info() == Eigen::Success)
-            evals = esolve.eigenvalues();
-    }
-   
+
     Eigen::VectorXd propVec(k);
-    if(max(evals) > 0)  {propVec = -d2_betas.ldlt().solve(d_betas);}
-        else{
+    propVec = -d2_betas.fullPivLu().solve(d_betas);
+    
+    double err = (d2_betas*propVec + d_betas).norm() / d_betas.norm();
+    if(err > .001){
         for(int i = 0; i < k; i++){
             propVec[i] = 0;
             if(d2_betas(i,i) < 0)   propVec[i] = -d_betas[i] / d2_betas(i,i);
             else propVec[i] = signVal(d_betas[i]) * 0.01;
-        
-        if(ISNAN(propVec[i])) propVec[i] = 0;
+            if(ISNAN(propVec[i])) propVec[i] = 0;
         }
     }
-    tries = 0;
+    int tries = 0;
     betas += propVec;
     propVec *= -1;
     update_etas();

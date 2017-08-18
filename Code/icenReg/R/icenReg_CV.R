@@ -38,7 +38,7 @@ icenReg_cv <- function(fit, loss_fun = abs_inv, folds = 10, numImputes = 100, us
 #  if(is(fit, 'sp_fit')) modCall$bs_samples = 0
   rawData <- fit$getRawData()
   cvItems <- list(data = rawData, cv_inds = cv_inds, 
-                  loss_fun = loss_fun, numImputes = numImputes,
+                  loss_fun = loss_fun, samples = numImputes,
                   call = modCall)
    cvSummary <- foreach(i = 1:folds, .combine = rbind ) %myDo%
               {
@@ -46,7 +46,7 @@ icenReg_cv <- function(fit, loss_fun = abs_inv, folds = 10, numImputes = 100, us
               VALID_DATA_ICENREG <- rawData[cv_inds[[i]], ]
               cv_fit <- eval(modCall)
               cv_preds <- predict.icenReg_fit(cv_fit, newdata = VALID_DATA_ICENREG)
-              cv_imputes <- imputeCens(cv_fit, VALID_DATA_ICENREG, numImputes = numImputes)
+              cv_imputes <- imputeCens(cv_fit, VALID_DATA_ICENREG, samples = numImputes)
               ans <- evalCV(cv_imputes, cv_preds, loss_fun)
               rm(cv_fit, cv_preds, cv_imputes, TRAIN_DATA_ICENREG, VALID_DATA_ICENREG)
     return(ans)

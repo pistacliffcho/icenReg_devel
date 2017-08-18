@@ -5,7 +5,7 @@
 \title{Confidence/Credible intervals for survival curves}
 \usage{
 survCIs(fit, newdata = NULL, p = NULL, q = NULL, ci_level = 0.95,
-  MC_samps = 40000)
+  MC_samps = 4000)
 }
 \arguments{
 \item{fit}{Fitted model from \code{ic_par} or \code{ic_bayes}}
@@ -13,6 +13,8 @@ survCIs(fit, newdata = NULL, p = NULL, q = NULL, ci_level = 0.95,
 \item{newdata}{\code{data.frame} containing covariates for survival curves}
 
 \item{p}{Percentiles of distribution to sample}
+
+\item{q}{Times of disitribution to sample. Only p OR q should be specified, not p AND q}
 
 \item{ci_level}{Confidence/credible level}
 
@@ -51,7 +53,7 @@ diab_cis
 plot(fit, newdata = newdata, 
      cis = FALSE)
 # Would have been included by default
-lines(diab_cis, cols = c("black", "red"))
+lines(diab_cis, col = c("black", "red"))
 }
 \author{
 Clifford Anderson-Bergman

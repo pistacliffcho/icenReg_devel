@@ -67,10 +67,12 @@ plot.icenReg_fit <- function(x, y, newdata = NULL, fun = 'surv',
   }
 }
 
-lines.surv_cis <- function(x, col,...){ x$all_lines(col = col, ...) }
+lines.surv_cis <- function(x, col, include_cis = T, ...){ 
+  x$all_lines(col = col, include_cis = include_cis, ...) }
 
 lines.icenReg_fit <- function(x, y, newdata = NULL, 
-                              fun = 'surv', cis = F, ci_level = 0.9, ...){
+                              fun = 'surv', cis = F, 
+                              ci_level = 0.9, ...){
   argList <- list(...)
   colors <- argList$col
   if(missing(y)) y <- newdata	
@@ -82,6 +84,9 @@ lines.icenReg_fit <- function(x, y, newdata = NULL,
     use_colors = colors
     if(length(use_colors) == 1) use_colors = rep(use_colors, nRows)
     if(length(use_colors) != nRows) stop("number of length(col) must be 0, 1 or equal to number of rows of new data")
+  }
+  else{
+    if(length(colors) == 0) colors = 1
   }
   if(fun == 'surv'){ s_trans <- function(x){x}; yName = 'S(t)'}
   else if(fun == 'cdf'){ s_trans <- function(x){1-x}; yName = 'F(t)' }

@@ -91,7 +91,11 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
   if(length(weights) != nrow(yMat))	stop('weights improper length!')
   if(min(weights) < 0)				stop('negative weights not allowed!')
   if(sum(is.na(weights)) > 0)			stop('cannot have weights = NA')
-  if(is.null(ncol(x))) recenterCovar = FALSE
+
+  # Recentering covariates
+  covarOffset <- icColMeans(x)
+  x <- t(t(x) - covarOffset)
+  
   fitInfo <- fit_par(yMat, x, parFam = dist, link = model, 
                      leftCen = 0, rightCen = Inf, uncenTol = 10^-6, 
                      regnames = xNames, weights = weights,
@@ -104,7 +108,7 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
   fitInfo$model = model
   fitInfo$terms <- mt
   fitInfo$xlevels <- .getXlevels(mt, mf)
-  
+  fitInfo$covarOffset <- matrix(covarOffset, nrow = 1)
   return(fitInfo)
 }
 
@@ -132,31 +136,19 @@ fit_par <- function(y_mat, x_mat, parFam = 'gamma', link = 'po',
   fit$score         <- c_fit$score
   fit$par           <- parFam
   
-  recenterCovar <- FALSE
-#   if(recenterCovar == TRUE){
-#     fit$pca_coefs <- fit$reg_pars
-#     fit$pca_hessian  <- fit$hessian
-#     fit$pca_info <- prcomp_xmat
-#     
-#     allPars <- c(fit$baseline, fit$reg_pars)
-#     
-#     transformedPar <- PCAFit2OrgParFit(prcomp_xmat, fit$pca_hessian, allPars, k_base)
-#     fit$baseline   <- transformedPar$pars[1:k_base]
-#     fit$reg_pars   <- transformedPar$pars[-1:-k_base]
-#     fit$var        <- transformedPar$var	
-#     fit$hessian    <- solve(fit$var)
-#     fit$baseOffset <- as.numeric(fit$reg_pars %*% prcomp_xmat$center)
-#   }
-  
+
   names(fit$reg_pars)    <- parList$regnames
   names(fit$baseline)    <- parList$bnames
   colnames(fit$hessian)  <- parList$hessnames
   rownames(fit$hessian)  <- parList$hessnames
-  if(recenterCovar == FALSE){
-    fit$var <- -solve(fit$hessian)
-    fit$baseOffset = 0
-  }
+  fit$var                <- -solve(fit$hessian)
   fit$coefficients <- c(fit$baseline, fit$reg_pars)
   return(fit)
 }
 
+icColMeans <- function(x){
+  dims <- dim(x)
+  if(is.null(dims)) return(mean(x))
+  if(length(dims) == 2) return(colMeans(x))
+  stop('data type unrecognized')
+}
