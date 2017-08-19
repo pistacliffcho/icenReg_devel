@@ -249,7 +249,7 @@ void icm_Abst::icm_step(){
     for(int i = 0; i < thisSize; i ++){
         if(d2[i] == R_NegInf){d2[i] = -almost_inf;}
         if(ISNAN(d2[i]))    {
-        	Rprintf("warning: d2 isnan! \n");
+        //	Rprintf("warning: d2 isnan! \n");
         	baseCH = backupCH;
         	return;
         }

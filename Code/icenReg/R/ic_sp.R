@@ -185,7 +185,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
     covar <- NULL
   }
   names(fitInfo$coefficients) <- xNames
-  fitInfo$covarOffset <- covarOffset
+  fitInfo$covarOffset <- matrix(covarOffset, nrow = 1)
   fitInfo$bsMat <- bsMat
   fitInfo$var <- covar
   fitInfo$call = cl

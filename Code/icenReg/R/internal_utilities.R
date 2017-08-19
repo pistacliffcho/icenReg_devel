@@ -388,7 +388,6 @@ get_etas <- function(fit, newdata = NULL, reg_pars = NULL){
   if(is.null(reg_pars)){ reg_pars <- default_reg_pars(fit) }
   if(!is.matrix(reg_pars)) reg_pars <- matrix(reg_pars, ncol = length(default_reg_pars(fit)))
   if(is.null(newdata)){
-#	  ans <- exp(-fit$covarOffset %*% t(reg_pars) )
     ans <- 1
 	  names(ans) <- 'baseline'
 	  return(ans)
@@ -411,7 +410,8 @@ get_etas <- function(fit, newdata = NULL, reg_pars = NULL){
 	  return(ans)
 	}
 	covarOffset <- fit$covarOffset
-	new_x <- new_x - covarOffset
+#	new_x <- new_x - covarOffset
+	new_x <- subtractOffset(new_x, covarOffset)
 	log_etas <- as.numeric( new_x %*% t(reg_pars) ) 	
 	etas <- exp(log_etas)
 	if(length(grpNames) == length(etas)){ names(etas) <- grpNames }
@@ -877,4 +877,14 @@ sample_etas_and_base <- function(fit, samples, newdata){
   ans <- list(baseMat = basePars, 
               etas = etas)
   return(ans)
+}
+
+subtractOffset <- function(new_x, offset){
+  ncol_x <- ncol(new_x)
+  ncol_off <- ncol(offset)
+  if(ncol_x != ncol_off) stop('ncol(new_x) != ncol(offset)')
+  for(i in seq_along(ncol_x)){
+    new_x[,i] <- new_x[,i] - offset[1,i]
+  }
+  return(new_x)
 }
