@@ -90,7 +90,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
                   B = c(0,1), 
                   controls = makeCtrls_icsp() ){
   recenterCovars = TRUE
-  useFullHess = FALSE  
+  useFullHess = TRUE  
   if(missing(data)) data <- environment(formula)
   cl <- match.call()
   mf <- match.call(expand.dots = FALSE)

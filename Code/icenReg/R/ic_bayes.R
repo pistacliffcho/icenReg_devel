@@ -119,7 +119,11 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
   if(length(weights) != nrow(yMat))	stop('weights improper length!')
   if(min(weights) < 0)				stop('negative weights not allowed!')
   if(sum(is.na(weights)) > 0)			stop('cannot have weights = NA')
-  if(is.null(ncol(x))) recenterCovar = FALSE
+
+  # Recentering covariates
+  covarOffset <- icColMeans(x)
+  x <- t(t(x) - covarOffset)
+  
   ans <- fit_bayes(yMat, x, parFam = dist, link = model, 
                    leftCen = 0, rightCen = Inf, uncenTol = 10^-6, 
                    regnames = xNames, weights = weights,
@@ -133,6 +137,7 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
   dataEnv <- new.env()
   dataEnv$data <- data
   ans$.dataEnv <- dataEnv
+  ans$covarOffset <- matrix(covarOffset, nrow = 1)
   return(ans)
 }
 
@@ -254,7 +259,6 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
   names(fit$MAP_reg_pars)    <- parList$regnames
   names(fit$MAP_baseline)    <- parList$bnames
   fit$coefficients <- c(fit$baseline, fit$reg_pars)
-  fit$baseOffset   <- 0
   return(fit)
 }
 

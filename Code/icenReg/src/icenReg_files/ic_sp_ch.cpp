@@ -191,8 +191,8 @@ void icm_Abst::numericBaseDervsOne(int raw_ind, vector<double> &dvec){
     	baseCH[raw_ind] += h/2.0;
     }
     
-    dvec[0] = (llk_h - llk_l)/(2*h);
-    dvec[1] = (llk_h + llk_l - 2 * llk_st) / (h * h);
+    dvec[0] = (llk_h - llk_l)/(2.0*h);
+    dvec[1] = (llk_h + llk_l - 2.0 * llk_st) / (h * h);
         
     if(dvec[1] == R_NegInf || ISNAN(dvec[1]) ){
         h = h/100.0;
@@ -204,8 +204,8 @@ void icm_Abst::numericBaseDervsOne(int raw_ind, vector<double> &dvec){
         baseCH[raw_ind] += h;
         double llk_st = par_llk(raw_ind);
         
-        dvec[0] = (llk_h - llk_l)/(2*h);
-        dvec[1] = (llk_h + llk_l - 2 * llk_st) / (h * h);
+        dvec[0] = (llk_h - llk_l)/(2.0*h);
+        dvec[1] = (llk_h + llk_l - 2.0 * llk_st) / (h * h);
         
         h *=100.0;
     }
@@ -408,25 +408,18 @@ void icm_Abst::covar_nr_step(){
     
     propVec.resize(k);
     if(useFullHess){
-        Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> esolve(reg_d2);
-        Eigen::VectorXd evals(1);
-        evals[0] = 1;
-        
-        if(esolve.info() == Eigen::Success)
-            evals = esolve.eigenvalues();
-        int tries = 0;
-        double delta = 1;
-        while(max(evals) > -0.000001 && tries < 10){
-            tries++;
-            for(int i = 0; i < k; i++)
-                reg_d2(i,i) -= delta;
-            delta *= 2;
-            esolve.compute(reg_d2);
-            if(esolve.info() == Eigen::Success)
-                evals = esolve.eigenvalues();
+      propVec = -reg_d2.fullPivLu().solve(reg_d1);
+      
+      double err = (reg_d2*propVec + reg_d1).norm() / reg_d1.norm();
+      if(err > .001){
+        for(int i = 0; i < k; i++){
+          propVec[i] = 0;
+          if(reg_d2(i,i) < 0)   propVec[i] = -reg_d1[i] / reg_d2(i,i);
+          else propVec[i] = signVal(reg_d1[i]) * 0.01;
+          if(ISNAN(propVec[i])) propVec[i] = 0;
         }
-        if(max(evals) > 0){return;}
-        propVec = -reg_d2.ldlt().solve(reg_d1);
+      }
+      
     }
     else{for(int i = 0; i < k; i++){propVec[i] = -reg_d1[i]/reg_d2(i,i);}}
     int tries = 0;
