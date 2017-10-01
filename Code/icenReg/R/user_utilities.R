@@ -323,8 +323,8 @@ diag_covar <- function(object, varName,
 	vals <- allData[[varName]]
 	if(is.null(vals))	stop(paste('Cannot find variable', varName, 'in original dataset'))
 	orgCall <- fullFormula
-	reducCall <- removeVarFromCall(orgCall, varName)
-	if(identical(orgCall, reducCall))	stop('varName not found in original call')
+	newcall <- removeVarFromCall(orgCall, varName)
+	if(identical(orgCall, newcall))	stop('varName not found in original call')
 	
 	spltInfo <- NULL
 	if(factorSplit){
@@ -337,7 +337,7 @@ diag_covar <- function(object, varName,
 		spltInfo <- makeNumericSplitInfo(vals, numericCuts)
 	}
 	
-	spltFits <- splitAndFit(newcall = reducCall, data = allData, varName = varName, 
+	spltFits <- splitAndFit(newcall = newcall, data = allData, varName = varName, 
 							splitInfo = spltInfo, fitFunction = ic_sp, model = model, weights = weights)
 		
 	allX <- numeric()

@@ -736,6 +736,8 @@ readingCall <- function(mf){
   mf <- mf[c(1L, m)]
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- quote(stats::model.frame)
+  mf$formula = quote(formula)
+  mf$data = quote(data)
   mf$na.action = quote(na.pass)
   mf <- eval(mf, parent.frame())
   mt <- attr(mf, "terms")

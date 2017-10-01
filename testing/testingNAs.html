@@ -139,10 +139,10 @@ $(document).ready(function () {
   fit4 &lt;- ic_par(cbind(l,u) ~ x1 + x2, data = simData2)
   
   cat(fit1$llk, '\n', fit2$llk, '\n', fit3$llk, '\n', fit4$llk, '\n')</code></pre>
-<pre><code>## -747.7588 
-##  -747.7588 
-##  -747.7588 
-##  -747.7588</code></pre>
+<pre><code>## -742.1688 
+##  -742.1688 
+##  -742.1688 
+##  -742.1688</code></pre>
 <pre class="r"><code>  if(!all(fit1$llk == c(fit2$llk, fit3$llk, fit4$llk)))
     stop(&quot;Problem here!&quot;)</code></pre>
 </div>
@@ -159,10 +159,10 @@ $(document).ready(function () {
   fit4 &lt;- ic_sp(cbind(l,u) ~ x1 + x2, data = simData2)
   
   cat(fit1$llk, '\n', fit2$llk, '\n', fit3$llk, '\n', fit4$llk, '\n')</code></pre>
-<pre><code>## -709.6404 
-##  -709.6404 
-##  -709.6404 
-##  -709.6404</code></pre>
+<pre><code>## -683.5569 
+##  -683.5569 
+##  -683.5569 
+##  -683.5569</code></pre>
 <pre class="r"><code>  if(!all(fit1$llk == c(fit2$llk, fit3$llk, fit4$llk)))
     stop(&quot;Problem here!&quot;)</code></pre>
 </div>
@@ -179,10 +179,10 @@ $(document).ready(function () {
   fit4 &lt;- ic_np(cbind(l,u) ~ 0, data = simData2)
   
   cat(fit1$llk, '\n', fit2$llk, '\n', fit3$llk, '\n', fit4$llk, '\n')</code></pre>
-<pre><code>## -822.9714 
-##  -822.9714 
-##  -822.9714 
-##  -822.9714</code></pre>
+<pre><code>## -808.2775 
+##  -808.2775 
+##  -808.2775 
+##  -808.2775</code></pre>
 <pre class="r"><code>  if(!all(fit1$llk == c(fit2$llk, fit3$llk, fit4$llk)))
     stop(&quot;Problem here!&quot;)</code></pre>
 </div>
@@ -203,10 +203,10 @@ $(document).ready(function () {
   fit4 &lt;- ic_bayes(cbind(l,u) ~ x1 + x2, data = simData2)
   
   cat(fit1$coef[1], '\n', fit2$coef[1], '\n', fit3$coef[1], '\n', fit4$coef[1], '\n')</code></pre>
-<pre><code>## 0.9999193 
-##  0.9999193 
-##  0.9999193 
-##  0.9999193</code></pre>
+<pre><code>## 0.7522128 
+##  0.7522128 
+##  0.7522128 
+##  0.7522128</code></pre>
 <pre class="r"><code>  if(!all(fit1$coef[1] == c(fit2$coef[1], fit3$coef[1], fit4$coef[1])))
     stop(&quot;Problem here!&quot;)</code></pre>
 </div>
