@@ -82,3 +82,10 @@ output: html_document
     stop("Problem here!")
 
 ```
+
+# Testing diag functions
+```{r}
+fit <- ic_par(cbind(l, u) ~ x1 + x2, data = simData2)
+diag_covar(fit)
+diag_baseline(fit, dists = c('exponential', 'weibull'), lgdLocation = "topright")
+```
