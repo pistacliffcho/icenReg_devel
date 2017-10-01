@@ -69,17 +69,14 @@
 ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
                      model = 'ph', dist = 'weibull', weights = NULL,
                      controls = bayesControls(), useMCores = F){
+
   if(missing(data)) data <- environment(formula)
   cl <- match.call()
   mf <- match.call(expand.dots = FALSE)
-  #    m <- match(c("formula", "data", "subset", "weights", "na.action", "offset"), names(mf), 0L)
-  m <- match(c("formula", "data", "subset", "na.action", "offset"), names(mf), 0L)
-  mf <- mf[c(1L, m)]
-  mf$drop.unused.levels <- TRUE
-  mf[[1L]] <- quote(stats::model.frame)
-  mf <- eval(mf, parent.frame())
-  
-  mt <- attr(mf, "terms")
+  callInfo <- readingCall(mf)
+  mf <- callInfo$mf
+  mt <- callInfo$mt
+
   y <- model.response(mf, "numeric")
   x <- model.matrix(mt, mf, contrasts)
   if(is.matrix(x))	xNames <- colnames(x)
@@ -90,19 +87,10 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
     xNames <- xNames[-ind]
   }
   
-  yMat <- as.matrix(y)[,1:2]
-  
-  if(is(y, "Surv")){
-    rightCens <- mf[,1][,3] == 0
-    yMat[rightCens,2] <- Inf
-    
-    exact <- mf[,1][,3] == 1
-    yMat[exact, 2] = yMat[exact, 1]
-  }
-  storage.mode(yMat) <- 'double'
-  
-  if(sum(is.na(mf)) > 0)
-    stop("NA's not allowed. If this is supposed to be right censored (i.e. [4, NA] was supposed to be right censored at t = 4), replace NA with Inf")
+  yMat <- makeIntervals(y, mf)
+
+  if(sum(is.na(x)) > 0)
+    stop("NA's not allowed in covariates")
   
   testMat <- cbind(x, 1)
   invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)

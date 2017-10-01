@@ -52,23 +52,13 @@ ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,1)
   if(missing(data)) data <- environment(formula)
   cl <- match.call()
   mf <- match.call(expand.dots = FALSE)
-  m <- match(c("formula", "data", "subset", "na.action", "offset"), names(mf), 0L)
-  mf <- mf[c(1L, m)]
-  mf$drop.unused.levels <- TRUE
-  mf[[1L]] <- quote(stats::model.frame)
-  mf <- eval(mf, parent.frame())
-  
-  mt <- attr(mf, "terms")
+  callInfo <- readingCall(mf)
+  mf <- callInfo$mf
+  mt <- callInfo$mt
+
   y <- model.response(mf, "numeric")
-  yMat <- as.matrix(y)[,1:2]
-  if(is(y, 'Surv')){
-    rightCens <- mf[,1][,3] == 0
-    yMat[rightCens,2] <- Inf
-    exact <- mf[,1][,3] == 1
-    yMat[exact, 2] = yMat[exact, 1]
-  }
-  storage.mode(yMat) <- 'double'
-  #  yMat <- adjustIntervals(B, yMat)
+  yMat <- makeIntervals(y, mf)
+  yMat <- adjustIntervals(B, yMat)
   
   
   formFactor <- formula[[3]]

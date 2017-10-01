@@ -1,0 +1,84 @@
+---
+title: "Testing NAs"
+author: "Clifford Anderson-Bergman"
+date: "10/1/2017"
+output: html_document
+---
+## Testing ic_par
+```{r}
+
+  library(icenReg)
+  simData <- simIC_weib(n = 1000)
+  simData2 <- simData
+  simData2$u[simData$u == Inf] <- NA
+  
+  fit1 <- ic_par(cbind(l,u) ~ x1 + x2, data = simData)
+  fit2 <- ic_par(Surv(l,u, type = 'interval2') ~ x1 +x2, data = simData)
+  fit3 <- ic_par(Surv(l,u, type = 'interval2') ~ x1 + x2, data = simData2)
+  fit4 <- ic_par(cbind(l,u) ~ x1 + x2, data = simData2)
+  
+  cat(fit1$llk, '\n', fit2$llk, '\n', fit3$llk, '\n', fit4$llk, '\n')
+  if(!all(fit1$llk == c(fit2$llk, fit3$llk, fit4$llk)))
+    stop("Problem here!")
+
+```
+
+# Testing ic_sp
+```{r}
+
+  library(icenReg)
+  simData <- simIC_weib(n = 1000)
+  simData2 <- simData
+  simData2$u[simData$u == Inf] <- NA
+  
+  fit1 <- ic_sp(cbind(l,u) ~ x1 + x2, data = simData)
+  fit2 <- ic_sp(Surv(l,u, type = 'interval2') ~ x1 +x2, data = simData)
+  fit3 <- ic_sp(Surv(l,u, type = 'interval2') ~ x1 + x2, data = simData2)
+  fit4 <- ic_sp(cbind(l,u) ~ x1 + x2, data = simData2)
+  
+  cat(fit1$llk, '\n', fit2$llk, '\n', fit3$llk, '\n', fit4$llk, '\n')
+  if(!all(fit1$llk == c(fit2$llk, fit3$llk, fit4$llk)))
+    stop("Problem here!")
+
+```
+
+# Testing ic_np
+```{r}
+
+  library(icenReg)
+  simData <- simIC_weib(n = 1000)
+  simData2 <- simData
+  simData2$u[simData$u == Inf] <- NA
+  
+  fit1 <- ic_np(cbind(l,u) ~ 0, data = simData)
+  fit2 <- ic_np(Surv(l,u, type = 'interval2') ~ 0 , data = simData)
+  fit3 <- ic_np(Surv(l,u, type = 'interval2') ~ 0, data = simData2)
+  fit4 <- ic_np(cbind(l,u) ~ 0, data = simData2)
+  
+  cat(fit1$llk, '\n', fit2$llk, '\n', fit3$llk, '\n', fit4$llk, '\n')
+  if(!all(fit1$llk == c(fit2$llk, fit3$llk, fit4$llk)))
+    stop("Problem here!")
+```
+
+# Testing ic_bayes
+```{r}
+
+  library(icenReg)
+  simData <- simIC_weib(n = 100)
+  simData2 <- simData
+  simData2$u[simData$u == Inf] <- NA
+  
+  set.seed(1)
+  fit1 <- ic_bayes(cbind(l,u) ~ x1 + x2, data = simData)
+  set.seed(1)
+  fit2 <- ic_bayes(Surv(l,u, type = 'interval2') ~ x1 +x2, data = simData)
+  set.seed(1)
+  fit3 <- ic_bayes(Surv(l,u, type = 'interval2') ~ x1 + x2, data = simData2)
+  set.seed(1)
+  fit4 <- ic_bayes(cbind(l,u) ~ x1 + x2, data = simData2)
+  
+  cat(fit1$coef[1], '\n', fit2$coef[1], '\n', fit3$coef[1], '\n', fit4$coef[1], '\n')
+  if(!all(fit1$coef[1] == c(fit2$coef[1], fit3$coef[1], fit4$coef[1])))
+    stop("Problem here!")
+
+```

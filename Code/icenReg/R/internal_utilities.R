@@ -17,9 +17,6 @@ findMaximalIntersections <- function(lower, upper){
 }
 
 
-
-
-
 bs_sampleData <- function(rawDataEnv, weights){
 	n <- length(rawDataEnv[['y']][,1])
 	sampEnv <- new.env()
@@ -734,6 +731,17 @@ addListIfMissing <- function(listFrom, listInto){
   return(listInto)
 }
 
+readingCall <- function(mf){
+  m <- match(c("formula", "data", "subset", "na.action", "offset"), names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  mf$na.action = quote(na.pass)
+  mf <- eval(mf, parent.frame())
+  mt <- attr(mf, "terms")
+  ans <- list(mt = mt, mf = mf)
+  return(ans)
+}
 
 makeIntervals <- function(y, mf){
   yMat <- as.matrix(y)[,1:2]
@@ -742,6 +750,10 @@ makeIntervals <- function(y, mf){
     yMat[rightCens,2] <- Inf
     exact <- mf[,1][,3] == 1
     yMat[exact, 2] = yMat[exact, 1]
+  }
+  else{
+    rightIsNA <- is.na(yMat[,2])
+    yMat[rightIsNA,2] <- Inf
   }
   storage.mode(yMat) <- 'double'
   return(yMat)
