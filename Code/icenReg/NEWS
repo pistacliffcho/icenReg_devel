@@ -1,5 +1,8 @@
 
 UPDATES:
+v2.0.4
+Fixed bug in NAs being mishandled
+
 v2.0.3
 Fixed bug with expanding splines
 Offset covariates to have mean 0 for faster computation

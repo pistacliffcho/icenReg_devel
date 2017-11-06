@@ -1,11 +1,15 @@
-year <- sub("-.*", "", meta$Date)
-note <- sprintf("R package version %s", meta$Version)
+bibentry(bibtype = "Article",
+  title        = "{icenReg}: Regression Models for Interval Censored Data in {R}",
+  author       = person(given = "Clifford",
+                        family = "Anderson-Bergman",
+                        email = "ciande@sandia.gov"),
+  journal      = "Journal of Statistical Software",
+  year         = "2017",
+  volume       = "81",
+  number       = "12",
+  pages        = "1--23",
+  doi          = "10.18637/jss.v081.i12",
 
-bibentry(bibtype = "Manual",
-         title = "{icenReg}: Regression Models for Interval Censored Data in R",
-         author = c(person("Clifford", "Anderson-Bergman")),
-         journal = "Journal of Statistical Software", 
-         number = 'Accepted',
-         year = year,
-         note = note,
-         url = "https://CRAN.R-project.org/package=nlme")
+  header       = "To cite icenReg in publications use:"
+)
+

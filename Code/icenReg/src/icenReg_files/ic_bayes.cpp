@@ -200,7 +200,7 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
     int n_b_pars    = baseIC->b_pars.size();
     int totalParams = n_reg_pars + n_b_pars;
 
-    Eigen::MatrixXd eChol;
+//    Eigen::MatrixXd eChol;
     
     Rcpp::LogicalVector R_useMLE_start = R_bayesList["useMLE_start"];
     Rcpp::IntegerVector R_samples      = R_bayesList["samples"];
@@ -238,7 +238,12 @@ IC_bayes::IC_bayes(Rcpp::List R_bayesList, Rcpp::Function R_priorFxn,
     }
     else{
     	propCov.resize(totalParams, totalParams);
-    	propCov *= 0.0;
+//    	propCov *= 0.0;
+        for(int i = 0; i < (totalParams); i++){
+          for(int j = 0; j < (totalParams); j++){
+            propCov(i,j) = 0.;
+          }  
+        }
     	for(int i = 0; i < (totalParams); i++){
     		propCov(i, i) = cholScale;
     	}	    	
