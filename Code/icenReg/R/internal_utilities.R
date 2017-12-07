@@ -897,7 +897,7 @@ subtractOffset <- function(new_x, offset){
   ncol_x <- ncol(new_x)
   ncol_off <- ncol(offset)
   if(ncol_x != ncol_off) stop('ncol(new_x) != ncol(offset)')
-  for(i in seq_along(ncol_x)){
+  for(i in seq_along(offset)){
     new_x[,i] <- new_x[,i] - offset[1,i]
   }
   return(new_x)
