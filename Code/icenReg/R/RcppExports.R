@@ -2,18 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 ic_parList <- function(R_parList) {
-    .Call('icenReg_ic_parList', PACKAGE = 'icenReg', R_parList)
+    .Call('_icenReg_ic_parList', PACKAGE = 'icenReg', R_parList)
 }
 
 R_ic_bayes <- function(R_bayesList, priorFxn, R_ic_parList) {
-    .Call('icenReg_R_ic_bayes', PACKAGE = 'icenReg', R_bayesList, priorFxn, R_ic_parList)
+    .Call('_icenReg_R_ic_bayes', PACKAGE = 'icenReg', R_bayesList, priorFxn, R_ic_parList)
 }
 
 computeConditional_p <- function(q, etas, baselineParams, reg_model, base_dist) {
-    .Call('icenReg_computeConditional_p', PACKAGE = 'icenReg', q, etas, baselineParams, reg_model, base_dist)
+    .Call('_icenReg_computeConditional_p', PACKAGE = 'icenReg', q, etas, baselineParams, reg_model, base_dist)
 }
 
 computeConditional_q <- function(p, etas, baselineParams, reg_model, base_dist) {
-    .Call('icenReg_computeConditional_q', PACKAGE = 'icenReg', p, etas, baselineParams, reg_model, base_dist)
+    .Call('_icenReg_computeConditional_q', PACKAGE = 'icenReg', p, etas, baselineParams, reg_model, base_dist)
 }
 

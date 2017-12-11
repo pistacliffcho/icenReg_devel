@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // ic_parList
 Rcpp::List ic_parList(Rcpp::List R_parList);
-RcppExport SEXP icenReg_ic_parList(SEXP R_parListSEXP) {
+RcppExport SEXP _icenReg_ic_parList(SEXP R_parListSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,7 +19,7 @@ END_RCPP
 }
 // R_ic_bayes
 Rcpp::List R_ic_bayes(Rcpp::List R_bayesList, Rcpp::Function priorFxn, Rcpp::List R_ic_parList);
-RcppExport SEXP icenReg_R_ic_bayes(SEXP R_bayesListSEXP, SEXP priorFxnSEXP, SEXP R_ic_parListSEXP) {
+RcppExport SEXP _icenReg_R_ic_bayes(SEXP R_bayesListSEXP, SEXP priorFxnSEXP, SEXP R_ic_parListSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -32,7 +32,7 @@ END_RCPP
 }
 // computeConditional_p
 Rcpp::NumericVector computeConditional_p(Rcpp::NumericVector q, Rcpp::NumericVector etas, Rcpp::NumericMatrix baselineParams, Rcpp::CharacterVector reg_model, Rcpp::CharacterVector base_dist);
-RcppExport SEXP icenReg_computeConditional_p(SEXP qSEXP, SEXP etasSEXP, SEXP baselineParamsSEXP, SEXP reg_modelSEXP, SEXP base_distSEXP) {
+RcppExport SEXP _icenReg_computeConditional_p(SEXP qSEXP, SEXP etasSEXP, SEXP baselineParamsSEXP, SEXP reg_modelSEXP, SEXP base_distSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -47,7 +47,7 @@ END_RCPP
 }
 // computeConditional_q
 Rcpp::NumericVector computeConditional_q(Rcpp::NumericVector p, Rcpp::NumericVector etas, Rcpp::NumericMatrix baselineParams, Rcpp::CharacterVector reg_model, Rcpp::CharacterVector base_dist);
-RcppExport SEXP icenReg_computeConditional_q(SEXP pSEXP, SEXP etasSEXP, SEXP baselineParamsSEXP, SEXP reg_modelSEXP, SEXP base_distSEXP) {
+RcppExport SEXP _icenReg_computeConditional_q(SEXP pSEXP, SEXP etasSEXP, SEXP baselineParamsSEXP, SEXP reg_modelSEXP, SEXP base_distSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;

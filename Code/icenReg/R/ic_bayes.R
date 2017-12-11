@@ -12,7 +12,7 @@
 #' @param useMCores      Should multiple cores be used? Each core is used to run a single chain.
 #' 
 #' @description Fits a Bayesian regression model for interval censored data. 
-#' Can fita proportional hazards, proportional odds or accelerated failure time model.  
+#' Can fit a proportional hazards, proportional odds or accelerated failure time model.  
 #'
 #' @details Currently supported distributions choices are "exponential", "weibull", "gamma", 
 #' "lnorm", "loglogistic" and "generalgamma" (i.e. generalized gamma distribution). 

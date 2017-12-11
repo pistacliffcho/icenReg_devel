@@ -60,7 +60,7 @@ Rcpp::List ic_parList(Rcpp::List R_parList);
 Rcpp::List R_ic_bayes(Rcpp::List R_bayesList, Rcpp::Function priorFxn, 
 					  Rcpp::List R_ic_parList);
 					  
-					  //[[Rcpp::export]]
+//[[Rcpp::export]]
 Rcpp::NumericVector computeConditional_p(Rcpp::NumericVector q,
 										 Rcpp::NumericVector etas,
 										 Rcpp::NumericMatrix baselineParams,
