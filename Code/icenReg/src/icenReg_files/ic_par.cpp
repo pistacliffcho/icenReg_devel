@@ -602,13 +602,13 @@ void IC_parOpt::optimize(){
                     if(lk_new == R_NegInf) b_pars[i] = 0;
                 }
             }
-            delta *= 5;
+            delta *= 5.0;
         }
     }
     if(lk_new == R_NegInf){
         int bk = b_pars.size();
         int tries = 0;
-        double delta = -1;
+        double delta = -1.;
         while(tries < 10 && lk_new == R_NegInf){
             tries++;
             for(int i = 0; i < bk; i++){
@@ -618,7 +618,7 @@ void IC_parOpt::optimize(){
                     if(lk_new == R_NegInf) b_pars[i] = 0;
                 }
             }
-            delta *= 5;
+            delta *= 5.0;
         }
     }
     if(lk_new == R_NegInf){

@@ -114,13 +114,29 @@ void MHBlockUpdater::mcmc(){
 	int numberParms = currentParameters.size();
 	burnInMat.resize(burnIn, numberParms );
 	burnInMat *= 0.0;
-	for(int j = 0; j < burnIn; j++){
+	for(int j = 0; j < burnIn/2; j++){
 		proposeNewParameters();
 		acceptOrReject();		
 		burnInMat.row(j) = currentParameters;	
 	}
 	
+	for(int j = 0; j < burnIn/2; j++){
+	  proposeNewParameters();
+	  acceptOrReject();		
+	  burnInMat.row(j) = currentParameters;	
+  	int start_row, stop_row;
+  	if(updateChol & ( (j + 1) % samplesPerUpdate == 0) ){
+  	  start_row = j - samplesPerUpdate + 1;
+  	  stop_row  = j - 1; 
+  	  Eigen::MatrixXd recentVals = copyRows(burnInMat, 
+                                            start_row, 
+                                            stop_row); 
+	    updateCholesky(recentVals);  
+	  }
+	}
 	
+	
+		
 	savedValues.resize(samples, totParams);
 	savedLPD.resize(samples);
 	
@@ -131,15 +147,6 @@ void MHBlockUpdater::mcmc(){
 		}
 		savedValues.row(i) = currentParameters;
 		savedLPD[i]        = currentLogDens;
-		int start_row, stop_row;
-		if(updateChol & ( (i + 1) % samplesPerUpdate == 0) ){
-			start_row = i - samplesPerUpdate + 1;
-			stop_row  = i - 1; 
-			Eigen::MatrixXd recentVals = copyRows(savedValues, 
-												 start_row, 
-												 stop_row); 
-			updateCholesky(recentVals);  
-		}
 	}
 }
 

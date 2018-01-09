@@ -29,7 +29,7 @@ ic_bayes(formula, data, logPriorFxn = function(x) return(0), model = "ph",
 }
 \description{
 Fits a Bayesian regression model for interval censored data. 
-Can fita proportional hazards, proportional odds or accelerated failure time model.
+Can fit a proportional hazards, proportional odds or accelerated failure time model.
 }
 \details{
 Currently supported distributions choices are "exponential", "weibull", "gamma", 

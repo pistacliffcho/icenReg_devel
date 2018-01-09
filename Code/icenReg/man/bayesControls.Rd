@@ -5,7 +5,7 @@
 \title{Control parameters for ic_bayes}
 \usage{
 bayesControls(samples = 4000, chains = 4, useMLE_start = TRUE,
-  burnIn = 1000, samplesPerUpdate = 1000, initSD = 0.1,
+  burnIn = 2000, samplesPerUpdate = 1000, initSD = 0.1,
   updateChol = TRUE, acceptRate = 0.25, thin = 5)
 }
 \arguments{

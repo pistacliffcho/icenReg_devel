@@ -160,7 +160,7 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
 #' 
 #' @export
 bayesControls <- function(samples = 4000, chains = 4,
-                          useMLE_start = TRUE, burnIn = 1000, 
+                          useMLE_start = TRUE, burnIn = 2000, 
                           samplesPerUpdate = 1000, initSD = 0.1,
                           updateChol = TRUE, acceptRate = 0.25,
                           thin = 5){

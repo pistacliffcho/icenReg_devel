@@ -1,0 +1,26 @@
+---
+title: "Plotting SurvRange Test"
+author: "Clifford Anderson-Bergman"
+date: "1/6/2018"
+output: html_document
+---
+
+## Unit test for survRange options
+```{r}
+library(icenReg)
+data(miceData)
+
+parFit <- ic_par(cbind(l,u) ~ grp, 
+                 data = miceData)
+bayesFit <- ic_bayes(cbind(l, u) ~ grp, 
+                     data = miceData)
+
+newdata <- data.frame(grp = c("ce", 'ge'))
+
+plot(parFit, 
+     survRange = c(0.5, 1), 
+     evalPoints = 50)
+plot(bayesFit, 
+     survRange = c(0.1, 1), 
+     evalPoints = 4)
+```
