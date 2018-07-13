@@ -4,13 +4,15 @@ public:
     void update_p_ob(bool useS); 
     double llk(bool useS);           
     double current_llk;
+    double tot_w;
     
 	Eigen::VectorXd baseP;
 	Eigen::VectorXd baseS;
 	Eigen::VectorXd baseCH;
 	Eigen::VectorXd innerCH;
 	Eigen::VectorXd pobs;
-
+  double* w;
+    
 	void p2s();
 	void s2ch();
 	void ch2p();
@@ -27,7 +29,7 @@ public:
     vector<obInf> obs_inf;
     vector<node_info> node_inf;
     
-    emicm(SEXP Rlind, SEXP Rrind);
+    emicm(SEXP Rlind, SEXP Rrind, SEXP R_w);
     void em_step(int iters);
     void icm_step();
     
@@ -44,5 +46,5 @@ void addIcmProp(Eigen::VectorXd &bch, Eigen::VectorXd &prop);
 double icmFirstDerv(double prt1, double pob);
 double icmSecondDerv(double prt2, double prt3, double pob, bool isLeft);
 extern "C" {
-SEXP EMICM(SEXP Rlind, SEXP Rrind, SEXP iters);
+SEXP EMICM(SEXP Rlind, SEXP Rrind, SEXP iters, SEXP R_w);
 }

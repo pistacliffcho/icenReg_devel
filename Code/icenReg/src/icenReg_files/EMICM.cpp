@@ -1,11 +1,11 @@
 
 /* Basic Function Call */
 
-SEXP EMICM(SEXP Rlind, SEXP Rrind, SEXP iters){
+SEXP EMICM(SEXP Rlind, SEXP Rrind, SEXP iters, SEXP R_w){
 	int maxIters = INTEGER(iters)[0];
 	int ems = 10;
 	double tol = pow(10.0, -10.0);	
-	emicm emicmObj(Rlind, Rrind);
+	emicm emicmObj(Rlind, Rrind, R_w);
 	double final_llk = emicmObj.run(tol, maxIters, ems);
 	SEXP ans = PROTECT(Rf_allocVector(VECSXP, 3));
 	SEXP R_phat = PROTECT(Rf_allocVector(REALSXP, emicmObj.baseP.size() ));
@@ -103,33 +103,38 @@ void emicm::calc_m_for_em(){
 	double this_m = 0.0;
 	node_info* thisNode;
 	int k = baseP.size();
-	double n = obs_inf.size();
+//	double n = obs_inf.size();
 	em_m.resize(k);
 
 	thisNode = &node_inf[0];
+	
+	int this_obs_ind;
 	
 	vector<int>* l; 
 	vector<int>* r;
 	l = &(thisNode->l);
 	for(unsigned int j = 0; j < l->size(); j++){ 
-		this_m += 1.0 / pobs[ (*l)[j] ];
+	  this_obs_ind = (*l)[j];
+		this_m += w[this_obs_ind] / pobs[ this_obs_ind ] ;
 	}
 			
-	em_m[0] = this_m / n;
+	em_m[0] = this_m / tot_w;
 	for(int i = 1; i < k; i++){
 		thisNode = &node_inf[i];
 		l = &(thisNode->l);
 		for(unsigned int j = 0; j < l->size(); j++){
-			this_m += 1.0 / pobs[ (*l)[j] ];
+		  this_obs_ind = (*l)[j];
+		  this_m += w[this_obs_ind] / pobs[ this_obs_ind ];
 		} 
 
 		thisNode = &node_inf[i-1];
 		r = &(thisNode->r);
 		for(unsigned int j = 0; j < r->size(); j++){
-			this_m -= 1.0 / pobs[ (*r)[j] ];
+		  this_obs_ind = (*r)[j];
+			this_m -=  w[this_obs_ind] / pobs[ this_obs_ind ];
 		}
 
-		em_m[i] = this_m / n; 
+		em_m[i] = this_m / tot_w; 
 	}
 }
 
@@ -175,14 +180,14 @@ void emicm::calc_icm_ders(){
 		lind = obs_inf[i].l;
 		rind = obs_inf[i].r + 1;
 		if(lind > 0){
-			ch_d1[lind-1] += icmFirstDerv(ch_d1_con[lind-1], thisPob, true);
+			ch_d1[lind-1] += icmFirstDerv(ch_d1_con[lind-1], thisPob, true) * w[i];
 			ch_d2[lind-1] += icmSecondDerv(ch_d2_con1[lind-1], 
-										   ch_d2_con2[lind-1], thisPob, true);
+										   ch_d2_con2[lind-1], thisPob, true) * w[i];
 		}
 		if(rind < (k+1) ){
-			ch_d1[rind-1] += icmFirstDerv(ch_d1_con[rind-1], thisPob, false);
+			ch_d1[rind-1] += icmFirstDerv(ch_d1_con[rind-1], thisPob, false) * w[i];
 			ch_d2[rind-1] += icmSecondDerv(ch_d2_con1[rind-1], 
-										   ch_d2_con2[rind-1], thisPob, false);
+										   ch_d2_con2[rind-1], thisPob, false) * w[i];
 		}
 	}
 }
@@ -225,22 +230,29 @@ double emicm::llk(bool useS){
 	if(!useS){ch2p();}
 	for(int i = 0; i < n; i++){ 
 		update_p_ob(i, true); 
-		current_llk += log(pobs[i]);
+		current_llk += w[i] * log(pobs[i]);
 		}
 	if(ISNAN(current_llk)){ current_llk = R_NegInf; }
 	return(current_llk);
 }
 
-emicm::emicm(SEXP Rlind, SEXP Rrind){
+emicm::emicm(SEXP Rlind, SEXP Rrind, SEXP R_w){
     int n = LENGTH(Rlind);
     if(n != LENGTH(Rrind)){Rprintf("length of Rlind and Rrind not equal\n"); return;}
+    if(n != LENGTH(R_w)){Rcpp::stop("weights of incorrect length");}
+    
+    w = REAL(R_w);
     
     pobs.resize(n);
     
     int* clind = INTEGER(Rlind);
     int* crind = INTEGER(Rrind);
     int maxInd = 0;
-    for(int i = 0; i < n; i++){ maxInd = max(maxInd, crind[i]); }
+    tot_w = 0.0;
+    for(int i = 0; i < n; i++){ 
+      maxInd = max(maxInd, crind[i]);
+      tot_w += w[i];
+    }
     baseCH.resize(maxInd+2);
     baseS.resize(maxInd+2);
     baseP.resize(maxInd+1);

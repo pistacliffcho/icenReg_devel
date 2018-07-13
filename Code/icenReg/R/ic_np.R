@@ -11,7 +11,7 @@
 #' @param maxIter   Maximum iterations
 #' @param tol       Numeric tolerance
 #' @param B         Should intervals be open or closed? See details.
-#'
+#' @param weights   Weights (optional)
 #'  
 #' @details 
 #' \code{data} must be an n x 2 matrix or data.frame containing two columns of data representing 
@@ -41,12 +41,17 @@
 #' 
 #' @author Clifford Anderson-Bergman
 #' @export
-ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,1)){
-  if(is.null(formula)){ return(ic_npSINGLE(data, maxIter = maxIter, tol = tol, B = B)) }
+ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,1), 
+                  weights = NULL){
+  if(is.null(weights)) weights = rep(1, nrow(data))
+  if(is.null(formula)){ 
+    ans = ic_npSINGLE(data, maxIter = maxIter, tol = tol, B = B, weights = weights)
+    return(ans) 
+  }
   if(!inherits(formula, 'formula')) {
     #Covering when user ONLY provides data as first unlabeled argument
     data <- formula
-    return(ic_npSINGLE(data, maxIter = maxIter, tol = tol, B = B))
+    return(ic_npSINGLE(data, maxIter = maxIter, tol = tol, B = B, weights = weights))
   }
   
   if(missing(data)) data <- environment(formula)
@@ -65,7 +70,7 @@ ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,1)
   if( formula_has_plus(formFactor) ){ 
     stop('predictor must be either single factor OR 0 for ic_np')
   }
-  if(formFactor == 0){ return(ic_npSINGLE(yMat, maxIter = maxIter, tol = tol, B = B)) }
+  if(formFactor == 0){ return(ic_npSINGLE(yMat, maxIter = maxIter, tol = tol, B = B, weights = weights)) }
   #  thisFactor <- data[[ as.character(formFactor) ]]
   thisFactor <- getFactorFromData(formFactor, data)
   if(!is.factor(thisFactor)){ stop('predictor must be factor') }
@@ -73,22 +78,32 @@ ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,1)
   fitList <- list()
   for(thisLevel in theseLevels){
     thisData <- yMat[thisFactor == thisLevel, ]
+    this_w = weights[thisFactor == thisLevel]
     if(nrow(thisData) > 0)
-      fitList[[thisLevel]] <- ic_npSINGLE(thisData, maxIter = maxIter, tol = tol, B = B)
+      fitList[[thisLevel]] <- ic_npSINGLE(thisData, maxIter = maxIter, 
+                                          tol = tol, B = B, 
+                                          weights = this_w)
   }
   ans <- ic_npList(fitList)
   return(ans)
 }
 
-ic_npSINGLE <- function(data,  maxIter = 1000, tol = 10^-10, B){
+ic_npSINGLE <- function(data,  maxIter = 1000, tol = 10^-10, B, weights){
   data <- as.matrix(data)
+  # Weights must be non-negative
+  if(any(weights < 0)) stop("weights supplied cannot be less than 0")
+  # Our algorithm requires positive weights
+  zeroWeight = weights == 0
+  data = data[!zeroWeight, ]
+  weights = weights[!zeroWeight]
+  
   if(ncol(data) != 2) stop("data should be an nx2 matrix or data.frame")
   if(any(data[,1] > data[,2]) ) stop(paste0("data[,1] > data[,2].",
                                             "This is impossible for interval censored data") )
   storage.mode(data) <- "double"
   data <- adjustIntervals(B, data)
   mis <- findMaximalIntersections(data[,1], data[,2])
-  fit <- .Call("EMICM", mis$l_inds, mis$r_inds, as.integer(maxIter))
+  fit <- .Call("EMICM", mis$l_inds, mis$r_inds, as.integer(maxIter), weights)
   tbulls <- rbind(mis$mi_l, mis$mi_r)
   ans <- new('ic_np')
   #ans <- list(phat = fit[[1]], Tbull_ints = tbulls, llk = fit[[2]], iters = fit[[3]])
@@ -102,6 +117,7 @@ ic_npSINGLE <- function(data,  maxIter = 1000, tol = 10^-10, B){
   ans$var <- matrix(nrow = 0, ncol = 0) 
   dataEnv <- new.env()
   dataEnv[['data']] <- data
+  dataEnv[["weights"]] = weights
   ans[['.dataEnv']] <- dataEnv
   return(ans)
 }

@@ -1,0 +1,71 @@
+---
+title: "Testing Weighted NPMLE"
+author: "Clifford Anderson-Bergman"
+date: "7/12/2018"
+output: html_document
+---
+
+This is a unit test for using weights for the NPMLE
+
+```{r}
+library(icenReg)
+set.seed(123)
+data(miceData)
+
+group_fits = ic_np(cbind(l, u) ~ grp, data = miceData)
+plot(group_fits)
+```
+
+Now we will fit "all" the data, but put zero weight on the ce group
+
+```{r}
+ce_only = rep(1, nrow(miceData))
+ce_only[miceData$grp == 'ce'] = 0
+
+
+ce_fit = ic_np(cbind(l,u) ~ 0, data = miceData, weights = ce_only)
+plot(ce_fit)
+```
+
+We can see this the same fit as the "ce" group above. 
+
+Now we will have the same data, but heavily weighted toward the "ge" group (rather than 100% weighted toward "ce" group)
+
+```{r}
+mostly_ce = rep(1, nrow(miceData))
+mostly_ce[miceData$grp == "ce"] = 0.01
+
+mostly_ce_fit = ic_np(cbind(l,u) ~ 0, data = miceData, weights = mostly_ce)
+plot(mostly_ce_fit)
+```
+
+We will also compare with the results from `ic_sp`
+
+```{r}
+ic_sp_fit = ic_sp(cbind(l,u) ~ 0, data = miceData, weights = mostly_ce)
+ic_sp_fit$llk - mostly_ce_fit$llk
+# Difference in log likelihood is numerical error
+```
+
+Checking that fit is correct with random weights and regression formula
+
+```{r}
+rand_w = runif(nrow(miceData))
+
+rand_w_np = ic_np(cbind(l, u) ~ grp, data = miceData, weights = rand_w)
+
+ce_data = miceData[miceData$grp == "ce", ]
+ce_w = rand_w[miceData$grp == "ce"]
+rand_w_ce = ic_sp(cbind(l,u) ~ 0, data = ce_data, weights = ce_w)
+
+rand_w_np$fitList$ce$llk - rand_w_ce$llk
+```
+
+Testing that weights work correctly when no formula but matrix is put in
+
+```{r}
+fit_np = ic_np(data = miceData[,c("l", "u")], weights = rand_w)
+fit_sp = ic_sp(cbind(l, u) ~ 0, data = miceData, weights = rand_w)
+
+fit_np$llk - fit_sp$llk
+```
