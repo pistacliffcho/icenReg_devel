@@ -44,7 +44,7 @@ plot.icenReg_fit <- function(x, y, newdata = NULL, fun = 'surv',
                              plot_legend = T,
                              cis = T, ci_level = 0.9,
                              survRange = c(0.025, 1), 
-                             evalPoints = 20,
+                             evalPoints = 200,
                              lgdLocation = 'topright', 
                              xlab = "time", ...){
   if(inherits(x, 'impute_par_icph'))	stop('plot currently not supported for imputation model')
@@ -104,8 +104,9 @@ plot.icenReg_fit <- function(x, y, newdata = NULL, fun = 'surv',
   newLinesList$cis = cis
   newLinesList$ci_level = ci_level
   newLinesList$col = colors
-  do.call(lines, newLinesList)
-  # lines(x, newdata, cis = cis, ci_level = ci_level,...)
+  newLinesList$evalPoints = evalPoints
+  newLinesList$survRange = survRange
+  do.call(lines.icenReg_fit, newLinesList)
   if(nRows > 1 & plot_legend){
     grpNames <- rownames(newdata)
     legend(lgdLocation, legend = grpNames, lwd = rep(1, length(grpNames) ), col = colors)
@@ -166,14 +167,16 @@ lines.icenReg_fit <- function(x, y, newdata = NULL,
   }
   else if(inherits(x, 'par_fit') | inherits(x, 'bayes_fit')){
     pRange = 1 - survRange
-    p_eval = pRange[1] + (pRange[2] - pRange[1]) * (1:evalPoints) / evalPoints
+    p_eval = pRange[1] + (pRange[2] - pRange[1]) * (0:evalPoints) / evalPoints
     cis_est <- survCIs(x, newdata, p = p_eval)
     argList <- list(...)
     argList$col = NULL
     argList$x = cis_est
     argList$col = colors
     argList$include_cis = cis
-    do.call(lines, argList)
+    argList$evalPoints = NULL
+    argList$survRange = NULL
+    do.call(lines.surv_cis, argList)
   }
 }
 
@@ -204,7 +207,8 @@ lines.ic_npList <- function(x, fitNames = NULL, ...){
   }
 }
 
-plot.ic_npList <- function(x, fitNames = NULL, lgdLocation = 'bottomleft', ... ){
+plot.ic_npList <- function(x, fitNames = NULL, lgdLocation = 'bottomleft',
+                           plot_legend = T, ... ){
   addList <- list(xlim = x$xRange,
                   ylim = c(0,1),
                   xlab = 'time', 
@@ -235,7 +239,8 @@ plot.ic_npList <- function(x, fitNames = NULL, lgdLocation = 'bottomleft', ... )
   dotList$fitNames = fitNames
   dotList$x <- x
   do.call(lines, dotList)
-  legend(lgdLocation, legend = grpNames, col = cols, lty = 1)
+  if(plot_legend)
+   legend(lgdLocation, legend = grpNames, col = cols, lty = 1)
 }
 
 lines.sp_curves <- function(x, sname = 'baseline',...){

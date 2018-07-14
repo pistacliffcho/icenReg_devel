@@ -43,15 +43,15 @@
 #' @export
 ic_np <- function(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,1), 
                   weights = NULL){
+  if(!inherits(formula, 'formula')) {
+    #Covering when user ONLY provides data as first unlabeled argument
+    data <- formula
+    formula <- NULL
+  }
   if(is.null(weights)) weights = rep(1, nrow(data))
   if(is.null(formula)){ 
     ans = ic_npSINGLE(data, maxIter = maxIter, tol = tol, B = B, weights = weights)
     return(ans) 
-  }
-  if(!inherits(formula, 'formula')) {
-    #Covering when user ONLY provides data as first unlabeled argument
-    data <- formula
-    return(ic_npSINGLE(data, maxIter = maxIter, tol = tol, B = B, weights = weights))
   }
   
   if(missing(data)) data <- environment(formula)

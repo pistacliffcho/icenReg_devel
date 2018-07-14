@@ -4,7 +4,8 @@
 \alias{ic_np}
 \title{Non-Parametric Estimator for Interval Censored Data}
 \usage{
-ic_np(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0, 1))
+ic_np(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0, 1),
+  weights = NULL)
 }
 \arguments{
 \item{formula}{Formula for stratification. If only one group, can be left blank and 
@@ -17,6 +18,8 @@ data must be entered as n x 2 matrix.}
 \item{tol}{Numeric tolerance}
 
 \item{B}{Should intervals be open or closed? See details.}
+
+\item{weights}{Weights (optional)}
 }
 \description{
 Fits the non-parametric maximum likelihood estimator (NPMLE) for univariate interval censored data. 

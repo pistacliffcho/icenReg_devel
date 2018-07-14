@@ -1,5 +1,9 @@
 
 UPDATES:
+v2.0.8
+Allows for weights in ic_np
+Allows `plot_legend = F` for ic_npList
+
 v2.0.7
 Fixed bug with linear predictor being offset pointed out by Ferenci Tamas
 

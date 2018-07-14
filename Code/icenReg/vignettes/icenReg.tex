@@ -23,6 +23,7 @@
 
 \usepackage{Sweave}
 \begin{document}
+
 \input{icenReg-concordance}
 
 \title{Using {\bf{icenReg}} for interval censored data in {\bf{R} } \\ v1.3.5}
@@ -33,6 +34,8 @@
 \tableofcontents
 
 \section{Introduction}
+
+
 
 This manual is meant to provide an introduction to using {\bf icenReg} to analyze interval censored data. It is written with expectation that the reader is familiar with basic survival analysis methods. Familiarity with the Kaplan Meier curves, survival regression models (Cox PH, AFT and proportional odds) and basic Bayesian principles should be sufficient for all that is covered in this text.
 
@@ -198,7 +201,7 @@ The fits can be plotted as follows:
 +      xlab = 'Time', ylab = 'Estimated Survival')
 \end{Sinput}
 \end{Schunk}
-\includegraphics{icenReg-005}
+\includegraphics{icenReg-006}
 
 
 Looking at the plots, we can see a unique feature about the NPMLE for interval censored data. That is, there are \emph{two} lines used to represent the survival curve. This is because with interval censored data, the NPMLE is not always unique; any curve that lies between the two lines has the same likelihood. For example, any curve that lies between the two blues lines maximizes the likelihood associated with \texttt{"ge"} group of mice. 
@@ -227,9 +230,9 @@ We fit the model below. Note that this may be time consuming, as the semi-parame
 \begin{Schunk}
 \begin{Sinput}
 >   fit_ph <- ic_sp(cbind(left, right) ~ gender, model = 'ph', 
-+                   bs_samples = 400, data = IR_diabetes)
++                   bs_samples = 100, data = IR_diabetes)
 >   fit_po <- ic_sp(cbind(left, right) ~ gender, model = 'po',
-+                   bs_samples = 400, data = IR_diabetes)
++                   bs_samples = 100, data = IR_diabetes)
 \end{Sinput}
 \end{Schunk}
 
@@ -243,14 +246,14 @@ The first model by default fits a Cox-PH model, while the second fits a proporti
 Model:  Proportional Odds
 Baseline:  semi-parametric 
 Call: ic_sp(formula = cbind(left, right) ~ gender, data = IR_diabetes, 
-    model = "po", bs_samples = 400)
+    model = "po", bs_samples = 100)
 
            Estimate Exp(Est) Std.Error z-value        p
-gendermale   0.4001    1.492    0.1391   2.876 0.004026
+gendermale   0.4013    1.494    0.1339   2.997 0.002727
 
-final llk =  -1959.716 
-Iterations =  69 
-Bootstrap Samples =  400 
+final llk =  -1962.4 
+Iterations =  25 
+Bootstrap Samples =  100 
 \end{Soutput}
 \begin{Sinput}
 >   fit_ph
@@ -259,14 +262,14 @@ Bootstrap Samples =  400
 Model:  Cox PH
 Baseline:  semi-parametric 
 Call: ic_sp(formula = cbind(left, right) ~ gender, data = IR_diabetes, 
-    model = "ph", bs_samples = 400)
+    model = "ph", bs_samples = 100)
 
            Estimate Exp(Est) Std.Error z-value       p
-gendermale  -0.1393     0.87   0.08131  -1.713 0.08663
+gendermale  -0.1402   0.8692   0.07771  -1.805 0.07114
 
-final llk =  -1962.272 
-Iterations =  91 
-Bootstrap Samples =  400 
+final llk =  -1964.96 
+Iterations =  38 
+Bootstrap Samples =  100 
 \end{Soutput}
 \end{Schunk}
 
@@ -283,7 +286,7 @@ Below is a demonstration of how to plot the semi-parametric fit for males and fe
 >   plot(fit_po, newdata)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{icenReg-009}
+\includegraphics{icenReg-010}
 
 \subsection{Parametric Models}
   
@@ -314,9 +317,9 @@ Call: ic_par(formula = cbind(left, right) ~ gender, data = IR_diabetes,
     model = "po", dist = "gamma")
 
            Estimate Exp(Est) Std.Error z-value        p
-log_shape    1.9980    7.377   0.05453  36.640 0.000000
-log_scale    0.8248    2.281   0.05566  14.820 0.000000
-gendermale   0.1697    1.185   0.06581   2.579 0.009905
+log_shape    1.9980    7.377   0.05450  36.670 0.000000
+log_scale    0.8248    2.281   0.05563  14.830 0.000000
+gendermale   0.3496    1.419   0.13540   2.582 0.009824
 
 final llk =  -2006.619 
 Iterations =  4 
@@ -330,7 +333,7 @@ Iterations =  4
 > plot(fit_po_gamma, newdata, lgdLocation = "topright")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{icenReg-012}
+\includegraphics{icenReg-013}
 
   \subsection{Bayesian Parametric Models}
   
@@ -356,29 +359,29 @@ Call: ic_bayes(formula = cbind(left, right) ~ gender, data = IR_diabetes,
     model = "po", dist = "gamma")
 
 
-Iterations = 3000:22995
+Iterations = 2001:6996
 Thinning interval = 5 
-Number of chains = 1 
-Sample size per chain = 4000 
+Number of chains = 4 
+Sample size per chain = 1000 
 
 1. Empirical mean and standard deviation for each variable,
    plus standard error of the mean:
 
              Mean      SD  Naive SE Time-series SE
-log_shape  1.9950 0.05539 0.0008758       0.001228
-log_scale  0.8283 0.05646 0.0008927       0.001270
-gendermale 0.1710 0.06363 0.0010061       0.001564
+log_shape  1.9965 0.05423 0.0008574       0.001298
+log_scale  0.8265 0.05531 0.0008745       0.001481
+gendermale 0.3496 0.13281 0.0020999       0.003238
 
 2. Quantiles for each variable:
 
               2.5%    25%    50%    75%  97.5%
-log_shape  1.88650 1.9571 1.9954 2.0328 2.1015
-log_scale  0.72028 0.7895 0.8282 0.8667 0.9390
-gendermale 0.04969 0.1269 0.1694 0.2138 0.2957
+log_shape  1.88941 1.9599 1.9962 2.0333 2.1013
+log_scale  0.71752 0.7895 0.8268 0.8633 0.9345
+gendermale 0.09344 0.2578 0.3487 0.4386 0.6106
 
 3. MAP estimates:
  log_shape  log_scale gendermale 
-    2.0020     0.8228     0.1671 
+    1.9510     0.8671     0.4146 
 \end{Soutput}
 \end{Schunk}
 
@@ -390,53 +393,91 @@ field.
 > head(flatPrior_fit$samples)  
 \end{Sinput}
 \begin{Soutput}
-Markov Chain Monte Carlo (MCMC) output:
-Start = 3000 
-End = 3030 
-Thinning interval = 5 
      log_shape log_scale gendermale
-[1,]  2.013014 0.7921288  0.1224253
-[2,]  2.016067 0.7975700  0.1208261
-[3,]  1.997728 0.8143404  0.1673912
-[4,]  2.019887 0.7940186  0.1537187
-[5,]  1.989291 0.8081181  0.2818061
-[6,]  1.929007 0.9012546  0.2579392
-[7,]  1.937887 0.8779747  0.2066531
+[1,]  1.950703 0.8671222  0.4146051
+[2,]  2.102873 0.7201840  0.2975855
+[3,]  2.027875 0.8094997  0.2271460
+[4,]  1.941492 0.9124983  0.3605535
+[5,]  1.966307 0.8857313  0.4232492
+[6,]  1.987798 0.8446502  0.4705596
 \end{Soutput}
 \end{Schunk}
 
-This object is of class \texttt{mcmc} from the \texttt{coda} package. 
-
-The log posterior density at each iteration can be accessed through the \texttt{\$logPosteriorDensities} field. 
+This object is a matrix of samples from all chains combined. Alternatively, 
+one can look at the samples from each chain individually through the 
+\texttt{\$mcmcList} field, with each element corresponding to a given chain. 
+Note that \texttt{\$mcmcList} is a \texttt{coda} object of class \texttt{mcmc.list}.
 
 \begin{Schunk}
 \begin{Sinput}
-> head(flatPrior_fit$logPosteriorDensities)  
+> # Accessing the first few samples of the first chain
+> head(flatPrior_fit$mcmcList[[1]])
 \end{Sinput}
 \begin{Soutput}
-[1] -2007.813 -2007.228 -2006.937 -2006.978 -2009.714 -2008.644
+Markov Chain Monte Carlo (MCMC) output:
+Start = 2001 
+End = 2031 
+Thinning interval = 5 
+     log_shape log_scale gendermale
+[1,]  1.950703 0.8671222  0.4146051
+[2,]  2.102873 0.7201840  0.2975855
+[3,]  2.027875 0.8094997  0.2271460
+[4,]  1.941492 0.9124983  0.3605535
+[5,]  1.966307 0.8857313  0.4232492
+[6,]  1.987798 0.8446502  0.4705596
+[7,]  1.990583 0.8181635  0.4849160
+\end{Soutput}
+\begin{Sinput}
+> # Accessing the first few samples of the second chain
+> head(flatPrior_fit$mcmcList[[2]])
+\end{Sinput}
+\begin{Soutput}
+Markov Chain Monte Carlo (MCMC) output:
+Start = 2001 
+End = 2031 
+Thinning interval = 5 
+     log_shape log_scale gendermale
+[1,]  1.962868 0.8654202  0.3031021
+[2,]  1.897516 0.9227807  0.3506343
+[3,]  2.040000 0.8053400  0.6529944
+[4,]  2.003793 0.8313133  0.3979533
+[5,]  1.992396 0.8275864  0.4201433
+[6,]  1.981877 0.8462792  0.3472153
+[7,]  1.991957 0.8422614  0.4007510
+\end{Soutput}
+\end{Schunk}
+
+The log posterior density at each iteration can be accessed through the \texttt{\$logPosteriorDensities} field. Note that this is a list, with each item of the list being a vector from each chain.
+
+\begin{Schunk}
+\begin{Sinput}
+> head(flatPrior_fit$logPosteriorDensities[[1]])  
+\end{Sinput}
+\begin{Soutput}
+[1] -2007.202 -2008.666 -2007.693 -2009.539 -2009.082 -2007.289
 \end{Soutput}
 \end{Schunk}
 
 
-Plotting calls are as standard. Important note: this plots the MAP estimates of the survival curve for a subject with given covariates, \emph{not} the posterior mean estimates!
+Plotting calls are as standard. Important note: the solids plots the posterior median estimates of the survival curve for a subject with given covariates, \emph{not} the posterior mean estimates!
 
 \begin{Schunk}
 \begin{Sinput}
 >   plot(flatPrior_fit, newdata,
-+        main = 'MAP Estimates')
++        main = 'Posterior Median Estimates')
 \end{Sinput}
 \end{Schunk}
-\includegraphics{icenReg-017}
+\includegraphics{icenReg-019}
 
-MCMC diagnositic plots can be generated by accessing the \texttt{\$samples} field. 
+
+MCMC diagnositic plots can be generated by accessing the \texttt{\$mcmcList} field. 
 
 \begin{Schunk}
 \begin{Sinput}
->   plot(flatPrior_fit$samples)
+>   plot(flatPrior_fit$mcmcList)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{icenReg-018}
+\includegraphics{icenReg-020}
 
 As noted earlier, default behavior is to use a flat prior. If a user wants to use an informative prior, they can provide whichever custom written prior they choose. This function must take in a vector of values corresponding to all the parameters of the model (i.e. first baseline parameters and then regression parameters) and return the log-prior, calculated up to a additive constant. 
 
@@ -468,29 +509,29 @@ Call: ic_bayes(formula = cbind(left, right) ~ gender, data = IR_diabetes,
     logPriorFxn = logPriorFunction, model = "po", dist = "gamma")
 
 
-Iterations = 3000:22995
+Iterations = 2001:6996
 Thinning interval = 5 
-Number of chains = 1 
-Sample size per chain = 4000 
+Number of chains = 4 
+Sample size per chain = 1000 
 
 1. Empirical mean and standard deviation for each variable,
    plus standard error of the mean:
 
-              Mean      SD  Naive SE Time-series SE
-log_shape  1.45266 0.05674 0.0008972       0.001395
-log_scale  1.36374 0.05864 0.0009272       0.001459
-gendermale 0.08754 0.05276 0.0008342       0.001152
+             Mean      SD  Naive SE Time-series SE
+log_shape  1.4497 0.05679 0.0008980       0.001495
+log_scale  1.3671 0.05827 0.0009214       0.001525
+gendermale 0.1007 0.07797 0.0012328       0.001633
 
 2. Quantiles for each variable:
 
-               2.5%    25%    50%    75%  97.5%
-log_shape   1.34046 1.4141 1.4534 1.4917 1.5623
-log_scale   1.25075 1.3235 1.3623 1.4026 1.4798
-gendermale -0.01307 0.0515 0.0864 0.1235 0.1898
+               2.5%     25%    50%    75%  97.5%
+log_shape   1.33765 1.41067 1.4497 1.4892 1.5567
+log_scale   1.25574 1.32700 1.3659 1.4065 1.4856
+gendermale -0.05112 0.04982 0.1009 0.1519 0.2531
 
 3. MAP estimates:
  log_shape  log_scale gendermale 
-   1.45100    1.36400    0.08773 
+   1.46500    1.36800    0.04729 
 \end{Soutput}
 \end{Schunk}
 
@@ -506,12 +547,76 @@ Default behavior for \texttt{ic\_bayes} is to use an adaptive MH block updater, 
 +     model = "po", dist = "gamma",
 +     logPriorFxn = logPriorFunction,
 +     controls = bayesControls(useMLE_start = F))
-> plot(weakData_fit$samples)
+> plot(weakData_fit$mcmcList)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{icenReg-020}
+\includegraphics{icenReg-022}
 
 Note that in this sample, we see evidence that the chain has not properly mixed, especially in regards to the \texttt{log\_scale} parameter. Using \texttt{bayesControls}, we could increase both the samples and burnIn to address this issue. 
+
+\subsection{Extracting Estimates and CIs}
+
+We can also extract survival estimates and confidence/credible intervals
+for a given set of covariates using the \texttt{survCIs}. 
+
+\begin{Schunk}
+\begin{Sinput}
+> # Extract estimates for inverse CDF
+> invCDF_ests = survCIs(informPrior_fit, newdata, 
++                       p = seq(from = 0.05, to = .95, by = 0.2))
+> # Extract estimates for *CDF* probabilities at given values
+> CDF_ests = survCIs(informPrior_fit, newdata, 
++                    q = seq(from = 5, to = 25, by = 5))
+> invCDF_ests
+\end{Sinput}
+\begin{Soutput}
+Model call:
+  ic_bayes(formula = cbind(left, right) ~ gender, data = IR_diabetes, 
+    logPriorFxn = logPriorFunction, model = "po", dist = "gamma")
+Credible Level = 0.95 
+Rowname:  males 
+     Percentile estimate (mean) estimate (median)     lower     upper
+[1,]       0.05        6.034928          6.036237  5.504032  6.534367
+[2,]       0.25       10.933506         10.935934 10.358423 11.486894
+[3,]       0.45       14.662174         14.667501 14.042197 15.276086
+[4,]       0.65       18.815478         18.820303 18.061075 19.553142
+[5,]       0.85       25.122799         25.106139 24.120340 26.173859
+Rowname:  females 
+     Percentile estimate (mean) estimate (median)     lower     upper
+[1,]       0.05        5.852019          5.854968  5.312181  6.371661
+[2,]       0.25       10.576260         10.580831  9.943573 11.195182
+[3,]       0.45       14.198484         14.204869 13.469342 14.903160
+[4,]       0.65       18.275854         18.274579 17.454299 19.094438
+[5,]       0.85       24.540428         24.534111 23.479829 25.649572
+\end{Soutput}
+\begin{Sinput}
+> CDF_ests
+\end{Sinput}
+\begin{Soutput}
+Model call:
+  ic_bayes(formula = cbind(left, right) ~ gender, data = IR_diabetes, 
+    logPriorFxn = logPriorFunction, model = "po", dist = "gamma")
+Credible Level = 0.95 
+Rowname:  males 
+     Time estimate (mean) estimate (median)      lower      upper
+[1,]    5      0.02773927        0.02742149 0.01982986 0.03771561
+[2,]   10      0.20308927        0.20278403 0.17698341 0.23161636
+[3,]   15      0.46788548        0.46752416 0.43583591 0.50143756
+[4,]   20      0.69755647        0.69745734 0.66761488 0.72767791
+[5,]   25      0.84723250        0.84761978 0.82389244 0.86927823
+Rowname:  females 
+     Time estimate (mean) estimate (median)      lower      upper
+[1,]    5      0.03059472        0.03022538 0.02165862 0.04174449
+[2,]   10      0.21990287        0.21942076 0.18966032 0.25308781
+[3,]   15      0.49298199        0.49263737 0.45502311 0.53249776
+[4,]   20      0.71827709        0.71821950 0.68573509 0.74959068
+[5,]   25      0.85973115        0.85997744 0.83580071 0.88171151
+\end{Soutput}
+\end{Schunk}
+
+Note that the output from survCIs is what is used to create the 
+plots for \texttt{icenReg} fits, so if one wanted to export the plotting to 
+\texttt{ggplot} or plot the posterior mean rather than the posterior median, for example, one could do so directly with \texttt{survCIs}. 
 
 \section{Inspecting model fit}
 
@@ -538,7 +643,7 @@ To use \texttt{diag\_baseline}, you must provide either a fitted model, or a for
 +     lgdLocation = "topright")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{icenReg-021}
+\includegraphics{icenReg-024}
 
 Alternatively, using the fits from earlier, we can just call
   
@@ -583,8 +688,8 @@ with the fact that the likelihood is approximately 2.5 greater
 for the proportional odds model than Cox-PH. 
   
 \begin{minipage}[t]{.85\linewidth}%
-\includegraphics{icenReg-024}
-\includegraphics{icenReg-025}
+\includegraphics{icenReg-027}
+\includegraphics{icenReg-028}
 \end{minipage}
 
 %\subsection{Imputed Cross Validation}

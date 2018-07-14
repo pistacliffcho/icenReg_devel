@@ -34,3 +34,11 @@ for(i in seq_along(fit_list)){
        col = cols, main = "Two Rows Provided")
 }
 ```
+
+Testing whether `plot_legend = F` works for `ic_npLists`
+
+```{r}
+np_fits = ic_np(cbind(l, u) ~ grp, data = miceData)
+plot(np_fits, main = "With Legend")
+plot(np_fits, plot_legend = F, main = "Without Legend")
+```

@@ -36,7 +36,8 @@ export(ic_bayes)
 export(makeCtrls_icsp)
 export(simCS_weib)
 export(bayesControls)
-
+export(plot.icenReg_fit)
+export(lines.icenReg_fit)
 
 #export(icqqplot)
 #export(icenReg_cv)
