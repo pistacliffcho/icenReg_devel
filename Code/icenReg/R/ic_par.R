@@ -46,6 +46,8 @@
 #' @export
 ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL){
   if(missing(data)) data <- environment(formula)
+  checkFor_cluster(formula)
+  
   cl <- match.call()
   mf <- match.call(expand.dots = FALSE)
   callInfo <- readingCall(mf)

@@ -25,7 +25,7 @@
 
 \SweaveOpts{concordance=TRUE}
 
-\title{Using {\bf{icenReg}} for interval censored data in {\bf{R} } \\ v1.3.5}
+\title{Using {\bf{icenReg}} for interval censored data in {\bf{R} } \\ v2.0.9}
 \author{Clifford Anderson-Bergman}
 \maketitle
 

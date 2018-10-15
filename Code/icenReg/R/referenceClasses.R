@@ -12,7 +12,8 @@ icenReg_fit <- setRefClass(Class = 'icenReg_fit',
                                   'llk',
                                   'iterations',
                                   'score', 
-                                  'covarOffset'
+                                  'covarOffset', 
+                                  'depType'
                        ),
                        methods = list(
                          show = function(){
@@ -23,6 +24,7 @@ icenReg_fit <- setRefClass(Class = 'icenReg_fit',
                          },
                          initialize = function(...){
                            makeActiveBinding('coef', function(){return(coefficients)} ,.self)
+                           depType <<- "Independence"
                          }
                        )
                        )
@@ -142,6 +144,7 @@ setRefClass('icenRegSummary',
                   if(other[['bs_samps']] < 100) sampSizeWarn <- TRUE
                 }
                 cat("\nModel: ", model)
+                cat("\nDependency structure assumed:", fullFit$depType)
                 if(!inherits(fullFit, 'ic_np')){
                   cat("\nBaseline: ", baseline, "\nCall: ")
                   print(call)

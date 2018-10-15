@@ -146,7 +146,7 @@ double ic_qloglogistic(double p, double a, double b){
 }
 
 double ic_dlnorm(double x, double mu, double s){
-    double denom = x * s * sqrt(2 * PI);
+    double denom = x * s * sqrt(2 * M_PI);
     double expPart = pow((log(x) - mu), 2) / (2 * s * s);
     double ans = exp(-expPart) / denom;
     return (ans);

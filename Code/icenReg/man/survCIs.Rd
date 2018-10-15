@@ -39,10 +39,10 @@ of the baseline distribution of these estimators is still an open question.
 }
 \examples{
 data("IR_diabetes")
-fit <- ic_bayes(cbind(left, right) ~ gender, 
+fit <- ic_par(cbind(left, right) ~ gender, 
                 data = IR_diabetes)
 
-# Getting credible intervals for survival curves
+# Getting confidence intervals for survival curves
 # for males and females
 newdata <- data.frame(gender = c("male", "female"))
 rownames(newdata) <- c("Males", "Females")

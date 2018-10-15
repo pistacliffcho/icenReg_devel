@@ -1,5 +1,11 @@
 
 UPDATES:
+v2.0.9 
+Fixed bug when fitting Bayesian model without covariates
+Changed C++ PI to M_PI at Dirk's request
+Added ir_clustBoot to account for repeated measures
+Reduced run time for survCIs example (switched from ic_bayes to ic_par)
+
 v2.0.8
 Allows for weights in ic_np
 Allows `plot_legend = F` for ic_npList

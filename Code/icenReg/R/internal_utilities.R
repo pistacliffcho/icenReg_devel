@@ -902,3 +902,16 @@ subtractOffset <- function(new_x, offset){
   }
   return(new_x)
 }
+
+
+# This function throws an error if a user tries to include "cluster(x)" 
+# on the right hand side of a formula
+checkFor_cluster = function(form){
+  # Extracting right hand side
+  rhs = form[[3]]
+  # Turning into characters
+  rhs_char = as.character(rhs)
+  
+  if(any(grepl("cluster\\(", rhs_char) ) ) 
+    stop("cluster(covar) not implemented in icenReg. To account for repeated measures, see ?ir_clustBoot")
+}

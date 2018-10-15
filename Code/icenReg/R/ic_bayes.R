@@ -71,6 +71,7 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
                      controls = bayesControls(), useMCores = F){
 
   if(missing(data)) data <- environment(formula)
+  checkFor_cluster(formula)
   cl <- match.call()
   mf <- match.call(expand.dots = FALSE)
   callInfo <- readingCall(mf)
@@ -239,7 +240,7 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
   MAP_ind           <- MAP_info[2]
   fit$MAP_ind       <- MAP_ind
   fit$MAP_dens      <- MAP_dens
-  fit$MAP_reg_pars  <- mat_samples[fit$MAP_ind, nBase + 1:nRegPar]
+  fit$MAP_reg_pars  <- mat_samples[fit$MAP_ind, nBase + seq_len(nRegPar)]
   fit$MAP_baseline  <- mat_samples[fit$MAP_ind, 1:nBase]
   fit$samples   <- mat_samples
   names(fit$reg_pars)    <- parList$regnames

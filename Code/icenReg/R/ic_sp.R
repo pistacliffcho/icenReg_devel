@@ -48,7 +48,7 @@
 #' @examples
 #' set.seed(1)
 #'
-#' sim_data <- simIC_weib(n = 500, inspections = 5, inspectLength = 1)
+#' sim_data <- simIC_weib(n = 100, inspections = 5, inspectLength = 1)
 #' ph_fit <- ic_sp(Surv(l, u, type = 'interval2') ~ x1 + x2, 
 #'                 data = sim_data)	
 #' # Default fits a Cox-PH model
@@ -93,6 +93,8 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
   useFullHess = TRUE  
 
   if(missing(data)) data <- environment(formula)
+  checkFor_cluster(formula)
+  
   cl <- match.call()
   mf <- match.call(expand.dots = FALSE)
   callInfo <- readingCall(mf)
