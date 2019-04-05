@@ -745,7 +745,10 @@ imputeCens<- function(fit, newdata = NULL, imputeType = 'fullSample', samples = 
 #' @param samples     Number of samples 
 #' 
 #' @description
-#' Samples response values from an icenReg fit conditional on covariates. 
+#' Samples response values from an icenReg fit conditional on covariates, but not 
+#' censoring intervals. To draw response samples conditional on covariates and 
+#' restrained to intervals, see \code{imputeCens}.
+#'  
 #'  
 #' @details 	
 #'  Returns a matrix of samples. Each row of the matrix corresponds with a subject with the 
@@ -778,8 +781,11 @@ ic_sample <- function(fit, newdata = NULL, sampleType = 'fullSample',
                       samples = 5){
   if(is.null(newdata)) newdata <- fit$getRawData()
   yMat <- cbind(rep(-Inf, nrow(newdata)), rep(Inf, nrow(newdata)))
-  p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
-  p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
+#  p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
+#  p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
+  nRow = nrow(newdata)
+  p1 = rep(0, nrow(newdata))
+  p2 = rep(1, nrow(newdata))
   ans <- matrix(nrow = length(p1), ncol = samples)
   storage.mode(ans) <- 'double'
   isSP <- is(fit, 'sp_fit')
@@ -797,7 +803,7 @@ ic_sample <- function(fit, newdata = NULL, sampleType = 'fullSample',
       theseImputes[isLow] <- yMat[isLow,1]
       isHi <- theseImputes > yMat[,2]
       theseImputes[isHi] <- yMat[isHi,2]
-      ans <- fastMatrixInsert(theseImputes, ans, colNum = i)
+      ans[,i] <- fastMatrixInsert(theseImputes, ans, colNum = i)
     }
     if(isBayes) setSamplablePars(fit, orgCoefs)
     rownames(ans) <- rownames(newdata)
@@ -813,8 +819,8 @@ ic_sample <- function(fit, newdata = NULL, sampleType = 'fullSample',
       }
       else{ sampledCoefs <- getBSParSample(fit) }
       setSamplablePars(fit, sampledCoefs)
-      p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
-      p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
+#      p1 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,1]) ) 
+#      p2 <- getFitEsts(fit, newdata, q = as.numeric(yMat[,2]) ) 
       p_samp <- runif(length(p1), p1, p2)
       theseImputes <- getFitEsts(fit, newdata, p = p_samp)
       isLow <- theseImputes < yMat[,1]

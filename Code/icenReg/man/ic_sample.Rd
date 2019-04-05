@@ -16,7 +16,9 @@ ic_sample(fit, newdata = NULL, sampleType = "fullSample", samples = 5)
 \item{samples}{Number of samples}
 }
 \description{
-Samples response values from an icenReg fit conditional on covariates.
+Samples response values from an icenReg fit conditional on covariates, but not 
+censoring intervals. To draw response samples conditional on covariates and 
+restrained to intervals, see \code{imputeCens}.
 }
 \details{
 Returns a matrix of samples. Each row of the matrix corresponds with a subject with the 
