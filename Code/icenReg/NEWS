@@ -1,5 +1,8 @@
 
 UPDATES:
+v2.0.11
+Fixed issue when bootstrap sample drops observations with only one covariate
+
 v2.0.10
 Fixed issue with lnorm distribution
 Fixed contrast warning
