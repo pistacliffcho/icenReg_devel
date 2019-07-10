@@ -79,7 +79,8 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
   mt <- callInfo$mt
 
   y <- model.response(mf, "numeric")
-  x <- model.matrix(mt, mf, contrasts)
+#  x <- model.matrix(mt, mf, contrasts)
+  x <- model.matrix(mt, mf)
   if(is.matrix(x))	xNames <- colnames(x)
   else				xNames <- as.character(formula[[3]])
   if('(Intercept)' %in% colnames(x)){	

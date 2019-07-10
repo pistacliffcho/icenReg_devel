@@ -55,7 +55,8 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
   mt <- callInfo$mt
   
   y <- model.response(mf, "numeric")
-  x <- model.matrix(mt, mf, contrasts)
+#  x <- model.matrix(mt, mf, contrasts)
+  x <- model.matrix(mt, mf)
   if(is.matrix(x))	xNames <- colnames(x)
   else				xNames <- as.character(formula[[3]])
   if('(Intercept)' %in% colnames(x)){	

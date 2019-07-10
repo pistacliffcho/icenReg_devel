@@ -1,5 +1,9 @@
 
 UPDATES:
+v2.0.10
+Fixed issue with lnorm distribution
+Fixed contrast warning
+
 v2.0.9 
 Fixed bug when fitting Bayesian model without covariates
 Changed C++ PI to M_PI at Dirk's request

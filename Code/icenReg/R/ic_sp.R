@@ -102,7 +102,8 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
   mt <- callInfo$mt
   
   y <- model.response(mf, "numeric")
-  x <- model.matrix(mt, mf, contrasts)
+#  x <- model.matrix(mt, mf, contrasts)
+  x <- model.matrix(mt, mf)
   if(is.matrix(x))	xNames <- colnames(x)
   else				      xNames <- as.character(formula[[3]])
   if('(Intercept)' %in% colnames(x)){	
@@ -178,7 +179,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
             ' bootstrap samples (out of ', bs_samples, 
             ') were dropped due to singular covariate matrix.',
             'Likely due to very sparse covariate. Be wary of these results.\n', sep = '')
-      bsMat <- bsMat[!incompleteIndicator,]
+      bsMat <- bsMat[!incompleteIndicator,,drop = F]
     }
     covar <- cov(bsMat)
   }else{ 
