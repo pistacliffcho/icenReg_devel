@@ -468,8 +468,8 @@ diag_covar <- function(object, varName,
 #' estP <- getFitEsts(fit, q = 400)
 #' @author Clifford Anderson-Bergman
 #' @export
-getFitEsts <- function(fit, newdata, p, q){
-  if(missing(newdata)){ newdata <- NULL }
+getFitEsts <- function(fit, newdata = NULL, p, q){
+  if(is.null(newdata)){}
   else{
     if(!identical(newdata, "midValues")){ 
       if(!is(newdata, "data.frame")){ 

@@ -1,5 +1,8 @@
 
 UPDATES:
+v2.0.13
+Set default argument of newdata = NULL in getFitEsts for compatiability with ICcforest
+
 v2.0.12
 Removed warnings involved with "contrasts" issue in model.matrix
 Added warning to getFitEsts if newdata is a data.frame
