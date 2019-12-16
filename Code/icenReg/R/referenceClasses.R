@@ -285,7 +285,8 @@ surv_cis <- setRefClass("surv_cis",
                                 print(cis[[i]])
                               }
                             },
-                            one_lines = function(index = 1, this_col, include_cis, ...){
+                            one_lines = function(index = 1, this_col, 
+                                                 include_cis, fun = "surv", ...){
                               argList <- list(...)
                               argList$col = this_col
                               argList$lty = 1
@@ -294,7 +295,12 @@ surv_cis <- setRefClass("surv_cis",
                               est = these_cis[,3]
                               lower = these_cis[,4]
                               upper = these_cis[,5]
-                              argList$y = 1 - perc
+                              if(fun == "surv"){
+                                argList$y = 1 - perc
+                              }
+                              else if(fun == "cdf"){
+                                argList$y = perc
+                              }
                               argList$x = est
                               do.call(lines, argList)
                               if(include_cis){
@@ -305,13 +311,14 @@ surv_cis <- setRefClass("surv_cis",
                                 do.call(lines, argList)
                               }
                             },
-                            all_lines = function(cols = NULL, include_cis, ...){
+                            all_lines = function(cols = NULL, include_cis,
+                                                 fun = "surv", ...){
                               nCIs = length(cis)
                               nCols <- length(cols)
                               if(nCols == 0){ cols = 1:nCIs; nCols = length(cols) }
                               if(nCols == 1){ cols = rep(cols, nCIs); nCols = length(cols) }
                               if(nCols != nCIs) stop("number colors provided does not match up with number of CI's to plot")
-                              argList <- list(...)
+                              argList <- c(list(fun = fun), list(...))
                               argList$include_cis = include_cis
                               for(i in seq_along(cis)){ 
                                 argList$index = i

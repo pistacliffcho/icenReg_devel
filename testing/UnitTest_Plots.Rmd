@@ -42,3 +42,17 @@ np_fits = ic_np(cbind(l, u) ~ grp, data = miceData)
 plot(np_fits, main = "With Legend")
 plot(np_fits, plot_legend = F, main = "Without Legend")
 ```
+
+Testing plotting CDFs instead of survival functions
+
+```{r}
+plot(np_fits, fun = "cdf", main = "CDF")
+for(i in seq_along(fit_list)){
+  this_type = names(fit_list)[i]
+  this_fit = fit_list[[i]]
+  plot(this_fit, fun = "cdf", 
+       main = paste("CDF for", this_type) )
+  plot(this_fit, newdata = newdata2, fun = "cdf", 
+       main = paste("CDF for", this_type) )
+}
+```

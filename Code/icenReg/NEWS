@@ -1,5 +1,9 @@
 
 UPDATES:
+v2.0.12
+Removed warnings involved with "contrasts" issue in model.matrix
+Added warning to getFitEsts if newdata is a data.frame
+
 v2.0.11
 Fixed issue when bootstrap sample drops observations with only one covariate
 

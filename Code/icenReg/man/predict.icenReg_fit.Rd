@@ -4,8 +4,8 @@
 \alias{predict.icenReg_fit}
 \title{Predictions from icenReg Regression Model}
 \usage{
-\method{predict}{icenReg_fit}(object, type = "response", newdata = NULL,
-  ...)
+\method{predict}{icenReg_fit}(object, type = "response",
+  newdata = NULL, ...)
 }
 \arguments{
 \item{object}{Model fit with \code{ic_par} or \code{ic_sp}}

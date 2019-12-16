@@ -5,8 +5,9 @@
 \title{Plotting for icenReg Fits}
 \usage{
 \method{plot}{icenReg_fit}(x, y, newdata = NULL, fun = "surv",
-  plot_legend = T, cis = T, ci_level = 0.9, survRange = c(0.025, 1),
-  evalPoints = 200, lgdLocation = "topright", xlab = "time", ...)
+  plot_legend = T, cis = T, ci_level = 0.9, survRange = c(0.025,
+  1), evalPoints = 200, lgdLocation = lgd_default(fun),
+  xlab = "time", ...)
 }
 \arguments{
 \item{x}{icenReg fit}

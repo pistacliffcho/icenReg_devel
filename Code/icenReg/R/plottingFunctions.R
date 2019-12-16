@@ -45,7 +45,7 @@ plot.icenReg_fit <- function(x, y, newdata = NULL, fun = 'surv',
                              cis = T, ci_level = 0.9,
                              survRange = c(0.025, 1), 
                              evalPoints = 200,
-                             lgdLocation = 'topright', 
+                             lgdLocation = lgd_default(fun), 
                              xlab = "time", ...){
   if(inherits(x, 'impute_par_icph'))	stop('plot currently not supported for imputation model')
   argList <- list(...)
@@ -88,8 +88,6 @@ plot.icenReg_fit <- function(x, y, newdata = NULL, fun = 'surv',
       xmin = min(c(xmin, this_est))
       xmax = max(c(xmax, this_est))
     }
-    # ranges[,1] <- getFitEsts(x, newdata = newdata, p = 0.05 )
-    # ranges[,2] <- getFitEsts(x, newdata = newdata, p = 0.95 )
     
     addList <- list(xlab = xlab, ylab = yName, 
                     xlim = c(xmin, xmax), 
@@ -106,6 +104,7 @@ plot.icenReg_fit <- function(x, y, newdata = NULL, fun = 'surv',
   newLinesList$col = colors
   newLinesList$evalPoints = evalPoints
   newLinesList$survRange = survRange
+  newLinesList$fun = fun
   do.call(lines.icenReg_fit, newLinesList)
   if(nRows > 1 & plot_legend){
     grpNames <- rownames(newdata)
@@ -113,8 +112,19 @@ plot.icenReg_fit <- function(x, y, newdata = NULL, fun = 'surv',
   }
 }
 
-lines.surv_cis <- function(x, col, include_cis = T, ...){ 
-  x$all_lines(col = col, include_cis = include_cis, ...) }
+lines.surv_cis <- function(x, col, include_cis = T, fun = "surv", ...){ 
+  x$all_lines(col = col, include_cis = include_cis, fun, ...) }
+
+#' Function for default legend location
+#' @param fun_type Type of function to plot. Options are 'surv' or 'cdf'
+#' @description Returns default locations for plot legends
+#' @noRd
+lgd_default = function(fun_type = "surv"){
+  if(fun_type == "surv") ans = "topright"
+  else if(fun_type == "cdf") ans = "topleft"
+  else ans = NA
+  return(ans)
+}
 
 #' @inherit plot.icenReg_fit
 #' @export
@@ -123,27 +133,37 @@ lines.icenReg_fit <- function(x, y, newdata = NULL,
                               ci_level = 0.9, 
                               survRange = c(0.025, 1), 
                               evalPoints = 20, ...){
-  argList <- list(...)
-  colors <- argList$col
+  # Renaming for clarity
+  model <- x
+  # Resolving newdata
   if(missing(y)) y <- newdata	
   newdata <- y
+  
+  argList <- list(...)
+  # Resolving colors 
+  colors <- argList$col
   nRows <- 1
   if(!is.null(newdata)) nRows <- icr_nrow(newdata)
   if(nRows > 1){
     if(length(colors) == 0) colors = 1:nRows
     use_colors = colors
     if(length(use_colors) == 1) use_colors = rep(use_colors, nRows)
-    if(length(use_colors) != nRows) stop("number of length(col) must be 0, 1 or equal to number of rows of new data")
+    if(length(use_colors) != nRows) 
+      stop("number of length(col) must be 0, 1 or equal to number of rows of new data")
   }
   else{
     if(length(colors) == 0) colors = 1
   }
+  
+  # Setting up survival or cdf 
   if(fun == 'surv'){ s_trans <- function(x){x}; yName = 'S(t)'}
   else if(fun == 'cdf'){ s_trans <- function(x){1-x}; yName = 'F(t)' }
   else stop('"fun" option not recognized. Choices are "surv" or "cdf"')
-  if(x$par == 'semi-parametric' | x$par == 'non-parametric'){
+  
+  # Semi/non-parametric models
+  if(model$par == 'semi-parametric' | model$par == 'non-parametric'){
     argList <- addIfMissing('s', 'type', argList)
-    curveInfo <- getSCurves(x, y)
+    curveInfo <- getSCurves(model, newdata)
     allx <- c(curveInfo$Tbull_ints[,1], curveInfo$Tbull_ints[,2])
     dummyx <- range(allx, finite = TRUE)
     dummyy <- c(0,1)
@@ -165,11 +185,12 @@ lines.icenReg_fit <- function(x, y, newdata = NULL,
       do.call(lines, argList)
     }
   }
+  # Parametric/Bayes models
   else if(inherits(x, 'par_fit') | inherits(x, 'bayes_fit')){
     pRange = 1 - survRange
     p_eval = pRange[1] + (pRange[2] - pRange[1]) * (0:evalPoints) / evalPoints
     cis_est <- survCIs(x, newdata, p = p_eval)
-    argList <- list(...)
+    argList <- c(list(fun = fun), list(...))
     argList$col = NULL
     argList$x = cis_est
     argList$col = colors
@@ -191,12 +212,14 @@ plot.sp_curves <- function(x, sname = 'baseline', xRange = NULL, ...){
   lines(x, sname = sname, ...)
 }
 
-lines.ic_npList <- function(x, fitNames = NULL, ...){
+lines.ic_npList <- function(x, fitNames = NULL, fun = "surv", ...){
   if(is.null(fitNames)){
     fitNames <- names(x$scurves)
-    lines(x, fitNames, ...)
+    lines(x, fitNames, fun = fun, ...)
+    return()
   }
   dotList <- list(...)
+  dotList$fun = fun
   cols <- dotList$col
   
   for(i in seq_along(fitNames)){
@@ -207,15 +230,23 @@ lines.ic_npList <- function(x, fitNames = NULL, ...){
   }
 }
 
-plot.ic_npList <- function(x, fitNames = NULL, lgdLocation = 'bottomleft',
-                           plot_legend = T, ... ){
-  addList <- list(xlim = x$xRange,
+plot.ic_npList <- function(x, fitNames = NULL, 
+                           fun = "surv",
+                           lgdLocation = lgd_default(fun),
+                           plot_legend = T,
+                           ... ){
+  # Renaming for clarity
+  npList <- x
+  ### Setting up plot frame  ###
+  if(fun == "surv"){ yLab = "S(t)" }
+  else if(fun == "cdf"){ yLab = "F(t)" }
+  addList <- list(xlim = npList$xRange,
                   ylim = c(0,1),
                   xlab = 'time', 
-                  ylab = 'S(t)', 
+                  ylab = yLab,
                   x = NA)
-  dotList <- list(...)
-  possibleNames <- names(x$scurves)
+  dotList <- list(...) 
+  possibleNames <- names(npList$scurves)
   if(any(names(dotList) == 'newdata')){
     nd <- dotList$newdata
     if(is.data.frame(nd)){ fitNames <- as.character(nd[[1]])}
@@ -224,36 +255,54 @@ plot.ic_npList <- function(x, fitNames = NULL, lgdLocation = 'bottomleft',
   }
   
   if(!all(fitNames %in% possibleNames)){
-    this_warn <- paste('Invalid group names. \nValid names:', possibleNames, 
-                       '\nProvided names:', fitNames, collapse = " ")
+    this_warn <- paste('Invalid group names. \nValid names:', 
+                       possibleNames, 
+                       '\nProvided names:', 
+                       fitNames, collapse = " ")
     stop(this_warn)
   }
   dotList <- addListIfMissing(addList, dotList)
   do.call(plot, dotList)  
-  grpNames <- names(x$fitList)
+  
+  ### Plotting lines ###
+  grpNames <- names(npList$fitList)
   cols <- dotList$col
   if(is.null(cols)) cols = 2:(length(grpNames) + 1)
   if(length(cols) != length(grpNames)) 
     stop('length of number of strata not equal to number of colors')
   dotList$col <- cols
   dotList$fitNames = fitNames
-  dotList$x <- x
+  dotList$x <- npList
+  dotList$fun = fun
   do.call(lines, dotList)
   if(plot_legend)
    legend(lgdLocation, legend = grpNames, col = cols, lty = 1)
 }
 
-lines.sp_curves <- function(x, sname = 'baseline',...){
-  firstTimeObs <- x[[1]][1,1]
+lines.sp_curves <- function(x, sname = 'baseline', fun = "surv", ...){
+  # Renaming for clarity
+  sp_curves <- x
+  
+  # Drawing first lines
+  firstTimeObs <- sp_curves[[1]][1,1]
   firstTimeAssume <- firstTimeObs
+  if(fun == "surv"){ first_y = 1 }
+  else if(fun == "cdf"){ first_y = 0 }
+  else stop("fun type no recognized. Options = 'surv' or 'cdf'")
   if(firstTimeObs > 0)
     firstTimeAssume <- 0
-  lines(c(firstTimeAssume, firstTimeObs), c(1,1), ...)
-  lines(x[[1]][,1], x[[2]][[sname]], ..., type = 's')
-  lines(x[[1]][,2], x[[2]][[sname]],   ..., type = 's')
+  lines(c(firstTimeAssume, firstTimeObs), rep(first_y, 2), ...)
+  
+  # Drawing step function
+  if(fun == "surv") y = sp_curves[[2]][[sname]]
+  else if(fun == "cdf") y = 1 - sp_curves[[2]][[sname]]
+  lines(sp_curves[[1]][,1], y, ..., type = 's')
+  lines(sp_curves[[1]][,2], y, ..., type = 's')
+  
+  # Drawing last lines
   lastObs <- nrow(x[[1]])
-  lastTimes <- x[[1]][lastObs,]
+  lastTimes <- sp_curves[[1]][lastObs,]
   if(lastTimes[2] == Inf) lastTimes[2] <- lastTimes[1]
   lastTimes[2] <- lastTimes[2] + (lastTimes[2] - firstTimeObs)
-  lines(lastTimes, c(0,0), ... ) 
+  lines(lastTimes, 1 - rep(first_y, 2), ... ) 
 }

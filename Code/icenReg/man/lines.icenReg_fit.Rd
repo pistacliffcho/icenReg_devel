@@ -4,8 +4,9 @@
 \alias{lines.icenReg_fit}
 \title{Plotting for icenReg Fits}
 \usage{
-\method{lines}{icenReg_fit}(x, y, newdata = NULL, fun = "surv", cis = F,
-  ci_level = 0.9, survRange = c(0.025, 1), evalPoints = 20, ...)
+\method{lines}{icenReg_fit}(x, y, newdata = NULL, fun = "surv",
+  cis = F, ci_level = 0.9, survRange = c(0.025, 1),
+  evalPoints = 20, ...)
 }
 \arguments{
 \item{x}{icenReg fit}
@@ -45,4 +46,17 @@ object. If \code{newdata} is \code{NULL}, the baseline distribution is plotted. 
  
  If the argument \code{col} is provided, it will be used to color each 
  survival function in order of the rows provided in \code{newdata}.
+}
+\examples{
+ # Fitting mice data set
+ data(miceData)
+ miceFit <- ic_par(cbind(l, u) ~ grp, data = miceData) 
+ 
+ # Creating covariates we want plotted
+ newData <- data.frame(grp = c("ce", "ge"))
+ # Naming rows for legend
+ rownames(newData) <- c("Conventional", "Germ-Free")
+ 
+ plot(miceFit, newdata = newData, 
+      col = c('blue', 'orange'))
 }

@@ -5,8 +5,8 @@
 \title{Simulates interval censored data from regression model with a Weibull baseline}
 \usage{
 simIC_weib(n = 100, b1 = 0.5, b2 = -0.5, model = "ph", shape = 2,
-  scale = 2, inspections = 2, inspectLength = 2.5, rndDigits = NULL,
-  prob_cen = 1)
+  scale = 2, inspections = 2, inspectLength = 2.5,
+  rndDigits = NULL, prob_cen = 1)
 }
 \arguments{
 \item{n}{Number of samples simulated}

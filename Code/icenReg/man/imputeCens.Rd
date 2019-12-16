@@ -4,7 +4,8 @@
 \alias{imputeCens}
 \title{Impute Interval Censored Data from icenReg Regression Model}
 \usage{
-imputeCens(fit, newdata = NULL, imputeType = "fullSample", samples = 5)
+imputeCens(fit, newdata = NULL, imputeType = "fullSample",
+  samples = 5)
 }
 \arguments{
 \item{fit}{icenReg model fit}

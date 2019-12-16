@@ -4,9 +4,9 @@
 \alias{ic_bayes}
 \title{Bayesian Regression  Models for Interval Censored Data}
 \usage{
-ic_bayes(formula, data, logPriorFxn = function(x) return(0), model = "ph",
-  dist = "weibull", weights = NULL, controls = bayesControls(),
-  useMCores = F)
+ic_bayes(formula, data, logPriorFxn = function(x) return(0),
+  model = "ph", dist = "weibull", weights = NULL,
+  controls = bayesControls(), useMCores = F)
 }
 \arguments{
 \item{formula}{Regression formula. Response must be a \code{Surv} object of type

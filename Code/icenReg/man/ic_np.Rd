@@ -4,8 +4,8 @@
 \alias{ic_np}
 \title{Non-Parametric Estimator for Interval Censored Data}
 \usage{
-ic_np(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0, 1),
-  weights = NULL)
+ic_np(formula = NULL, data, maxIter = 1000, tol = 10^-10, B = c(0,
+  1), weights = NULL)
 }
 \arguments{
 \item{formula}{Formula for stratification. If only one group, can be left blank and 
