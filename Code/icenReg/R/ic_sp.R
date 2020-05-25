@@ -86,31 +86,30 @@
 #' 
 #' Anderson-Bergman, C. (preprint) Revisiting the iterative convex minorant algorithm for interval censored survival regression models
 #' @export
-ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, useMCores = F, 
+ic_sp <- function(formula, data, model = 'ph', 
+                  weights = NULL, bs_samples = 0, useMCores = F, 
                   B = c(0,1), 
                   controls = makeCtrls_icsp() ){
   recenterCovars = TRUE
   useFullHess = TRUE  
 
+  # Information about orginal call to function. Useful for expanding X in predict(fit, newdata)
+  call_base = match.call(expand.dots = FALSE)
+  call_info = readingCall(call_base)
+  
   if(missing(data)) data <- environment(formula)
   checkFor_cluster(formula)
   
-#  cl <- match.call()
-#  mf <- match.call(expand.dots = FALSE)
-#  callInfo <- readingCall(mf)
-#  mf <- callInfo$mf
-#  mt <- callInfo$mt
-
   reg_items = make_xy(formula, data)
   yMat <- reg_items$y
   x <- reg_items$x
   xNames = reg_items$xNames
-  y <- model.response(mf, "numeric")
 
   if(length(xNames) == 0 & bs_samples > 0){
     cat('no covariates included, so bootstrapping is not useful. Setting bs_samples = 0')
     bs_samples = 0
   }
+  # For semi-parametric model, need to handle case when l == u
   yMat <- adjustIntervals(B, yMat)
 
   checkMatrix(x)
@@ -142,7 +141,7 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
   fitInfo <- fit_ICPH(yMat, x, callText, weights, other_info)
   dataEnv <- list()
   dataEnv[['x']] <- as.matrix(x, nrow = nrow(yMat))
-  if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- colnames(mf)[2]
+  if(ncol(dataEnv$x) == 1) colnames(dataEnv[['x']]) <- xNames
   dataEnv[['y']] <- yMat
   seeds = as.integer( runif(bs_samples, 0, 2^31) )
   bsMat <- numeric()
@@ -179,9 +178,6 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
     bsMat <- NULL
     covar <- NULL
   }
-  
-  call_base = match.call(expand.dots = FALSE)
-  call_info = readingCall(call_base)
   
   names(fitInfo$coefficients) <- xNames
   fitInfo$covarOffset <- matrix(covarOffset, nrow = 1)

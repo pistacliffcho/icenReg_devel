@@ -48,28 +48,15 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
   if(missing(data)) data <- environment(formula)
   checkFor_cluster(formula)
   
-  cl <- match.call()
-  mf <- match.call(expand.dots = FALSE)
-  callInfo <- readingCall(mf)
-  mf <- callInfo$mf
-  mt <- callInfo$mt
+  # Information about orginal call to function. Useful for expanding X in predict(fit, newdata)
+  call_base = match.call(expand.dots = FALSE)
+  call_info = readingCall(call_base)
   
-  y <- model.response(mf, "numeric")
-#  x <- model.matrix(mt, mf, contrasts)
-  x <- model.matrix(mt, mf)
-  if(is.matrix(x))	xNames <- colnames(x)
-  else				xNames <- as.character(formula[[3]])
-  if('(Intercept)' %in% colnames(x)){	
-    ind = which(colnames(x) == '(Intercept)')
-    x <- x[,-ind]
-    xNames <- xNames[-ind]
-  }
-  
-  yMat <- makeIntervals(y, mf)
+  reg_items = make_xy(formula, data)
+  yMat <- reg_items$y
+  x <- reg_items$x
+  xNames = reg_items$xNames
 
-  if(sum(is.na(x)) > 0)
-    stop("NA's not allowed in covariates")
-  
   testMat <- cbind(x, 1)
   invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)
   if(is(invertResult, 'try-error'))
@@ -90,14 +77,14 @@ ic_par <- function(formula, data, model = 'ph', dist = 'weibull', weights = NULL
                      leftCen = 0, rightCen = Inf, uncenTol = 10^-6, 
                      regnames = xNames, weights = weights,
                      callText = callText)
-  fitInfo$call = cl
+  fitInfo$call = call_base
   fitInfo$formula = formula
   fitInfo$.dataEnv = new.env()
   if(!missing(data)){ fitInfo$.dataEnv$data = data }
   fitInfo$par = dist
   fitInfo$model = model
-  fitInfo$terms <- mt
-  fitInfo$xlevels <- .getXlevels(mt, mf)
+  fitInfo$terms <- call_info$mt
+  fitInfo$xlevels <- .getXlevels(call_info$mt, call_info$mf)
   fitInfo$covarOffset <- matrix(covarOffset, nrow = 1)
   return(fitInfo)
 }
