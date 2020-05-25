@@ -6,6 +6,16 @@
 
 using namespace Rcpp;
 
+// dumb
+Rcpp::NumericVector dumb();
+RcppExport SEXP _icenReg_dumb() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(dumb());
+    return rcpp_result_gen;
+END_RCPP
+}
 // ic_parList
 Rcpp::List ic_parList(Rcpp::List R_parList);
 RcppExport SEXP _icenReg_ic_parList(SEXP R_parListSEXP) {

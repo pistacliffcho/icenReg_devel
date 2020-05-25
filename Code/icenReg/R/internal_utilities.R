@@ -915,3 +915,32 @@ checkFor_cluster = function(form){
   if(any(grepl("cluster\\(", rhs_char) ) ) 
     stop("cluster(covar) not implemented in icenReg. To account for repeated measures, see ?ir_clustBoot")
 }
+
+
+# This function prepares response + feature matrices
+make_xy = function(formula, data){
+  ans = list()
+  # Making a model.frame
+  mod_frame = model.frame(formula = formula, 
+                          data = data, 
+                          # NA's allowed in y (right censoring) but not x
+                          # We check x for nas manually
+                          na.action = na.pass)
+  # Getting x from model frame
+  x = model.matrix(formula, mod_frame)
+  if(any(is.na(x))){ stop("Not allowed to have NAs for predictors") }
+  
+  # icenReg does not use intercepts
+  if('(Intercept)' %in% colnames(x)){	
+    ind = which(colnames(x) == '(Intercept)')
+    x <- x[,-ind, drop = F]
+  }
+  ans$x <- x
+  ans$xNames = colnames(x)
+  
+  # Getting y
+  base_y = model.response(mod_frame)
+  y = makeIntervals(base_y, mf)
+  ans$y = model.response(mod_frame)
+  return(ans)
+}

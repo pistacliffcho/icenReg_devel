@@ -95,31 +95,24 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
   if(missing(data)) data <- environment(formula)
   checkFor_cluster(formula)
   
-  cl <- match.call()
-  mf <- match.call(expand.dots = FALSE)
-  callInfo <- readingCall(mf)
-  mf <- callInfo$mf
-  mt <- callInfo$mt
-  
+#  cl <- match.call()
+#  mf <- match.call(expand.dots = FALSE)
+#  callInfo <- readingCall(mf)
+#  mf <- callInfo$mf
+#  mt <- callInfo$mt
+
+  reg_items = make_xy(formula, data)
+  yMat <- reg_items$y
+  x <- reg_items$x
+  xNames = reg_items$xNames
   y <- model.response(mf, "numeric")
-#  x <- model.matrix(mt, mf, contrasts)
-  x <- model.matrix(mt, mf)
-  if(is.matrix(x))	xNames <- colnames(x)
-  else				      xNames <- as.character(formula[[3]])
-  if('(Intercept)' %in% colnames(x)){	
-    ind = which(colnames(x) == '(Intercept)')
-    x <- x[,-ind]
-    xNames <- xNames[-ind]
-  }
+
   if(length(xNames) == 0 & bs_samples > 0){
     cat('no covariates included, so bootstrapping is not useful. Setting bs_samples = 0')
     bs_samples = 0
   }
-  yMat <- makeIntervals(y, mf)
   yMat <- adjustIntervals(B, yMat)
-  if(sum(is.na(x)) > 0)
-    stop("NA's not allowed in covariates")
-  
+
   checkMatrix(x)
   
   if(model == 'ph')	callText = 'ic_ph'
@@ -186,19 +179,23 @@ ic_sp <- function(formula, data, model = 'ph', weights = NULL, bs_samples = 0, u
     bsMat <- NULL
     covar <- NULL
   }
+  
+  call_base = match.call(expand.dots = FALSE)
+  call_info = readingCall(call_base)
+  
   names(fitInfo$coefficients) <- xNames
   fitInfo$covarOffset <- matrix(covarOffset, nrow = 1)
   fitInfo$bsMat <- bsMat
   fitInfo$var <- covar
-  fitInfo$call = cl
+  fitInfo$call = call_base
   fitInfo$formula = formula
   fitInfo$.dataEnv <- new.env()
   if(!missing(data)){ fitInfo$.dataEnv$data = data }
   fitInfo$par = 'semi-parametric'
   fitInfo$model = model
   fitInfo$reg_pars <- fitInfo$coefficients
-  fitInfo$terms <- mt
-  fitInfo$xlevels <- .getXlevels(mt, mf)
+  fitInfo$terms <- call_info$mt
+  fitInfo$xlevels <- .getXlevels(call_info$mt, call_info$mf)
   if(fitInfo$iterations == controls$maxIter){
     warning('Maximum iterations reached in ic_sp.')
   }

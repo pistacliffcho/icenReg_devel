@@ -72,28 +72,13 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
 
   if(missing(data)) data <- environment(formula)
   checkFor_cluster(formula)
-  cl <- match.call()
-  mf <- match.call(expand.dots = FALSE)
-  callInfo <- readingCall(mf)
-  mf <- callInfo$mf
-  mt <- callInfo$mt
 
-  y <- model.response(mf, "numeric")
-#  x <- model.matrix(mt, mf, contrasts)
-  x <- model.matrix(mt, mf)
-  if(is.matrix(x))	xNames <- colnames(x)
-  else				xNames <- as.character(formula[[3]])
-  if('(Intercept)' %in% colnames(x)){	
-    ind = which(colnames(x) == '(Intercept)')
-    x <- x[,-ind]
-    xNames <- xNames[-ind]
-  }
-  
-  yMat <- makeIntervals(y, mf)
+  # Extracting x,y from formula + data
+  reg_items = make_xy(formula, data)
+  x = reg_items$x
+  yMat = reg_items$y
+  xNames = reg_items$xNames
 
-  if(sum(is.na(x)) > 0)
-    stop("NA's not allowed in covariates")
-  
   testMat <- cbind(x, 1)
   invertResult <- try(diag(solve(t(testMat) %*% testMat )), silent = TRUE)
   if(is(invertResult, 'try-error') & controls$useMLE_start){
@@ -102,8 +87,9 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
     errorMsg <- paste0(errorMsg, '\nSee ?bayesControls for more details')
     stop( errorMsg )
   }
+  
   modelName <- paste(dist, model, 'bayes')
-  callText <- cl
+  callText <- match.call()
   
   if(is.null(weights))	weights = rep(1, nrow(yMat))
   if(length(weights) != nrow(yMat))	stop('weights improper length!')
@@ -121,8 +107,12 @@ ic_bayes <- function(formula, data, logPriorFxn = function(x) return(0),
                    bayesList = controls, modelName = modelName,
                    chains = controls$chains, use_m_cores = useMCores)
   ans$model = model
-  ans$terms <- mt
-  ans$xlevels <- .getXlevels(mt, mf)
+  
+  # Extracting info needed for re-expanding data
+  call_base = match.call(expand.dots = FALSE)
+  call_info = readingCall(call_base)
+  ans$terms <- call_info$mt
+  ans$xlevels <- .getXlevels(call_info$mt, call_info$mf)
   ans$formula <- formula
   dataEnv <- new.env()
   dataEnv$data <- data
@@ -194,9 +184,10 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
   `%myDo%` <- `%do%`
   if(use_m_cores) `%myDo%` <- `%dopar%`
   seeds = runif(chains, 1, 10000)
-
+  
   # fooling CRAN check...because it gets fooled by foreach
   this_seed = NULL
+  
   c_fit_list <- foreach(this_seed = seeds) %myDo% {
     set.seed(this_seed)
     R_ic_bayes(bayesList, logPriorFxn, parList)
@@ -244,9 +235,11 @@ fit_bayes <- function(y_mat, x_mat, parFam, link,
   fit$MAP_reg_pars  <- mat_samples[fit$MAP_ind, nBase + seq_len(nRegPar)]
   fit$MAP_baseline  <- mat_samples[fit$MAP_ind, 1:nBase]
   fit$samples   <- mat_samples
-  names(fit$reg_pars)    <- parList$regnames
+  if(nRegPar > 0) { 
+    names(fit$reg_pars)    <- parList$regnames
+    names(fit$MAP_reg_pars)    <- parList$regnames
+  }
   names(fit$baseline)    <- parList$bnames
-  names(fit$MAP_reg_pars)    <- parList$regnames
   names(fit$MAP_baseline)    <- parList$bnames
   fit$coefficients <- c(fit$baseline, fit$reg_pars)
   return(fit)

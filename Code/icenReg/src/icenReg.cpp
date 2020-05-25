@@ -53,6 +53,13 @@ Rcpp::List ic_par(SEXP R_s_t,     // this is a vector of times for which the bas
                 SEXP R_w         //
                 );
 */
+
+// [[Rcpp::export]]
+Rcpp::NumericVector dumb(){
+  ans = NumericVector(5);
+  return(ans)
+}
+
 // [[Rcpp::export]]
 Rcpp::List ic_parList(Rcpp::List R_parList);
 
