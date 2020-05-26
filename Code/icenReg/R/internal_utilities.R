@@ -918,16 +918,25 @@ checkFor_cluster = function(form){
 
 
 # This function prepares response + feature matrices
-make_xy = function(formula, data){
+#' @param frml formula object
+#' @param data data.frame
+make_xy = function(frml, df){
   ans = list()
   # Making a model.frame
-  mod_frame = model.frame(formula = formula, 
-                          data = data, 
+  mod_frame = model.frame(formula = eval(frml), 
+                          data = as.data.frame(df), 
                           # NA's allowed in y (right censoring) but not x
                           # We check x for nas manually
                           na.action = na.pass)
   # Getting x from model frame
-  x = model.matrix(formula, mod_frame)
+  # trapping weird problem happens with diag_covar if rightside is ~0 
+  x <-try(model.matrix(eval(frml), df), silent = T)
+  if(inherits(x, "try-error")){
+    if(frml[[3]] == "0"){
+      # In this case, n x 0 matrix is needed
+      x <- matrix(0, nrow = nrow(df), ncol = 0)
+    }
+  }
   if(any(is.na(x))){ stop("Not allowed to have NAs for predictors") }
   
   # icenReg does not use intercepts
@@ -940,7 +949,7 @@ make_xy = function(formula, data){
   
   # Getting y
   base_y = model.response(mod_frame)
-  y = makeIntervals(base_y, mf)
-  ans$y = model.response(mod_frame)
+  yMat = makeIntervals(base_y, mod_frame)
+  ans$y = yMat
   return(ans)
 }
