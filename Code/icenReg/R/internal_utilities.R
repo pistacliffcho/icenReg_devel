@@ -928,7 +928,8 @@ make_xy = function(formula, data){
                           na.action = na.pass)
   # Getting x from model frame
   x = model.matrix(formula, mod_frame)
-  if(any(is.na(x))){ stop("Not allowed to have NAs for predictors") }
+#  if(any(is.na(x))){ stop("Not allowed to have NAs for predictors") }
+  if(nrow(x) < nrow(df)){ stop("Not allowed to have NAs for predictors") }
   
   # icenReg does not use intercepts
   if('(Intercept)' %in% colnames(x)){	
