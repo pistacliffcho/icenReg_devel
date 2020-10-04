@@ -2,6 +2,7 @@
 UPDATES:
 v2.0.14
 Fixed bug when fitting Bayesian model without covariates (regression parameter names)
+Condensed handling of predictor/response from formula/data
 
 v2.0.13
 Set default argument of newdata = NULL in getFitEsts for compatiability with ICcforest
